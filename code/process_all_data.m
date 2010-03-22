@@ -1,9 +1,9 @@
 function process_all_data(directory)
-	%  directory contains a bunch of data files
-	d = dir(sprintf('%s/data_Dmelanogaster-*.mat',directory));
+	%  function process_all_data(directory)
+	%   directory: contains a bunch of data files with pattern 'data_*'
+	d = dir(sprintf('%s/data_*.mat',directory));
 
 	for i=1:numel(d)
-%	for i=1
 		filename = sprintf('%s/%s', directory, d(i).name);
 		res = process_sample(filename);
 
