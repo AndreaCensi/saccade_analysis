@@ -2,7 +2,7 @@ function process_all_data(directory)
 	%  directory contains a bunch of data files
 	d = dir(sprintf('%s/data_Dmelanogaster-*.mat',directory));
 
-	parfor i=1:numel(d)
+	for i=1:numel(d)
 %	for i=1
 		filename = sprintf('%s/%s', directory, d(i).name);
 		res = process_sample(filename);
