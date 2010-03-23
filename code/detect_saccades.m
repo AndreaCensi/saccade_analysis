@@ -74,9 +74,9 @@ function res = detect_saccades(params)
 		res.saccades(ns).time_stop  = res.timestamp(stop);
 		if ns > 1
 			res.saccades(ns).time_passed = ...
-				res.saccades(ns).time_start - res.saccades(ns).time_stop;
+				res.saccades(ns).time_start - res.saccades(ns-1).time_stop;
 		else
-			res.saccades(ns).time_passed = res.saccades(ns).time_start;
+			res.saccades(ns).time_passed = nan;
 		end
 		
 		res.saccades(ns).orientation_start  = res.orientation(start);
