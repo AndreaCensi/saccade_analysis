@@ -23,6 +23,8 @@ function res = detect_saccades(params)
 
 	filtered_velocity_zero_threshold = 10; % deg / s	
 	filtered_velocity_significant_threshold = 15; 
+    % minimum this much for data
+    threshold_minimum_steps = 7;
 
 	f = fspecial('gaussian',10,2);
 	res.robust_velocity =  filter2(f, res.velocity .* res.filtered_velocity);
@@ -52,24 +54,31 @@ function res = detect_saccades(params)
 		if considered(m)
 			continue
 		end
-		res.saccades(ns).maximum = m;
-		
 		start = m-1;
 		while start > 1
-			if abs(res.filtered_velocity(start)) <=  filtered_velocity_zero_threshold
+			if (abs(res.filtered_velocity(start)) <=  filtered_velocity_zero_threshold) || ...
+                    (considered(max(1,start-1)) )
 				break
 			end
 			start = start - 1;
 		end 
 		stop = m+1;
-		while stop < numel(res.orientation)
-			if abs(res.filtered_velocity(stop)) <=  filtered_velocity_zero_threshold
+        N = numel(res.orientation);
+		while stop < N
+			if (abs(res.filtered_velocity(stop)) <=  filtered_velocity_zero_threshold) || ...
+                    (considered(min(N,stop+1)) )
 				break
 			end
 			stop = stop + 1;
-		end 
+        end 
+        
+        if min(abs(m-start), abs(m-stop)) < threshold_minimum_steps
+           continue 
+        end
+        
 		considered(start:stop) = 1;
-		
+        
+		res.saccades(ns).maximum = m;
 		res.saccades(ns).start = start;
 		res.saccades(ns).stop = stop;
 		
@@ -96,9 +105,12 @@ function res = detect_saccades(params)
 		res.saccades(ns).amplitude = abs(res.orientation(stop) - res.orientation(start));
 		res.saccades(ns).duration  = res.saccades(ns).amplitude/		res.saccades(ns).top_velocity;
 		ns = ns + 1;
-	end
+    end
 	
-	
+    % no saccades detected
+    if ns == 1
+        res.saccades = [];
+    end
 	
 	
 	

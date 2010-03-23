@@ -32,7 +32,8 @@ function res = process_sample(filename)
 		lambda_max = l1tf_lambdamax(orientation);
 		lambda = .000001 * lambda_max;
 		res_chunk = filter_orientation(timestamp, orientation, lambda);
-		res.chunk(i) = detect_saccades(res_chunk);
+        res_chunk = detect_saccades(res_chunk);;
+		res.chunk(i) = res_chunk;
     end
     
 	ts = 1;
