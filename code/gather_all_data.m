@@ -14,8 +14,8 @@ function saccades = gather_all_data(directory)
 		this_saccades = a.res.saccades;
 		% copy in the big array
 		for j=1:numel(this_saccades)
+            this_saccades(j).filename = filename;
 			saccades(ns) = this_saccades(j);
-			saccades(ns).filename = filename;
 			ns = ns + 1;
 		end
 	end
