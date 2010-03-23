@@ -70,6 +70,17 @@ function res = detect_saccades(params)
 		else
 			res.saccades(ns).letter = 'R';
 		end
+		res.saccades(ns).time_start  = res.timestamp(start);
+		res.saccades(ns).time_stop  = res.timestamp(stop);
+		if ns > 1
+			res.saccades(ns).time_passed = ...
+				res.saccades(ns).time_start - res.saccades(ns).time_stop;
+		else
+			res.saccades(ns).time_passed = res.saccades(ns).time_start;
+		end
+		
+		res.saccades(ns).orientation_start  = res.orientation(start);
+		res.saccades(ns).orientation_stop  = res.orientation(stop);
 		res.saccades(ns).top_velocity = max( abs(res.velocity(start:stop)) );
 		res.saccades(ns).amplitude = abs(res.orientation(stop) - res.orientation(start));
 		res.saccades(ns).duration  = res.saccades(ns).amplitude/		res.saccades(ns).top_velocity;
