@@ -42,9 +42,16 @@ function res = detect_saccades(params)
 	
 	res.saccades_intervals = res.saccades_moments(2:end) - res.saccades_moments(1:end-1);
 	
+	% This marks the parts that were already considered as part of a saccades
+	% so we avoid overlapping detections
+	considered = zeros(size(res.sac_maxima));
 	
 	ns = 1;
 	for m=res.saccades_moments
+		% already considered
+		if considered(m)
+			continue
+		end
 		res.saccades(ns).maximum = m;
 		
 		start = m-1;
@@ -61,9 +68,11 @@ function res = detect_saccades(params)
 			end
 			stop = stop + 1;
 		end 
-
+		considered(start:stop) = 1;
+		
 		res.saccades(ns).start = start;
 		res.saccades(ns).stop = stop;
+		
 		res.saccades(ns).sign = sign(res.orientation(stop) - res.orientation(start));
 		if res.saccades(ns).sign > 0
 			res.saccades(ns).letter = 'L';
@@ -75,6 +84,8 @@ function res = detect_saccades(params)
 		if ns > 1
 			res.saccades(ns).time_passed = ...
 				res.saccades(ns).time_start - res.saccades(ns-1).time_stop;
+				
+			assert( res.saccades(ns).time_passed > 0 )
 		else
 			res.saccades(ns).time_passed = nan;
 		end

@@ -2,7 +2,6 @@ function detect_saccades_plot(res)
 % function detect_saccades_plot(res)
 %   plots the results returned by detect_saccades()
 
-
 	start = [res.saccades.start];
 	stop = [res.saccades.stop];
 
@@ -31,13 +30,16 @@ title('orientation')
 function plot_saccade_delimiters(saccades, xf, yf, ybarsize)
 	for i=1:numel(saccades)
 		s = saccades(i).start;
-		x = xf(s);
-		y = yf(s);
-		plot( [x x], [y-ybarsize y+ybarsize] , 'g-')
+		x1 = xf(s);
+		y1 = yf(s);
+		plot( [x1 x1], [y1-ybarsize y1+ybarsize] , 'g-')
 		s = saccades(i).stop;
-		x = xf(s);
-		y = yf(s);
-		plot( [x x], [y-ybarsize y+ybarsize] , 'b-')
+		x2 = xf(s);
+		y2 = yf(s);
+		plot( [x2 x2], [y2-ybarsize y2+ybarsize] , 'b-')
+		
+		plot( [x1 x2], [y1-ybarsize y2-ybarsize] , 'r-')
+		
 	end	
 	
 		
