@@ -77,7 +77,8 @@ disp('Kwangmoo Koh, Seung-Jean Kim, Stephen Boyd');
 disp('--------------------------------------------');
 %disp(sprintf('\n%s %13s %12s %8s %9s %17s \n',...
     %'Iteration','Primal obj.','Dual obj.','Gap','t','Step size'));
-disp(sprintf('\n%s %13s %12s %8s\n',...
+disp(sprintf(['\n%s %13s %12s %8s\n' ...
+',...']
     'Iteration','Primal obj.','Dual obj.','Gap'));
 
 %----------------------------------------------------------------------
@@ -102,8 +103,8 @@ for iters = 0:MAXITER
 
     %disp(sprintf('%6d %16.4e %13.5e %10.2e %11.2e %13.2e',...
         %iters, pobj, dobj, gap, t, step));
-    disp(sprintf('%6d %15.4e %13.5e %10.2e',...
-        iters, pobj, dobj, gap));
+    fprintf('%6d %15.4e %13.5e %10.2e\r',...
+        iters, pobj, dobj, gap);
 
     % STOPPING CRITERION
     if (gap <= TOL)

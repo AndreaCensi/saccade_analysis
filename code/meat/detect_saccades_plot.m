@@ -37,9 +37,7 @@ function plot_saccade_delimiters(saccades, xf, yf, ybarsize)
 		x2 = xf(s);
 		y2 = yf(s);
 		plot( [x2 x2], [y2-ybarsize y2+ybarsize] , 'b-')
-		
 		plot( [x1 x2], [y1-ybarsize y2-ybarsize] , 'r-')
-		
 	end	
 	
 		

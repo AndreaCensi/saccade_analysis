@@ -15,3 +15,9 @@ Events:
 - delta            = side * amplitude
 - time_since_last 
 
+
+
+
+How to check that saccades are detected correctly
+
+Load processed 
