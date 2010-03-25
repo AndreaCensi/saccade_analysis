@@ -21,9 +21,9 @@ function process_all_data(directory, configuration)
 	for i=1:numel(d)
 		filename = sprintf('%s/%s', directory, d(i).name);
 		
-		mkdir(directory, 'processed');
+		my_mkdir(sprintf('%s/processed', directory))
 		out_dir = sprintf('%s/processed/%s', directory, configuration.id);
-		mkdir(out_dir)
+		my_mkdir(out_dir)
 		out_filename = sprintf('%s/processed_%s', out_dir, d(i).name);
 		
 		if exist(out_filename, 'file') & use_cached_results
@@ -37,9 +37,13 @@ function process_all_data(directory, configuration)
 
 	save(sprintf('%s/configuration.mat', out_dir), 'configuration');
 	saccades = gather_all_data(out_dir);
+
+	save(sprintf('%s/saccades.mat', out_dir), 'saccades');
 	
-	save(sprintf('%s/saccades.mat', out_dir), 'configuration');
-	
+function my_mkdir(d)
+	if not(exist(d, 'dir'))
+		mkdir(d)
+	end
 
 function res = process_sample(filename, configuration)
 	res = load_log(filename);
@@ -59,9 +63,9 @@ function res = process_sample(filename, configuration)
 		timestamp = res.timestamp(interval);
 		orientation = res.orientation(interval);
 	
-%		lambda_max = l1tf_lambdamax(orientation);
+		lambda_max = l1tf_lambdamax(orientation);
 %		lambda = .000001 * lambda_max;
-		lambda = configuration.lambda;
+		lambda = configuration.lambda * lambda_max;
 		
 		res_chunk = filter_orientation(timestamp, orientation, lambda);
         res_chunk = detect_saccades(res_chunk);;

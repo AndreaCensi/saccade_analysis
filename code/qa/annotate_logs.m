@@ -5,11 +5,10 @@ display_interval_s = 4;
 
 logs = load_all_data(directory);
 
-fprintf('Click in the middle of a saccade. \n')
-fprintf('You can select multiple saccades. \n')
-fprintf('When you are done, press enter. \n')
-fprintf('- When you want to exit, press "x"  and then enter without clicking any point. \n')
-fprintf('- If you want to undo the previous selection, press "u". \n')
+fprintf('- Click twice to mark a saccade: at the beginning and the end. \n')
+fprintf('- When you are done, press enter to go to the next screen. \n')
+fprintf('- When you want to exit, press "x"+enter without clicking any point. \n')
+fprintf('- If you want to undo the previous selection, press "u" + enter.  \n')
 
 nd = 1;
 

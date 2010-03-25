@@ -12,7 +12,8 @@ function species_res = verify_precision(directory, configuration_id)
 		configuration_id = 'default';
 	end
 	
-	display_misses = true;
+	display_misses = false;
+	display_extra = false;
 	
 	saccades_files = sprintf('%s/processed/%s/saccades.mat', directory, configuration_id);
 	l = load(saccades_files);
@@ -20,7 +21,7 @@ function species_res = verify_precision(directory, configuration_id)
 	
 	
 	annotations = load_all_qa_data(sprintf('%s/qa',directory));
-	fprintf('Found %d annotations.\n', numel(annotations))
+%	fprintf('Found %d annotations.\n', numel(annotations))
 %	a = load(sprintf('%s/saccades.mat', directory));
 %	saccades = a.saccades;
 
@@ -28,6 +29,8 @@ function species_res = verify_precision(directory, configuration_id)
 	
 	species_res.num_missed = 0;
 	species_res.num_annotated = 0;
+    species_res.num_detected_where_annotated = 0;
+    species_res.num_extra = 0;
 
 	for i=1:numel(annotated_samples)
 		sample = annotated_samples{i};
@@ -35,10 +38,10 @@ function species_res = verify_precision(directory, configuration_id)
 		annotations_for_sample = select_specific_sample(annotations, sample);
 		saccades_for_sample = select_specific_sample(saccades, sample);
 		
-		fprintf('Sample %s: %d annotations, %d detected.\n', sample, numel(annotations_for_sample), numel(saccades_for_sample))
+	%	fprintf('Sample %s: %d annotations, %d detected.\n', sample, numel(annotations_for_sample), numel(saccades_for_sample))
 		
 		% read the processed 
-		processed = load(sprintf('%s/processed_data_%s.mat', directory, sample));
+		processed = load(sprintf('%s/processed/%s/processed_data_%s.mat', directory, configuration_id, sample));
 		log = processed.res;
 		
 		K = numel(log.timestamp);
@@ -63,7 +66,7 @@ function species_res = verify_precision(directory, configuration_id)
 		sample_res.num_missed = 0;
 		sample_res.num_annotated = 0;
 		
-		% mark excluded
+		% count the number of saccades we missed
 		for a=1:numel(annotations_for_sample)
 			for s=1:numel(annotations_for_sample(a).saccades)
 				ann_saccade = annotations_for_sample(a).saccades(s);
@@ -76,12 +79,12 @@ function species_res = verify_precision(directory, configuration_id)
 				ds  = detected_saccade(middle_index);
 				if ds == 0
 					% we missed this
-					fprintf('Missed.\n')
+%					fprintf('\tMissed.\n')
 					missed = true;
 				else 
 					% check we didn't count it
 					if already_counted( ds )
-						fprintf('Missed (already counted).\n')
+%						fprintf('\tMissed (already counted).\n')
 						% we missed this
 						missed = true;
 					else
@@ -97,30 +100,51 @@ function species_res = verify_precision(directory, configuration_id)
 					delta = 10; 
 					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
 				end
-
 			end
-%			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts);
-%			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts);
-%			marked_saccade(from:to) = -1;
+		end % count the number of saccades we missed
+		
+		% count the number of extra saccades
+		% For each detected saccade, we look if marked_saccade(middle) == -1;
+		% that is, if its middle is in a zone in which we marked as saccade-free
+	%	sample_res.num_detected = numel(saccades_for_sample);
+		sample_res.num_extra = 0;
+		sample_res.num_detected_where_annotated = 0;
+		for a=1:numel(saccades_for_sample)
+			s = saccades_for_sample(a);
+			middle_time = mean([s.time_start s.time_stop]);
+			middle_index = timestamp2index(log.timestamp, middle_time);
+			if marked_saccade(middle_index) == -1
+
+				sample_res.num_extra = sample_res.num_extra + 1;
+				
+				if display_extra
+					fprintf('\tExtra saccade detected.\n')
+					delta = 10; 
+					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
+				end
+			end
+			
+			if not(marked_saccade(middle_index) == 0)
+				sample_res.num_detected_where_annotated = ...
+					sample_res.num_detected_where_annotated + 1;
+			end
 		end
 		
-		fprintf('Sample %s:  num_missed = %d / %d \n', sample, sample_res.num_missed, sample_res.num_annotated )
+%		fprintf('Sample %s:  num_missed = %d / %d \n', sample, sample_res.num_missed, sample_res.num_annotated )
 		
 		species_res.num_missed = species_res.num_missed + sample_res.num_missed;
 		species_res.num_annotated = species_res.num_annotated + sample_res.num_annotated;
-		
-		% figure;
-		% subplot(2,1,1);
-		% plot(detected_saccade)
-		% subplot(2,1,2);
-		% plot(marked_saccade)
-		% drawnow
-		% pause
+		species_res.num_detected_where_annotated = species_res.num_detected_where_annotated + sample_res.num_detected_where_annotated;
+		species_res.num_extra = species_res.num_extra + sample_res.num_extra;
 	end
 	
 	species_res.false_negative = species_res.num_missed / species_res.num_annotated;
+	% note that we divide by num_annotated
+	species_res.false_positive = species_res.num_extra / species_res.num_annotated; 
+	species_res.true_positive = species_res.num_detected_where_annotated / species_res.num_annotated; 
 
-	fprintf('\n\tTotal:  num_missed = %d / %d \n', species_res.num_missed, species_res.num_annotated )
+%	fprintf('\n\tTotal:  num_missed = %d / %d  \n', species_res.num_missed, species_res.num_annotated )
+%	fprintf('\n\tTotal:  num_extra = %d / %d  \n', species_res.num_extra, species_res.num_annotated )
 	
 
 function index = timestamp2index(timestamps, time)
@@ -153,7 +177,7 @@ function annotations = load_all_qa_data(directory)
 	d = dir(sprintf('%s/qa_*.mat',directory));
 	for i=1:numel(d)
 		filename = sprintf('%s/%s', directory, d(i).name);
-		fprintf('Reading %s...\n' , filename);
+		% fprintf('Reading %s...\n' , filename);
 		r = load(filename);
 		for a=1:numel(r.annotations)
 			annotations(na) = r.annotations(a);
@@ -179,10 +203,12 @@ function display_situation(log, saccades, annotations, time, delta)
 	end
 	title('Detected saccades')
 	a = axis;
+	plot([ time time], [a(3) a(4)], 'k--')
 		
 	a(1) = time_from;
 	a(2) = time_to;
 	a(3) = a(3) - 20;
+
 	axis(a);
 	
 	a = axis;
