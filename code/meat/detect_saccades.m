@@ -8,6 +8,9 @@ function res = detect_saccades(params)
 	%   params.filtered_velocity:  
 	%   params.filtered_acceleration:  
 	%
+	%  Configuration:
+	%   params.min_significant_amplitude 
+	%
 	% Output:
 	% 
 	%    res  contains all fields of params
@@ -75,6 +78,11 @@ function res = detect_saccades(params)
         if min(abs(m-start), abs(m-stop)) < threshold_minimum_steps
            continue 
         end
+
+		amplitude = abs(res.orientation(stop) - res.orientation(start));
+		if amplitude <  params.min_significant_amplitude 
+			continue
+		end
         
 		considered(start:stop) = 1;
         
@@ -102,7 +110,7 @@ function res = detect_saccades(params)
 		res.saccades(ns).orientation_start  = res.orientation(start);
 		res.saccades(ns).orientation_stop  = res.orientation(stop);
 		res.saccades(ns).top_velocity = max( abs(res.velocity(start:stop)) );
-		res.saccades(ns).amplitude = abs(res.orientation(stop) - res.orientation(start));
+		res.saccades(ns).amplitude = amplitude;
 		res.saccades(ns).duration  = res.saccades(ns).amplitude/		res.saccades(ns).top_velocity;
 		ns = ns + 1;
     end

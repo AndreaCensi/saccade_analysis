@@ -68,7 +68,8 @@ function res = process_sample(filename, configuration)
 		lambda = configuration.lambda * lambda_max;
 		
 		res_chunk = filter_orientation(timestamp, orientation, lambda);
-        res_chunk = detect_saccades(res_chunk);;
+		res_chunk.min_significant_amplitude = 5;
+        res_chunk = detect_saccades(res_chunk);
 		res.chunk(i) = res_chunk; 
 		res.configuration = configuration;
     end

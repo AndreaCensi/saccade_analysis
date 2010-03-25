@@ -1,10 +1,10 @@
 function species_res = verify_precision(directory, configuration_id)
-	% function species_res = verify_precision(directory, configuration_id)
+	% function species_res = verify_precision(species_dir, configuration_id)
 	% 
 	%  loads saccades.mat from 
-	%      <directory>/processed/<configuration_id>
+	%      <species_dir>/processed/<configuration_id>
 	%  and compares from the hand-annotated files in
-	%      <directory>/qa/*mat
+	%      <species_dir>/qa/*mat
 	%
 	% if configuration_id is omitted, it deafults to 'default'
 	
@@ -52,12 +52,25 @@ function species_res = verify_precision(directory, configuration_id)
 		
 		% mark excluded
 		for a=1:numel(annotations_for_sample)
-			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts);
-			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts);
+			% It's hard to mark the saccades at beginning and end of the screen
+			tolerance = 1;
+			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts+1);
+			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts-1);
+			
+			previous = max(marked_saccade(from:to));
+			if previous > 0
+				fprintf('Found overlap in QA data (annotation %d and previous %d in sample %s).\n', a, previous, annotations_for_sample(a).sample)
+				annotations_for_sample(a).ignore = true;
+			else
+				annotations_for_sample(a).ignore = false;
+			end
 			marked_saccade(from:to) = -1;
 		end
 		% mark annotated
 		for a=1:numel(annotations_for_sample)
+			if annotations_for_sample(a).ignore
+				continue
+			end
 			marked_saccade = mark_saccades(annotations_for_sample(a).saccades, log.timestamp, marked_saccade);
 		end
 
@@ -68,6 +81,10 @@ function species_res = verify_precision(directory, configuration_id)
 		
 		% count the number of saccades we missed
 		for a=1:numel(annotations_for_sample)
+			if annotations_for_sample(a).ignore
+				continue
+			end
+			
 			for s=1:numel(annotations_for_sample(a).saccades)
 				ann_saccade = annotations_for_sample(a).saccades(s);
 				middle_time = mean([ann_saccade.time_start ann_saccade.time_stop]);
@@ -79,12 +96,16 @@ function species_res = verify_precision(directory, configuration_id)
 				ds  = detected_saccade(middle_index);
 				if ds == 0
 					% we missed this
-%					fprintf('\tMissed.\n')
+					if display_misses
+						fprintf('\tMissed.\n')
+					end
 					missed = true;
 				else 
 					% check we didn't count it
 					if already_counted( ds )
-%						fprintf('\tMissed (already counted).\n')
+						if display_misses
+							fprintf('\tMissed (already counted).\n')
+						end
 						% we missed this
 						missed = true;
 					else
@@ -104,27 +125,35 @@ function species_res = verify_precision(directory, configuration_id)
 		end % count the number of saccades we missed
 		
 		% count the number of extra saccades
-		% For each detected saccade, we look if marked_saccade(middle) == -1;
-		% that is, if its middle is in a zone in which we marked as saccade-free
-	%	sample_res.num_detected = numel(saccades_for_sample);
+		% For each detected saccade, we look at what the user marked in the 
+		% interval of the detected saccade. 
+		% This is an extra saccade if:
+		%  1) it is not all 0, meaning the user looked at this interval
+		%  2) and there is not anything more than 0, meaning the user did not
+		%     mark anything
+		
 		sample_res.num_extra = 0;
 		sample_res.num_detected_where_annotated = 0;
 		for a=1:numel(saccades_for_sample)
 			s = saccades_for_sample(a);
-			middle_time = mean([s.time_start s.time_stop]);
-			middle_index = timestamp2index(log.timestamp, middle_time);
-			if marked_saccade(middle_index) == -1
-
+			start_index = timestamp2index(log.timestamp,s.time_start);
+			stop_index  = timestamp2index(log.timestamp,s.time_stop);
+			
+			user_looked_here = any(not(marked_saccade(start_index:stop_index)==0));
+			user_marked_something = any(marked_saccade(start_index:stop_index)> 0);
+			if user_looked_here & not(user_marked_something)
 				sample_res.num_extra = sample_res.num_extra + 1;
 				
 				if display_extra
-					fprintf('\tExtra saccade detected.\n')
+					fprintf('\tExtra saccade #%d detected.\n', a)
+					s
 					delta = 10; 
+					middle_time = mean([s.time_start s.time_stop]);
 					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
 				end
 			end
 			
-			if not(marked_saccade(middle_index) == 0)
+			if user_looked_here
 				sample_res.num_detected_where_annotated = ...
 					sample_res.num_detected_where_annotated + 1;
 			end
@@ -140,8 +169,8 @@ function species_res = verify_precision(directory, configuration_id)
 	
 	species_res.false_negative = species_res.num_missed / species_res.num_annotated;
 	% note that we divide by num_annotated
-	species_res.false_positive = species_res.num_extra / species_res.num_annotated; 
-	species_res.true_positive = species_res.num_detected_where_annotated / species_res.num_annotated; 
+	species_res.false_positive = species_res.num_extra / species_res.num_detected_where_annotated; 
+	species_res.true_positive = (species_res.num_detected_where_annotated - species_res.num_extra) / species_res.num_annotated; 
 
 %	fprintf('\n\tTotal:  num_missed = %d / %d  \n', species_res.num_missed, species_res.num_annotated )
 %	fprintf('\n\tTotal:  num_extra = %d / %d  \n', species_res.num_extra, species_res.num_annotated )
@@ -232,7 +261,7 @@ function display_situation(log, saccades, annotations, time, delta)
 	axis(a);
 	
 	title('Annotated saccades')
-	
+	drawnow
 	pause
 	
 function plot_saccade_delimiters(saccade, ybarsize)

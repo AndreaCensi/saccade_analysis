@@ -18,7 +18,7 @@ function res = filter_orientation(timestamp, orientation, lambda)
 	res.velocity = numerical_derivative(timestamp, orientation);
 	res.acceleration = numerical_derivative(timestamp, res.velocity);
 %	res.filtered_velocity = DTx;
-	res.filtered_velocity = numerical_derivative(timestamp, res.filtered_orientation);;
+	res.filtered_velocity = numerical_derivative(timestamp, res.filtered_orientation);
 	res.filtered_acceleration = numerical_derivative(timestamp, res.filtered_velocity);;
 
 	res.error = orientation - res.filtered_orientation;

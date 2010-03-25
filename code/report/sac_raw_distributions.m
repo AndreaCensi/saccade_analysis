@@ -1,6 +1,6 @@
-function sac_raw_distribution(directory, report_dir)
+function sac_raw_distribution(species_dir, report_dir)
 
-	logs = load_all_data(directory);
+	logs = species_load_all_exp_data(species_dir);
 
 	orientation = [];
 	for i=1:numel(logs)
@@ -15,14 +15,3 @@ function sac_raw_distribution(directory, report_dir)
 	hist(orientation,360)
 	
 	print('-depsc2', sprintf('%s/sac_raw_orientation.eps', report_dir));
-	
-
-
-function res = load_all_data(directory)
-% loads all data in a directory (files data_* )
-	d = dir(sprintf('%s/data_*.mat',directory));
-	for i=1:numel(d)
-		filename = sprintf('%s/%s', directory, d(i).name);
-		fprintf('Reading %s...\n' , filename);
-		res(i) = load_log(filename);
-	end
