@@ -8,6 +8,7 @@ function res = filter_orientation(timestamp, orientation, lambda)
 	%  res.filtered_acceleration
 	%  res.error
 	res.timestamp = timestamp;
+	res.lambda = lambda;
 	[x,DTx,DDTx,status]  = l1tf(orientation, lambda);
 	res.filtered_orientation = x;
 	res.energy = sum(abs(DDTx));

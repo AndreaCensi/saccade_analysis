@@ -1,8 +1,8 @@
 function res = load_log(filename)
-	% load and prepare data from a log file
+	% Load and prepare data from a log file
 	%
-	%  res.t0 
-	%  res.timestamp
+	%  res.t0            absolute date 
+	%  res.timestamp     starts from 0
 	%  res.orientation
 	%  res.species
 	%  res.sample
