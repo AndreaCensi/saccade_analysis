@@ -39,7 +39,11 @@ function res = process_sample(filename)
 	ts = 1;
 	for i = 1:num_chunks
 		for np=1:numel(res.chunk(i).saccades)
-			res.saccades(ts) = res.chunk(i).saccades(np);
+			s = res.chunk(i).saccades(np); 
+			s.species = res.species;
+			s.filename = filename;
+			s.sample = res.sample;
+			res.saccades(ts) = s;
 			ts = ts + 1;
 		end
 	end

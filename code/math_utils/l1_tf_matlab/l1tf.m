@@ -77,9 +77,7 @@ disp('Kwangmoo Koh, Seung-Jean Kim, Stephen Boyd');
 disp('--------------------------------------------');
 %disp(sprintf('\n%s %13s %12s %8s %9s %17s \n',...
     %'Iteration','Primal obj.','Dual obj.','Gap','t','Step size'));
-disp(sprintf(['\n%s %13s %12s %8s\n' ...
-',...']
-    'Iteration','Primal obj.','Dual obj.','Gap'));
+fprintf('\n%s %13s %12s %8s\n','Iteration','Primal obj.','Dual obj.','Gap');
 
 %----------------------------------------------------------------------
 %               MAIN LOOP

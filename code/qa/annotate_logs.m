@@ -29,7 +29,9 @@ while true
 	to = k + display_interval_steps;
 %	orientation0 = orientation(from);
 	
-	f = figure(32); hold off
+	f = figure(32); 
+	set(f, 'Position', [100 200 1000 400])
+	hold off
 	plot(timestamp(from:to), orientation(from:to) , 'r.')
 	xlabel('time (s)')
 	ylabel('orientation (deg)')
