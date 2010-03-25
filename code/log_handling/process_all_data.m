@@ -63,14 +63,19 @@ function res = process_sample(filename, configuration)
 		timestamp = res.timestamp(interval);
 		orientation = res.orientation(interval);
 	
-		lambda_max = l1tf_lambdamax(orientation);
-%		lambda = .000001 * lambda_max;
-		lambda = configuration.lambda * lambda_max;
+		if configuration.saccade_detection_method == 'l1tf'
+			lambda_max = l1tf_lambdamax(orientation);
+			lambda = configuration.lambda * lambda_max;
 		
-		res_chunk = filter_orientation(timestamp, orientation, lambda);
-		res_chunk.min_significant_amplitude = 5;
-        res_chunk = detect_saccades(res_chunk);
-		res.chunk(i) = res_chunk; 
+			res_chunk = filter_orientation(timestamp, orientation, lambda);
+			res_chunk.min_significant_amplitude = configuration.min_significant_amplitude;
+	        res_chunk = detect_saccades(res_chunk);
+			res.chunk(i) = res_chunk; 
+		elseif configuration.saccade_detection_method == 'linear'
+			detect_saccades_linear(timestamp, orientation, configuration);
+		end
+			
+			
 		res.configuration = configuration;
     end
     

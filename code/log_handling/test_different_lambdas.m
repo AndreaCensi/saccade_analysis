@@ -4,6 +4,7 @@ lambda_conf = [];
 for i=1:numel(lambdas)
 	lambda_conf(i).id = sprintf('test_lambda%d', i);
 	lambda_conf(i).lambda = lambdas(i);
+	lambda_conf(i).saccade_detection_method = 'l1tf';
 end
 
 run_all_species('data', lambda_conf)
