@@ -8,20 +8,21 @@ function sac_correlation(saccades, out_dir)
 	
 	[S_xcorr, lags] = xcorr(S, maxlag, 'coeff');
 	
-	f = figure(21);
+	f = sac_figure(21);
 	plot(lags, S_xcorr, '.')
 	ylabel('correlation')
 	xlabel('distance in the sequence')
-	title('Correlation of saccade sign')
-	print('-depsc2', sprintf('%s/sac_sign_corr.eps', out_dir))
+	ftitle='Correlation of saccade sign';
+	sac_print(out_dir, 'sac_sign_corr', ftitle);
+	
 	
 	A = abs([saccades.amplitude]);
 	[A_xcorr, lags] = xcorr(A, maxlag, 'coeff');
 	
-	f = figure(22);
+	f = sac_figure(22);
 	plot(lags, A_xcorr, '.')
 	ylabel('correlation')
 	xlabel('distance in the sequence')
-	title('Correlation of saccade amplitude')
-	print('-depsc2', sprintf('%s/sac_amp_corr.eps', out_dir))
+	ftitle = 'Correlation of saccade amplitude';
+	sac_print(out_dir, 'sac_amp_corr', ftitle);
 	

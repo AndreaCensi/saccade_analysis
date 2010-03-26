@@ -1,11 +1,11 @@
 import glob, os, yaml, sys
 
-def create_report(data_dir, report_filename, include_empty_descriptions):
+def create_report_species(species_dir, report_filename, include_empty_descriptions):
     join = os.path.join 
     splitext = os.path.splitext
     
-    report_dir = join(data_dir, 'report')
-    comments_dir = join(data_dir, 'comments')
+    report_dir = join(species_dir, 'report')
+    comments_dir = join(species_dir, 'comments')
     
     report_file = open(join(report_dir, report_filename), 'w')
     report_file.write("""\
@@ -17,7 +17,7 @@ def create_report(data_dir, report_filename, include_empty_descriptions):
 \\begin{document}
 """)
     
-    # obtain files in data_dir/report ending in .eps
+    # obtain files in species_dir/report ending in .eps
     eps_files = glob.glob(join(report_dir, '*.eps'))
     
     if len(eps_files) == 0:
@@ -82,6 +82,6 @@ def create_report(data_dir, report_filename, include_empty_descriptions):
 
 if __name__ == '__main__':
     
-    data_dir = sys.argv[1]
-    create_report(data_dir, report_filename='all.tex', include_empty_descriptions=True)
-    create_report(data_dir, report_filename='short.tex', include_empty_descriptions=False)
+    species_dir = sys.argv[1]
+    create_report_species(species_dir, report_filename='all.tex', include_empty_descriptions=True)
+    create_report_species(species_dir, report_filename='short.tex', include_empty_descriptions=False)

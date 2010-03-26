@@ -1,4 +1,4 @@
-function process_data(data_directory, configurations)
+function process_data(data_dir, configurations)
 %	function process_data(data_directory, configuration)
 %
 %    runs the processing on all the species with a given configuration

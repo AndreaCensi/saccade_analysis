@@ -11,7 +11,12 @@ function sac_raw_distribution(species_dir, report_dir)
 	
 	orientation = mod(orientation, 360);
 	
-	f=figure(34);
+	f=sac_figure(34);
 	hist(orientation,360)
+	xlabel('orientation (deg)')
+	ylabel('density')
+	ftitle = 'Orientation histogram';
+	title(ftitle)
+	sac_print(report_dir, 'sac_raw_orientation', ftitle)
 	
-	print('-depsc2', sprintf('%s/sac_raw_orientation.eps', report_dir));
+	close(f)

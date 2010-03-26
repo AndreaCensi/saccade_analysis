@@ -15,20 +15,21 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	prob_right = hist_right ./ (hist_left + hist_right);
 	prob_left = hist_left ./ (hist_left + hist_right);
 	
-	f=figure(33);  
-	hold on
+	f=sac_figure(33);  
+	hold off
 	plot(bin_positions, hist_left, 'r-')
+	hold on
 	plot(bin_positions, hist_right, 'g-')
 	legend('left turn', 'right turn')
 	xlabel('start orientation (deg)')
 	ylabel('number of samples')
-	title('sample count, turning left or right')
-	print('-depsc2', sprintf('%s/sac_turn_count.eps', out_dir))
+	ftitle='Sample count, turning left or right';
+	sac_print(out_dir, 'sac_turn_count', ftitle);
 	
-	
-	f=figure(32);  
-	hold on
+	f=sac_figure(32);  
+	hold off
 	plot(bin_positions, prob_left, 'r-')
+	hold on
 	plot(bin_positions, prob_right, 'g-')
 	a = axis;
 	a(3) = 0;
@@ -37,7 +38,8 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	legend('prob. of left turn', 'prob. of right turn')
 	xlabel('start orientation (deg)')
 	ylabel('probability')
-	print('-depsc2', sprintf('%s/sac_turn_probability.eps', out_dir))
+	ftitle='Probability of turning left or right';
+	sac_print(out_dir, 'sac_turn_probability', ftitle);
 	
 	
 	

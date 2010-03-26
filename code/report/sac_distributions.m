@@ -101,17 +101,19 @@ function sac_distributions(saccades, out_dir)
 	end
 	
 function create_dist_plots(var1, out_dir)
-	f = figure;
+	f = sac_figure;
 	hist(var1.values, 360);
 	ylabel('density')
 	xlabel(sprintf('%s (%s)', var1.name, var1.unit))
-	title(sprintf('Distribution of %s ', var1.name))
-	print('-depsc2', sprintf('%s/sac_dist-%s.eps', out_dir, var1.id))
+	ftitle=sprintf('Distribution of %s ', var1.name);
+	basename=sprintf('sac_dist-%s', var1.id);
+	sac_print(out_dir, basename, ftitle);
+	
 	close(f)
 	
 	if numel(var1.interesting) > 0
 	
-	f = figure;
+	f = sac_figure;
 	from = var1.interesting(1);
 	to = var1.interesting(2);
 	nbins = 1000;
@@ -121,21 +123,21 @@ function create_dist_plots(var1, out_dir)
 	a=axis(); a(1)=from; a(2)=to;
 	ylabel('density')
 	xlabel(sprintf('%s (%s)', var1.name, var1.unit))
-	title(sprintf('Distribution of %s (detail in %f - %f)', var1.name, from, to))
-	print('-depsc2', sprintf('%s/sac_dist-%s_detail.eps', out_dir, var1.id))
-	close(f)
+	ftitle=sprintf('Distribution of %s (detail in %f - %f)', var1.name, from, to);
+	basename=sprintf('sac_dist-%s_detail', var1.id)
+	sac_print(out_dir, basename, ftitle);
 		
 	end
 	
 function create_joint_plots(var1, var2, out_dir)
-	f = figure;
+	f = sac_figure;
 	h = plot(var1.values, var2.values, 'k.');
 	set(h, 'MarkerSize', 0.1);
 	xlabel(sprintf('%s (%s)', var1.name, var1.unit))
 	ylabel(sprintf('%s (%s)', var2.name, var2.unit))
-	title(sprintf('Joint distribution of %s / %s ', var1.name, var2.name))
-	
-	print('-depsc2', sprintf('%s/sac_joint-%s-%s.eps', out_dir, var1.id, var2.id))
+	ftitle = sprintf('Joint distribution of %s / %s ', var1.name, var2.name);
+	basename=sprintf('sac_joint-%s-%s', var1.id, var2.id);
+	sac_print(out_dir, basename, ftitle);
 	close(f)
 	
 	

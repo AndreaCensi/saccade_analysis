@@ -1,0 +1,26 @@
+excluded: []
+footer: 'This is the end
+
+  '
+header: 'This is the beginning of the adventure.
+
+  '
+order: [roc, sac_raw_orientation, sac_sign_corr, sac_amp_corr, sac_dist-amplitude,
+  sac_turn_probability, sac_turn_count, markov_first, markov_second, sac_dist-duration,
+  sac_dist-top_velocity, sac_dist-interval, sac_dist-initial_orientation, sac_dist-final_orientation,
+  sac_joint-duration-amplitude, sac_joint-top_velocity-amplitude, sac_joint-top_velocity-duration,
+  sac_joint-interval-amplitude, sac_joint-interval-duration, sac_joint-interval-top_velocity,
+  sac_joint-initial_orientation-duration, sac_joint-initial_orientation-amplitude,
+  sac_joint-initial_orientation-top_velocity, sac_joint-initial_orientation-interval,
+  sac_joint-final_orientation-amplitude, sac_joint-final_orientation-duration, sac_joint-final_orientation-top_velocity,
+  sac_joint-final_orientation-interval, sac_joint-final_orientation-initial_orientation,
+  sac_joint-amplitudeL-amplitude, sac_joint-amplitudeL-duration, sac_joint-amplitudeL-top_velocity,
+  sac_joint-amplitudeL-interval, sac_joint-amplitudeL-initial_orientation, sac_joint-amplitudeL-final_orientation,
+  sac_joint-durationL-amplitude, sac_joint-durationL-duration, sac_joint-durationL-top_velocity,
+  sac_joint-durationL-interval, sac_joint-durationL-final_orientation, sac_joint-durationL-initial_orientation,
+  sac_joint-top_velocityL-amplitude, sac_joint-top_velocityL-top_velocity, sac_joint-top_velocityL-duration,
+  sac_joint-top_velocityL-interval, sac_joint-top_velocityL-initial_orientation, sac_joint-top_velocityL-final_orientation,
+  sac_joint-intervalL-amplitude, sac_joint-intervalL-top_velocity, sac_joint-intervalL-duration,
+  sac_joint-intervalL-interval, sac_joint-intervalL-initial_orientation, sac_joint-intervalL-final_orientation]
+title: My report
+unknown: []

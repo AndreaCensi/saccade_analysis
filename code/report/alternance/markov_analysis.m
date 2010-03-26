@@ -24,6 +24,7 @@ function markov_analysis(saccades, prefix)
 
 	copyfile(ffpath('first_order.eps'), sprintf('%s/markov_first_fm.eps', prefix))
 	copyfile(ffpath('second_order.eps'), sprintf('%s/markov_second_fm.eps', prefix))
+	copyfile(ffpath('fragmaster.pl'), path_join(prefix, 'fragmaster.pl'))
 
 	output = fopen(sprintf('%s/markov_first_fm', prefix),'w');
 	fields = fieldnames(r);
@@ -37,6 +38,12 @@ function markov_analysis(saccades, prefix)
 	end
 
 	copyfile(sprintf('%s/markov_first_fm', prefix),sprintf('%s/markov_second_fm', prefix));
+	
+	output = fopen(sprintf('%s/markov_first.title', prefix),'w');
+	fprintf(output, 'First-order analysis of turning behavior');
+	output = fopen(sprintf('%s/markov_second.title', prefix),'w');
+	fprintf(output, 'Second-order analysis of turning behavior');
+	
 	
 %	unix(sprintf('cd %s; %s;', prefix, ffpath('fragmaster.pl')))
 	
