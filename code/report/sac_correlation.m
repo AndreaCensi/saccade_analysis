@@ -3,6 +3,8 @@ function sac_correlation(saccades, out_dir)
 %
 % Displays various correlation data
 
+	if report_should_I_skip(out_dir, 'sac_sign_corr'), return, end
+	
 	S = [saccades.sign];
 	maxlag = 20;
 	

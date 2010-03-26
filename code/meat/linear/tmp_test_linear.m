@@ -15,6 +15,5 @@ a = load('data/Darizonae/processed/tmp_conf/processed_data_Darizonae-20080409-17
 
 %detect_saccades_plot(a.res.chunk(1))
 
-verify_precision('data/Darizonae', tmp_conf.id, false)
-
-verify_precision('data/Darizonae', tmp_conf.id, true)
+roc_analysis_species_conf('data/Darizonae', tmp_conf.id, false)
+roc_analysis_species_conf('data/Darizonae', tmp_conf.id, true)

@@ -5,7 +5,7 @@ function process_data(data_dir, configurations)
 %
 %    data_directory:  should contain species folders with name starting with 'D'.
 
-species = list_species(data_dir);
+species = list_species_in_data(data_dir);
 
 for c=1:numel(configurations)
 	configuration = configurations(c);

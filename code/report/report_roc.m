@@ -1,6 +1,9 @@
 function report_roc(species_dir, conf_id, out_dir)
-	perf = species_roc_curve(species_dir);
-
+	basename = 'roc';
+	
+	if report_should_I_skip(out_dir, basename), return, end
+	
+	perf = roc_analysis_species(species_dir);
 	f=sac_figure; 
 	hold on;
 	title('ROC')
@@ -26,10 +29,10 @@ function report_roc(species_dir, conf_id, out_dir)
 %		text(x1, y1, label)
 	end
 	a = axis();
-	a(3) = 0;
+	a(1) = 0;
+	a(4) = 1;
 	axis(a);
 	ftitle = 'ROC';
-	basename = 'roc';
 	sac_print(out_dir, basename, ftitle);
 	
 	close(f);

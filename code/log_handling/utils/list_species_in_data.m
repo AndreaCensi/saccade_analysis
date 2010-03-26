@@ -1,5 +1,5 @@
-function species = list_species(data_directory)
-	% species = list_species(data_dir)
+function species = list_species_in_data(data_directory)
+	% species = list_species_in_data(data_dir)
 	%   Lists all species in the given data directory.
 	%   Returns a cell-array of strings.
 	

@@ -1,6 +1,9 @@
 function sac_raw_distribution(species_dir, report_dir)
 
-	logs = species_load_all_exp_data(species_dir);
+ 	if report_should_I_skip(report_dir, 'sac_raw_orientation'), return, end
+		
+
+	logs = load_all_samples_for_species(species_dir);
 
 	orientation = [];
 	for i=1:numel(logs)

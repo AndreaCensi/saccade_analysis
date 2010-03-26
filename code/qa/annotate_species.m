@@ -1,9 +1,11 @@
-function annotate_logs(directory)
+function annotate_species(species_dir)
+% function annotate_species(species_dir)
+%
 % Annotates the data in directory
 
 display_interval_s = 4;
 
-logs = load_all_data(directory);
+logs = load_all_species(species_dir);
 
 fprintf('- Click twice to mark a saccade: at the beginning and the end. \n')
 fprintf('- When you are done, press enter to go to the next screen. \n')
@@ -116,9 +118,9 @@ while true
 end
 
 fprintf('Recorded a total of %d screens. \n', numel(annotations))
-mkdir(directory,'qa')
+mkdir(species_dir,'qa')
 time = datestr(now, 'yyyymmdd-HHMMSS');
-filename = sprintf('%s/qa/qa_%s.mat', directory, time );
+filename = sprintf('%s/qa/qa_%s.mat', species_dir, time );
 save(filename,'annotations')
 
 fprintf('Results saved as %s\n', filename)
@@ -128,18 +130,7 @@ close(f)
 
 function r = rand_in(from, to)
 % returns a random integer between from an to	
-	r = max(from, min(to, round(from + rand * (to-rand)) ));
-
-function res = load_all_data(directory)
-% loads all data in a directory (files data_* )
-	d = dir(sprintf('%s/data_*.mat',directory));
-	for i=1:numel(d)
-		filename = sprintf('%s/%s', directory, d(i).name);
-		fprintf('Reading %s...\n' , filename);
-		res(i) = load_log(filename);
-	end
-	
-	
+	r = max(from, min(to, round(from + rand * (to-rand)) ));	
 
 function plot_saccade_delimiters(saccades, ybarsize)
 	% expects saccades.time_start, saccades.time_stop, orientation_start, orientation_stop

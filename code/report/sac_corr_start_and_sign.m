@@ -1,5 +1,8 @@
 function sac_corr_start_and_sign(saccades, out_dir)
 
+	if report_should_I_skip(out_dir, 'sac_turn_count'), return, end
+	
+
 	S = [saccades.sign];
 
 	theta0 = max(1, min(360, round(mod([saccades.orientation_start],360))));

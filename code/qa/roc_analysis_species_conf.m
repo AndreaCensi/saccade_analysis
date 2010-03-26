@@ -1,12 +1,15 @@
-function species_res = verify_precision(directory, configuration_id, display)
-	% function species_res = verify_precision(species_dir, configuration_id)
+function species_res = roc_analysis_species_conf(directory, configuration_id, display)
+	% function species_res = roc_analysis_species_conf(species_dir, conf_id, display)
 	% 
 	%  loads saccades.mat from 
 	%      <species_dir>/processed/<configuration_id>
 	%  and compares from the hand-annotated files in
 	%      <species_dir>/qa/*mat
 	%
-	% if configuration_id is omitted, it deafults to 'default'
+	%  if display is true, interactively display failures
+	%
+	%  if configuration_id is omitted, it deafults to 'default'.
+	%  if display is omitted, it deafults to 'false'.
 	
 	if nargin < 2
 		configuration_id = 'default';

@@ -1,5 +1,6 @@
 function process_species(directory, configuration)
 	%  function process_species(species_dir, configuration)
+	%
 	%   directory: contains a bunch of data files with pattern 'data_*'
 	%   configuration: contains the parameters for the saccades extraction
 	%     configuration.id        name of the configuration
@@ -40,11 +41,6 @@ function process_species(directory, configuration)
 
 	save(sprintf('%s/saccades.mat', out_dir), 'saccades');
 	
-function my_mkdir(d)
-	if not(exist(d, 'dir'))
-		mkdir(d)
-	end
-
 
 function saccades = gather_all_data(directory)
 	% function saccades = gather_all_data(directory)
