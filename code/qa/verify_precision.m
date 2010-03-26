@@ -1,4 +1,4 @@
-function species_res = verify_precision(directory, configuration_id)
+function species_res = verify_precision(directory, configuration_id, display)
 	% function species_res = verify_precision(species_dir, configuration_id)
 	% 
 	%  loads saccades.mat from 
@@ -8,12 +8,15 @@ function species_res = verify_precision(directory, configuration_id)
 	%
 	% if configuration_id is omitted, it deafults to 'default'
 	
-	if nargin == 1
+	if nargin < 2
 		configuration_id = 'default';
 	end
+	if nargin < 3
+		display = false;
+	end
 	
-	display_misses = false;
-	display_extra = false;
+	display_misses = display;
+	display_extra = display;
 	
 	saccades_files = sprintf('%s/processed/%s/saccades.mat', directory, configuration_id);
 	l = load(saccades_files);
