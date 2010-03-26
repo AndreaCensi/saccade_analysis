@@ -1,17 +1,15 @@
-function sac_report_all(directory)
-	% function sac_report_all(directory)
+function report_species(species_dir, conf_id)
+	% function species_report(species_dir, conf_id)
 	%
 	%  Runs all the report generators.
 	%  loads       directory/saccades.mat
 	%  output in   directory/report/
-	load(sprintf('%s/saccades.mat', directory))
+	
+	load(sprintf('%s/processed/%s/saccades.mat', directory, conf_id))
 	mkdir(directory, 'report')
-	out_dir=sprintf('%s/report', directory)
+	out_dir = path_join(species_dir, 'report')
 	
-	
-	
-	sac_raw_distributions(directory, out_dir)
-	return
+	sac_raw_distributions(species_dir, out_dir)
 	
 	markov_analysis(saccades, out_dir)
 	sac_correlation(saccades, out_dir)
