@@ -15,8 +15,14 @@ function species_res = verify_precision(directory, configuration_id, display)
 		display = false;
 	end
 	
+	% display interval
+	delta = 5; 
 	display_misses = display;
 	display_extra = display;
+	
+	% we don't consider annotations which are closer to the annotation screen margin
+	marking_safety = 1;
+	
 	
 	saccades_files = sprintf('%s/processed/%s/saccades.mat', directory, configuration_id);
 	l = load(saccades_files);
@@ -57,8 +63,8 @@ function species_res = verify_precision(directory, configuration_id, display)
 		for a=1:numel(annotations_for_sample)
 			% It's hard to mark the saccades at beginning and end of the screen
 			tolerance = 1;
-			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts+1);
-			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts-1);
+			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts + marking_safety);
+			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts-marking_safety);
 			
 			previous = max(marked_saccade(from:to));
 			if previous > 0
@@ -92,11 +98,15 @@ function species_res = verify_precision(directory, configuration_id, display)
 				ann_saccade = annotations_for_sample(a).saccades(s);
 				middle_time = mean([ann_saccade.time_start ann_saccade.time_stop]);
 				middle_index = timestamp2index(log.timestamp, middle_time);
+				index_start = timestamp2index(log.timestamp, ann_saccade.time_start );
+				index_stop = timestamp2index(log.timestamp, ann_saccade.time_stop );
 				
 				sample_res.num_annotated = sample_res.num_annotated + 1;
 				 
 				missed = false;
-				ds  = detected_saccade(middle_index);
+				% only check the middle
+				% ds  = detected_saccade(middle_index);
+				ds = max(detected_saccade(index_start:index_stop) );
 				if ds == 0
 					% we missed this
 					if display_misses
@@ -121,8 +131,7 @@ function species_res = verify_precision(directory, configuration_id, display)
 				end
 
 				if display_misses & missed
-					delta = 10; 
-					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
+					display_situation(log, saccades_for_sample, annotations_for_sample, middle_time, delta)
 				end
 			end
 		end % count the number of saccades we missed
@@ -150,7 +159,6 @@ function species_res = verify_precision(directory, configuration_id, display)
 				if display_extra
 					fprintf('\tExtra saccade #%d detected.\n', a)
 					s
-					delta = 10; 
 					middle_time = mean([s.time_start s.time_stop]);
 					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
 				end

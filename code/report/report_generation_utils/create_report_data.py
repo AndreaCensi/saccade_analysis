@@ -161,13 +161,15 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
 \centering
 """)
 
+        row_len = 3
         for i, s in enumerate(species):
-            report_file.write("""\
-                \subfloat[%s]{\includegraphics[width=5cm]{../%s/report/%s}}
-""" % (s,s,basename))
-            row_len = 3
+            if i%row_len == 0:
+                report_file.write("\hspace{-4.5cm}") 
+                
+            report_file.write("\subfloat[%s]{\includegraphics[width=7cm]{../%s/report/%s}}" % (s,s,basename))
+        
             if i%row_len == row_len-1:
-               report_file.write("\n\n") 
+               report_file.write("\hspace{-4cm}\n\n") 
 
             
         report_file.write("""\
