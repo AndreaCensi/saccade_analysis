@@ -1,12 +1,13 @@
-excluded: []
+excluded: [sac_dist-top_velocity_all, sac_dist-amplitude_all, sac_dist-duration_all,
+  sac_dist-interval_all, sac_dist-initial_orientation_all, sac_dist-final_orientation_all]
 footer: 'This is the end
 
   '
 header: 'This is the beginning of the adventure.
 
   '
-order: [roc, sac_raw_orientation, sac_sign_corr, sac_amp_corr, sac_dist-amplitude,
-  sac_turn_probability, sac_turn_count, markov_first, markov_second, sac_dist-duration,
+order: [roc, sac_raw_orientation, sac_sign_corr, sac_amp_corr, sac_turn_probability,
+  sac_turn_count, markov_first, markov_second, sac_dist-amplitude, sac_dist-duration,
   sac_dist-top_velocity, sac_dist-interval, sac_dist-initial_orientation, sac_dist-final_orientation,
   sac_joint-duration-amplitude, sac_joint-top_velocity-amplitude, sac_joint-top_velocity-duration,
   sac_joint-interval-amplitude, sac_joint-interval-duration, sac_joint-interval-top_velocity,
