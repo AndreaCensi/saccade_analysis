@@ -1,0 +1,13 @@
+
+\psfrag{pL_after_LL}[mc]{32\%}
+\psfrag{pR_after_LL}[mc]{68\%}
+\psfrag{pL_after_RL}[mc]{29\%}
+\psfrag{pR_after_RL}[mc]{71\%}
+\psfrag{pL_after_RR}[mc]{65\%}
+\psfrag{pR_after_RR}[mc]{35\%}
+\psfrag{pL_after_LR}[mc]{71\%}
+\psfrag{pR_after_LR}[mc]{29\%}
+\psfrag{pLL}[mc]{15\%}
+\psfrag{pRL}[mc]{35\%}
+\psfrag{pRR}[mc]{15\%}
+\psfrag{pLR}[mc]{35\%}
