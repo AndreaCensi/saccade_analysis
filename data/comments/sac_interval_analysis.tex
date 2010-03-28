@@ -1,0 +1,13 @@
+
+Fig.~\ref{fig:sac_interval_analysis} shows a first statistical analysis of the interval distributions.
+
+Recall that, if we assume that an arrival process is composed by independent events (i.e., it is a Poisson process), then the probability distribution function (pdf) of the intervals is an exponential distribution\footnote{An exponential distribution has density $f(x) = \lambda e^{-\lambda x }$.}. 
+
+The pictures show different exponential fits to the interval probability distribution:
+\begin{itemize}
+\item The black line shows an exponential fit of the whole pdf. 
+\item The red line shows a fit that ignores the data before the peak of the distribution. 
+\item The green line fits only the tail (ignoring the data before $x = 3 \textrm{peak}$).
+\end{itemize}
+
+An exponential cannot capture well the whole distribution; however, exponentials fit pretty well the tail. This suggests that, while there is a refractory period of $\simeq 0.2-0.4s$, saccades can be considered independent events.
