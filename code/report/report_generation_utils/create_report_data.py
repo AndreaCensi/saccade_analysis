@@ -13,6 +13,7 @@ def species_list(data_dir):
 
 def images_list(report_dir, exclude_suffixes = []):
     """ Finds all basenames for images in the given dir """
+    """ Returns   basename, excluded """
     eps_files = glob.glob(os.path.join(report_dir, '*.eps'))
     
     if len(eps_files) == 0:
@@ -21,7 +22,10 @@ def images_list(report_dir, exclude_suffixes = []):
     
     all_images = [ get_basename(x) for x in eps_files ]
     
+    excluded = []
+    
     for e in exclude_suffixes:
+        excluded.extend([x for x in all_images if x.endswith(e)])
         all_images = [x for x in all_images if not x.endswith(e)]
 
     def sign(x):
@@ -39,10 +43,10 @@ def images_list(report_dir, exclude_suffixes = []):
         
     all_images.sort(datesort)
     
-    return all_images
+    return all_images, excluded
 
 
-def load_all_comments(comments_dir):
+def load_all_comments_yaml(comments_dir):
     """ load all comments files, returns hash basename -> comment """
     basename2comment = {}
     files = glob.glob(os.path.join(comments_dir, '*.yaml'))
@@ -60,7 +64,59 @@ def load_all_comments(comments_dir):
 #        comments.append(data)
         basename2comment[basename] = data
     return basename2comment
+
+def write_missing_comments(comments_dir, basenames):
+    for b in basenames:
+        f = os.path.join(comments_dir, b + '.tex')
+        if not os.path.exists(f):
+            print "Creating missing file %s" % f
+            open(f, 'w')
+            comments = ""
+
     
+def load_all_comments_tex(comments_dir):
+    """ load all comments files, returns hash basename -> comment """
+    basename2comment = {}
+    files = glob.glob(os.path.join(comments_dir, '*.tex'))
+    for f in files:
+        basename = get_basename(f)
+        if basename == 'layout':
+            continue
+
+        comments = open(f).read()
+
+        if len(comments.strip()) == 0:
+            continue
+            
+        data = {}
+        data['comments'] = comments
+        data['basename'] = basename
+#        comments.append(data)
+        basename2comment[basename] = data
+    return basename2comment    
+    
+def write_figure(report_file, species, basename, caption):
+    report_file.write("""\
+    \\vfill
+\\begin{figure}[h!]
+\centering
+""")
+    row_len = 3
+    for i, s in enumerate(species):
+        if i%row_len == 0:
+            report_file.write("\hspace{-4.5cm}") 
+
+        report_file.write( "\subfloat[\\%s\\label{fig:%s:%s}]{\includegraphics[width=7cm]{../%s/report/%s}}" 
+        % (s,basename,s,s,basename))
+
+        if i%row_len == row_len-1:
+           report_file.write("\hspace{-4cm}\n\n") 
+
+    report_file.write("""\
+\caption{\label{fig:%s}%s}
+\\end{figure}
+""" % (basename, caption))
+
 def create_report_data(data_dir, report_filename, include_empty_descriptions):
     species = species_list(data_dir)
     
@@ -75,8 +131,10 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
         os.makedirs(comments_dir)
     
     # obtain files in species_dir/report ending in .eps
-    all_images = images_list( join(join(data_dir, species[0]), 'report'), exclude_suffixes=['_fm','_detail'] )
-    comments = load_all_comments( comments_dir )
+    all_images, suffix_excluded = images_list( join(join(data_dir, species[0]), 'report'), exclude_suffixes=['_fm','_detail','_2','_3','_4'] )
+    
+    write_missing_comments(comments_dir, all_images)
+    comments = load_all_comments_tex( comments_dir )
     
     images_with_comments = list(set(all_images) & set(comments.keys()))
     
@@ -93,13 +151,16 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
         layout = yaml.load(open(layout_file).read())
     else:
         # create the initial layout
-        layout = { 'title': 'Report', 'header': "", 'footer':"", "order": all_images }
+        layout = { 'title': 'Report', 'header': "", 'footer':"", 
+                   'tex_preamble': "", "order": all_images }
 
-    order = [x for x in layout['order'] if x in use_images]
-    excluded = [ x for x in use_images if not x in layout['order'] ]
-    unknown = [ x for x in layout['order']  if not x in use_images ]
+    order_only_images = [x for x in layout['order'] if not x.endswith('.tex')]
+    order = [x for x in layout['order'] if x in use_images or x.endswith('.tex')]
+    excluded = [ x for x in use_images if not x in order_only_images ]
+    unknown = [ x for x in order_only_images  if not x in use_images ]
     layout['excluded'] = excluded
     layout['unknown'] = unknown
+    layout['tex_preamble'] = layout.get('tex_preamble', "")
 
     # save it for the user to edit
     yaml.dump(layout, open(layout_file, 'w'))
@@ -112,8 +173,9 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
     \\usepackage{subfig}
     \\usepackage{xcolor}
     \\usepackage{graphicx}
+    %s
     \\begin{document}
-    """)
+    """ % layout['tex_preamble'] )
 
     report_file.write("""\
         \\title{%s}
@@ -127,6 +189,11 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
     
 
     for i, basename in enumerate(order):
+        if basename.endswith('.tex'):
+            report_file.write('\\input{../comments/%s}\n'%basename)
+            continue
+        
+        
         title_path = join(join(join(data_dir, species[0]), 'report'), basename+'.title')
         if os.path.exists(title_path):
             title = open(title_path).read()
@@ -151,32 +218,17 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
         if has_comments:
             comment = comments[basename]['comments'].strip()
         else:
-            comment = '{\small \color{gray} No comments about these plots. Edit the file \\verb|%s| to add some.}' % join(comments_dir, basename + '.yaml')
+            comment = '{\small \color{gray} No comments about these plots. Edit the file \\verb|%s| to add some.}' % join(comments_dir, basename + '.tex')
             
         report_file.write("\n\n %s \n\n" % comment)
-            
-        report_file.write("""\
-        \\vfill
-\\begin{figure}[h!]
-\centering
-""")
-
-        row_len = 3
-        for i, s in enumerate(species):
-            if i%row_len == 0:
-                report_file.write("\hspace{-4.5cm}") 
-                
-            report_file.write("\subfloat[%s]{\includegraphics[width=7cm]{../%s/report/%s}}" % (s,s,basename))
-        
-            if i%row_len == row_len-1:
-               report_file.write("\hspace{-4cm}\n\n") 
-
-            
-        report_file.write("""\
-    \caption{\label{fig:%s}%s}
-\\end{figure}
-""" % (basename, caption))
     
+        write_figure(report_file, species, basename, caption)
+        
+        for suf in ['_2', '_3', '_4']:
+            basename2 = basename + suf
+            if basename2 in suffix_excluded:
+                write_figure(report_file, species, basename2, caption)
+        
         # if i % 2 == 1:
         report_file.write("\\clearpage\\vfill\\pagebreak")
         

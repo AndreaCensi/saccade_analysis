@@ -1,0 +1,30 @@
+
+I played around two families of algorithms:
+\begin{itemize}
+	\item One approach based on $\ell$1-regularization \cite{trend-filtering} --- a very fancy one! 
+	\item The good-old approach. We obtain velocity from orientation, we smooth more, and we look at the peaks. There are a bunch of parameters and thresholds that one has to set.
+\end{itemize}
+The fancy approach is interesting but difficult to tune. In the end, I obtained better results with the old approach, which is the only one that is used for producing the data contained in this report.  Still, there were several parameters to tune;
+the following is a description of the procedure I used to choose the parameters.
+
+I first created a tool to annotate manually part of the data. 
+I annotated as a saccade any jerky movement with more than $\sim5$deg amplitude. 
+There is some subjectivity in this step --- if necessary, we can get a patented biologist to re-do the annotations.
+
+Then I implemented the logic to compute the performance of a particular algorithm.
+The two performance indicators were:
+\begin{itemize}
+	\item Number of \emph{true positives} (detection rate).
+	\item Number of \emph{false positives} (false alarms).
+\end{itemize}
+There is a fundamental tradeoff in these two indicators: a stricter algorithm will have less false positives and more true positive, and vice versa.
+
+We can plot the performance of each algorithm in the ROC curve (Fig.~\vref{fig:roc}) where the $x$-axis represents false positives and the $y$-axis represents true positives. Ideally, we wish to be as close as possible to the point $(1,0)$.
+
+Note that, for each species, we obtain different ROC curves. This is because different species have different types of trajectories and therefore the performance of a detection algorithm changes. 
+
+In each plot, I colored in red the point representing the algorithm that I chose for each species. Note that, in general, there is no ``best'' algorithm, because the choice depends on how much we value missing a saccade (false negatives) versus detecting an extra one (false positive). In the end, the choice of parameters was subtly different for each species.
+
+In general, the detection algorithms obtain a decent rate (around 98\% detection, 2\% misses) which is good enough, given that when I labeled the data I was myself in doubt in some occasions.
+The worst performance is with \Dpseudoobscura (Fig.~\ref{fig:roc:Dpseudoobscura}), because its saccades are small and very smooth. I plan to spend a little bit more time in finding better parameters.
+

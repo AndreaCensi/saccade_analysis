@@ -1,21 +1,46 @@
+General usage notes
+===================
+
+* Make sure you have all the directories in the path.::
+	
+  >> addpath(genpath(pwd)) 
+
+
 How to annotate the data
 ========================
 
-1. Download the data. Due to the size, it is not committed to the repository.
+1. Download the data. Due to the size, it is not committed to the repository.::
    
 	$ cd data/
 	$ ./download_datafiles.sh
 
-2. Fire up Matlab. Add all the directories to the path.
+2. Fire up Matlab. Add all the directories to the path.::
     
     >> addpath(genpath(pwd)) 
 
 3. Start the annotation tool. The main function is ``annotate_logs``
-   Give it as the only argument the species directory. 
+   Give it as the only argument the species directory. ::
 
-    >> annotate_logs('data/Dmelanogaster')
+    >> annotate_species('data/Dmelanogaster')
 
 You are now inside the tool. 
+
+You are presented with a random slice of data.
+Click twice to mark a saccade: at the beginning and the end.
+When you have marked all saccades in the current screen, press enter to go to the next screen.
+
+* When you want to exit, press "x"+enter without clicking any point.
+* If you want to undo the previous selection, press "u" + enter.  
+
+
+How to run detection and verify the results
+===========================================
+
+
+How to create report
+===================
+
+	python code/report/report_generation_utils/create_report_data.py data
 
 Data description
 ================
@@ -31,6 +56,10 @@ Saccade record description:
 - amplitude        >0
 - top_velocity     top velocity measured in the saccade       
 - time_passed      time passed since last saccade
+
+Configuration record
+---------------------
+
 
 Directory layout
 ================
@@ -50,6 +79,8 @@ Directory Layout, data files:
 
 	data/<species>/report/       Contains all the output pictures (.eps)
 	data/<species>/comments/     Contains comments to the figures.
+	data/<species>/comments/<picture_id>.yaml 
+	data/<species>/comments/layout.yaml 
 	
 Directory Layout, source code
 -----------------------------

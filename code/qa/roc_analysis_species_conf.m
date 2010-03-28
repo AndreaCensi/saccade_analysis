@@ -18,13 +18,15 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 		display = false;
 	end
 	
+	% we don't consider annotations which are closer to the annotation screen margin
+	marking_safety = 1;
+	% ignore errors if the annotated saccade is less than this
+	minimum_significant_amplitude = 7;
+	
 	% display interval
 	delta = 5; 
 	display_misses = display;
 	display_extra = display;
-	
-	% we don't consider annotations which are closer to the annotation screen margin
-	marking_safety = 1;
 	
 	
 	saccades_files = sprintf('%s/processed/%s/saccades.mat', directory, configuration_id);
@@ -65,7 +67,6 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 		% mark excluded
 		for a=1:numel(annotations_for_sample)
 			% It's hard to mark the saccades at beginning and end of the screen
-			tolerance = 1;
 			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts + marking_safety);
 			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts-marking_safety);
 			
@@ -104,6 +105,12 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 				index_start = timestamp2index(log.timestamp, ann_saccade.time_start );
 				index_stop = timestamp2index(log.timestamp, ann_saccade.time_stop );
 				
+				amplitude = abs(log.orientation(index_start)-log.orientation(index_stop));
+				% ignore annotated saccades less that the significant amplitude
+				if amplitude < minimum_significant_amplitude
+					continue
+				end
+					
 				sample_res.num_annotated = sample_res.num_annotated + 1;
 				 
 				missed = false;

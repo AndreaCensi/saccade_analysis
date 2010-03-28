@@ -96,8 +96,8 @@ while true
 		
 		if x(2) < x(1)
 %			fprintf('Please click first the start and then the end point.\n')
-			x = x([2 1])
-			y = y([2 1])
+			x = x([2 1]);
+			y = y([2 1]);
 		end
 		sac = numel(annotations(nd).saccades) + 1;
 		annotations(nd).saccades(sac).time_start = x(1);

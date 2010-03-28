@@ -18,3 +18,5 @@ function create_report_species(species_dir, conf_id)
 	sac_distributions(saccades, out_dir);
 	sac_corr_start_and_sign(saccades, out_dir);
 	
+	sac_interval_analysis(saccades, out_dir);
+	
