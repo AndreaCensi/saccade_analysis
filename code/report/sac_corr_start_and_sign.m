@@ -11,7 +11,7 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	orientation_start_right = theta0(S == -1);
 	
 	
-	nbins = 180;
+	nbins = 90;
 	[hist_left, bin_positions] = hist(orientation_start_left, nbins);
 	[hist_right, bin_positions] = hist(orientation_start_right, nbins);
 
@@ -23,11 +23,17 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	plot(bin_positions, hist_left, 'r-')
 	hold on
 	plot(bin_positions, hist_right, 'g-')
-	legend('left turn', 'right turn')
+	legend('left', 'right')
 	xlabel('start orientation (deg)')
 	ylabel('number of samples')
 	ftitle='Sample count, turning left or right';
 	sac_print(out_dir, 'sac_turn_count', ftitle);
+	a=axis;
+	a(1)=0;
+	a(2)=360;
+	axis(a)
+	close(f)
+	
 	
 	f=sac_figure(32);  
 	hold off
@@ -43,6 +49,6 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	ylabel('probability')
 	ftitle='Probability of turning left or right';
 	sac_print(out_dir, 'sac_turn_probability', ftitle);
-	
+	close(f)
 	
 	

@@ -131,7 +131,7 @@ function create_xcorr_plots(var1, out_dir)
 		plot(lags, S_xcorr, 'kx-');
 		ylabel('Autocorrelation')
 		xlabel(sprintf('distance in saccade sequence'))
-		axis([-maxlag +maxlag 0 1])
+		axis([-maxlag +maxlag -0.5 1])
 		ftitle=sprintf('Autocorrelation of %s ', var1.name);
 		sac_print(out_dir, basename, ftitle);
 		close(f)
@@ -180,6 +180,7 @@ function create_dist_plots(var1, out_dir)
 	end
 	
 function create_joint_plots(var1, var2, out_dir)
+	if false
 	basename=sprintf('sac_joint-%s-%s', var1.id, var2.id);
 	if ~report_should_I_skip(out_dir, basename)	
 		f = sac_figure;
@@ -197,13 +198,14 @@ function create_joint_plots(var1, var2, out_dir)
 			a(4) = var2.interesting(2);
 		end
 		axis(a);
+		
 		ftitle = sprintf('Joint distribution of %s / %s ', var1.name, var2.name);
 		sac_print(out_dir, basename, ftitle);
 		close(f)
 	end
+	end
 	
-	
-	basename=sprintf('sac_joint-%s-%s_2', var1.id, var2.id);
+	basename=sprintf('sac_joint-%s-%s', var1.id, var2.id);
 	if ~report_should_I_skip(out_dir, basename)	
 		f = sac_figure;
 		
@@ -220,13 +222,24 @@ function create_joint_plots(var1, var2, out_dir)
 		y = var2.values(valid);
 		
 		[N,C] = hist3([x' y'], [50 50]);
-		cx=C{1}; cy=fliplr(C{2});
+		cx=C{1}; cy=C{2};
+		
+		w=max(cx)-min(cx);
+		h=max(cy)-min(cy);
+		t=100;
+		w=0;h=0;
+		a=[min(cx)-w/t max(cx)+w/t min(cy)-h/t max(cy)+h/t];
+		axis(a)
+		h=plot(a(1),a(3),'.');
+		set(h,'MarkerSize',0.001);
+		hold on;
 		imagesc(cx, cy, -N');
+		axis(a)
+		
 		xlabel(sprintf('%s (%s)', var1.name, var1.unit))
 		ylabel(sprintf('%s (%s)', var2.name, var2.unit))
 		colormap('bone')
-		a=axis;
-		axis(a);
+		
 		ftitle = sprintf('Joint distribution of %s / %s ', var1.name, var2.name);
 		sac_print(out_dir, basename, ftitle);
 		close(f)

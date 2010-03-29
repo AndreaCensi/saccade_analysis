@@ -1,34 +1,31 @@
-excluded: [sac_amp_corr, sac_turn_probability, sac_dist-top_velocity_all, sac_dist-amplitude_all,
-  sac_dist-duration_all, sac_dist-interval_all, sac_dist-initial_orientation_all,
-  sac_dist-final_orientation_all, sac_dist-time_start_all, sac_xcorr-time_start, sac_joint-time_start-amplitude,
-  sac_joint-time_start-duration, sac_joint-time_start-top_velocity, sac_joint-time_start-interval,
-  sac_joint-time_start-initial_orientation, sac_joint-time_start-final_orientation,
-  sac_joint-amplitudeL-time_start, sac_joint-durationL-time_start, sac_joint-top_velocityL-time_start,
-  sac_joint-intervalL-time_start]
+excluded: [sac_dist-amplitude_all, sac_dist-duration_all, sac_dist-top_velocity_all,
+  sac_dist-interval_all, sac_dist-initial_orientation_all, sac_dist-final_orientation_all,
+  sac_turn_probability, sac_joint-initial_orientation-duration, sac_joint-initial_orientation-amplitude,
+  sac_joint-initial_orientation-top_velocity, sac_joint-initial_orientation-interval,
+  sac_joint-final_orientation-amplitude, sac_joint-final_orientation-top_velocity,
+  sac_joint-final_orientation-duration, sac_joint-final_orientation-interval, sac_joint-final_orientation-initial_orientation,
+  sac_joint-amplitudeL-initial_orientation, sac_joint-amplitudeL-final_orientation,
+  sac_joint-durationL-final_orientation, sac_joint-durationL-initial_orientation,
+  sac_joint-top_velocityL-final_orientation, sac_joint-top_velocityL-initial_orientation,
+  sac_joint-intervalL-initial_orientation, sac_joint-intervalL-final_orientation,
+  sac_xcorr-initial_orientation, sac_xcorr-final_orientation]
 footer: ''
 header: ''
 order: [section_histograms.tex, sac_raw_orientation, sac_raw_orientation_sample, section_detection.tex,
-  roc, section_left_or_right.tex, sac_turn_count, sac_sign_averages, markov_first,
-  markov_second, sac_sign_corr, section_simple_distributions.tex, sac_dist-amplitude,
+  roc, section_left_or_right.tex, sac_sign_averages, sac_turn_count, sac_sign_corr,
+  markov_first, markov_second, section_simple_distributions.tex, sac_dist-amplitude,
   sac_dist-top_velocity, sac_dist-duration, sac_dist-interval, sac_interval_analysis,
   sac_dist-initial_orientation, sac_dist-final_orientation, section_xcorr.tex, sac_xcorr-amplitude,
-  sac_xcorr-duration, sac_xcorr-top_velocity, sac_xcorr-initial_orientation, sac_xcorr-interval,
-  sac_xcorr-final_orientation, section_joint_distributions.tex, sac_joint-duration-amplitude,
-  sac_joint-top_velocity-amplitude, sac_joint-top_velocity-duration, sac_joint-interval-amplitude,
-  sac_joint-interval-duration, sac_joint-interval-top_velocity, sac_joint-initial_orientation-duration,
-  sac_joint-initial_orientation-amplitude, sac_joint-initial_orientation-top_velocity,
-  sac_joint-initial_orientation-interval, sac_joint-final_orientation-amplitude, sac_joint-final_orientation-duration,
-  sac_joint-final_orientation-top_velocity, sac_joint-final_orientation-interval,
-  sac_joint-final_orientation-initial_orientation, sac_joint-amplitudeL-amplitude,
-  sac_joint-amplitudeL-duration, sac_joint-amplitudeL-top_velocity, sac_joint-amplitudeL-interval,
-  sac_joint-amplitudeL-initial_orientation, sac_joint-amplitudeL-final_orientation,
-  sac_joint-durationL-amplitude, sac_joint-durationL-duration, sac_joint-durationL-top_velocity,
-  sac_joint-durationL-interval, sac_joint-durationL-final_orientation, sac_joint-durationL-initial_orientation,
-  sac_joint-top_velocityL-amplitude, sac_joint-top_velocityL-top_velocity, sac_joint-top_velocityL-duration,
-  sac_joint-top_velocityL-interval, sac_joint-top_velocityL-initial_orientation, sac_joint-top_velocityL-final_orientation,
+  sac_xcorr-top_velocity, sac_xcorr-duration, sac_xcorr-interval, section_joint_distributions.tex,
+  sac_joint-duration-amplitude, sac_joint-top_velocity-amplitude, sac_joint-top_velocity-duration,
+  sac_joint-interval-amplitude, sac_joint-interval-duration, sac_joint-interval-top_velocity,
+  sac_joint-amplitudeL-amplitude, sac_joint-amplitudeL-duration, sac_joint-amplitudeL-top_velocity,
+  sac_joint-amplitudeL-interval, sac_joint-durationL-amplitude, sac_joint-durationL-duration,
+  sac_joint-durationL-top_velocity, sac_joint-durationL-interval, sac_joint-top_velocityL-amplitude,
+  sac_joint-top_velocityL-top_velocity, sac_joint-top_velocityL-duration, sac_joint-top_velocityL-interval,
   sac_joint-intervalL-amplitude, sac_joint-intervalL-top_velocity, sac_joint-intervalL-duration,
-  sac_joint-intervalL-interval, sac_joint-intervalL-initial_orientation, sac_joint-intervalL-final_orientation]
+  sac_joint-intervalL-interval]
 tex_preamble: \usepackage{varioref} \input{../comments/species_names.tex} \usepackage{amsmath}
   \usepackage{xspace}
 title: Saccade analysis report
-unknown: []
+unknown: [markov_first, markov_second]
