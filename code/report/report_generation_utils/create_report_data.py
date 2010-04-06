@@ -131,7 +131,11 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
         os.makedirs(comments_dir)
     
     # obtain files in species_dir/report ending in .eps
-    all_images, suffix_excluded = images_list( join(join(data_dir, species[0]), 'report'), exclude_suffixes=['_fm','_detail','_2','_3','_4'] )
+    print species[0]
+    details_suffixes = ['_2', '_3', '_4','_log','_cdf']
+    exclude_other= details_suffixes + ['_fm']
+    exclude_suffixes = details_suffixes + exclude_other
+    all_images, suffix_excluded = images_list( join(join(data_dir, species[0]), 'report'), exclude_suffixes=exclude_suffixes)
     
     write_missing_comments(comments_dir, all_images)
     comments = load_all_comments_tex( comments_dir )
@@ -224,7 +228,7 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
     
         write_figure(report_file, species, basename, caption)
         
-        for suf in ['_2', '_3', '_4']:
+        for suf in details_suffixes: 
             basename2 = basename + suf
             if basename2 in suffix_excluded:
                 write_figure(report_file, species, basename2, caption)
@@ -242,6 +246,9 @@ if __name__ == '__main__':
     create_report_data(data_dir, report_filename='all.tex', include_empty_descriptions=True)
     #create_report_data(data_dir, report_filename='short.tex', include_empty_descriptions=False)
 
+    script_name = os.path.join(os.getcwd(), sys.argv[0])
+    abs_data_dir = os.path.join(os.getcwd(), data_dir)
+    
     f = open( data_dir + "/report/Makefile" , 'w');
     f.write("""
 #   
@@ -250,15 +257,17 @@ if __name__ == '__main__':
 all: all.pdf 
 
 
-%.ps: %.dvi
+%%.ps: %%.dvi
 \tdvips -o $@ $<
 
-%.pdf: %.dvi
+%%.pdf: %%.dvi
 \tdvipdf $<
     
-%.dvi: %.tex
+%%.dvi: %%.tex
 \tlatex $<
 \tlatex $<
 
-""")
+all.tex: 
+\tpython %s %s
+""" % (script_name, abs_data_dir))
     

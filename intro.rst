@@ -37,11 +37,21 @@ How to run detection and verify the results
 ===========================================
 
 
-How to create report
-===================
+How to create the report
+========================
 
-	python code/report/report_generation_utils/create_report_data.py data
+	>> create_report('data', 'use_for_report')
+	$ python code/report/report_generation_utils/create_report_data.py data
+	$ make -C data/report all.pdf
 
+
+How to recreate some pictures 
+=============================
+
+	$ rm data/D*/report/*hist_log*
+	>> create_report('data', 'use_for_report')
+	$ make -C data/report all.pdf
+	
 Data description
 ================
 

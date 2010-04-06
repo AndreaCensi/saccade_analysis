@@ -4,7 +4,7 @@ function sac_distributions(saccades, out_dir)
 	
 	nv=1;
 	vars(nv).id = 'amplitude';
-	vars(nv).interesting = [0 200];
+	vars(nv).interesting = [1 200];
 	vars(nv).name = 'Amplitude';
 	vars(nv).values = [saccades.amplitude];
 	vars(nv).unit = 'deg';
@@ -13,7 +13,7 @@ function sac_distributions(saccades, out_dir)
 
 	nv=nv+1;
 	vars(nv).id = 'duration';
-	vars(nv).interesting = [0 0.3];
+	vars(nv).interesting = [0.01 0.3];
 	vars(nv).name = 'Duration';
 	vars(nv).values = [saccades.duration];
 	vars(nv).unit = 's';
@@ -23,7 +23,7 @@ function sac_distributions(saccades, out_dir)
 	
 	nv=nv+1;
 	vars(nv).id = 'top_velocity';
-	vars(nv).interesting = [0 2000];
+	vars(nv).interesting = [10 2000];
 	vars(nv).name = 'Top angular velocity';
 	vars(nv).values = [saccades.top_velocity];
 	vars(nv).unit = 'deg/s';
@@ -33,7 +33,7 @@ function sac_distributions(saccades, out_dir)
 
 	nv=nv+1;
 	vars(nv).id = 'interval';
-	vars(nv).interesting = [0 8];
+	vars(nv).interesting = [0.01 8];
 	vars(nv).name = 'Interval';
 	vars(nv).values = [saccades.time_passed];
 	vars(nv).unit = 's';
@@ -65,7 +65,7 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'amplitudeL';
 	vars(nv).name = 'Previous amplitude';
-	vars(nv).interesting = [0 400];
+	vars(nv).interesting = [1 200];
 	x = [saccades.amplitude];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
@@ -74,7 +74,7 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'durationL';
 	vars(nv).name = 'Previous duration';
-	vars(nv).interesting = [0 0.3];
+	vars(nv).interesting = [0.01 0.3];
 	x = [saccades.duration];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
@@ -83,7 +83,7 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'top_velocityL';
 	vars(nv).name = 'Previous top velocity';
-	vars(nv).interesting = [0 2000];
+	vars(nv).interesting = [10 2000];
 	x = [saccades.top_velocity];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
@@ -92,7 +92,7 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'intervalL';
 	vars(nv).name = 'Previous interval';
-	vars(nv).interesting = [0 8];
+	vars(nv).interesting = [0.01 8];
 	x = [saccades.time_passed];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
@@ -150,6 +150,23 @@ function create_dist_plots(var1, out_dir)
 		close(f)
 	end
 	
+	if (var1.interesting(1)>0)
+	basename=sprintf('sac_dist-%s_cdf', var1.id);
+	if ~report_should_I_skip(out_dir, basename)	
+		f = sac_figure;
+		[ycdf, xcdf] = cdfcalc(var1.values);
+		semilogx(xcdf, ycdf(1:(end-1)), '-')
+		m = var1.interesting(2)*10;
+		axis([var1.interesting(1) m 0 1])
+%		cdfplot(var1.values);
+		ylabel('cdf')
+		xlabel(sprintf('%s (%s)', var1.name, var1.unit))
+		ftitle=sprintf('CDF of %s ', var1.name);
+		sac_print(out_dir, basename, ftitle);
+		close(f)
+	end
+	end
+	
 	if numel(var1.interesting) > 0
 	basename=sprintf('sac_dist-%s', var1.id);
 	if ~report_should_I_skip(out_dir, basename)	
@@ -205,6 +222,35 @@ function create_joint_plots(var1, var2, out_dir)
 	end
 	end
 	
+	if (var1.interesting(1)>0) && (var2.interesting(1)>0)
+	basename=sprintf('sac_joint-%s-%s_log', var1.id, var2.id);
+	if ~report_should_I_skip(out_dir, basename)	
+		f = sac_figure;
+		
+		x_interval = [var1.interesting(1) var1.interesting(2) * 5];
+		y_interval = [var2.interesting(1) var2.interesting(2) * 5];
+		
+		plot_log_hist3(var1.values',var2.values',x_interval, y_interval, 50, 50);
+		
+		xlabel(sprintf('%s (%s)', var1.name, var1.unit))
+		ylabel(sprintf('%s (%s)', var2.name, var2.unit))
+		% a=axis;
+		% if numel(var1.interesting) == 2
+		% 	a(1) = var1.interesting(1);
+		% 	a(2) = var1.interesting(2) * 10;
+		% end
+		% if numel(var2.interesting) == 2
+		% 	a(3) = var2.interesting(1);
+		% 	a(4) = var2.interesting(2) * 10;
+		% end
+		% axis(a);
+		
+		ftitle = sprintf('Joint distribution of %s / %s ', var1.name, var2.name);
+		sac_print(out_dir, basename, ftitle);
+		close(f)
+	end
+	end
+
 	basename=sprintf('sac_joint-%s-%s', var1.id, var2.id);
 	if ~report_should_I_skip(out_dir, basename)	
 		f = sac_figure;
