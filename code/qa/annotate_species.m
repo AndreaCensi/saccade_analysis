@@ -5,7 +5,7 @@ function annotate_species(species_dir)
 
 display_interval_s = 4;
 
-logs = load_all_species(species_dir);
+logs = load_all_samples_for_species(species_dir);
 
 fprintf('- Click twice to mark a saccade: at the beginning and the end. \n')
 fprintf('- When you are done, press enter to go to the next screen. \n')
