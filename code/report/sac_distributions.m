@@ -4,56 +4,69 @@ function sac_distributions(saccades, out_dir)
 	
 	nv=1;
 	vars(nv).id = 'amplitude';
+	vars(nv).letter = 'A';
 	vars(nv).interesting = [1 200];
 	vars(nv).name = 'Amplitude';
 	vars(nv).values = [saccades.amplitude];
 	vars(nv).unit = 'deg';
 	vars(nv).density_max_y = 0.06;
 	vars(nv).density_bins = 100;
+	vars(nv).include_in_bigcorr = true;
+	
 
 	nv=nv+1;
 	vars(nv).id = 'duration';
+	vars(nv).letter = 'D';
 	vars(nv).interesting = [0.01 0.3];
 	vars(nv).name = 'Duration';
 	vars(nv).values = [saccades.duration];
 	vars(nv).unit = 's';
 	vars(nv).density_max_y = 40;
 	vars(nv).density_bins = 100;
+	vars(nv).include_in_bigcorr = true;
 	
 	
 	nv=nv+1;
 	vars(nv).id = 'top_velocity';
+	vars(nv).letter = 'V';
 	vars(nv).interesting = [10 2000];
 	vars(nv).name = 'Top angular velocity';
 	vars(nv).values = [saccades.top_velocity];
 	vars(nv).unit = 'deg/s';
 	vars(nv).density_max_y = 3 * 1e-3;
 	vars(nv).density_bins = 100;
-	
+	vars(nv).include_in_bigcorr = true;
+
 
 	nv=nv+1;
 	vars(nv).id = 'interval';
+	vars(nv).letter = 'I';
 	vars(nv).interesting = [0.01 8];
 	vars(nv).name = 'Interval';
 	vars(nv).values = [saccades.time_passed];
 	vars(nv).unit = 's';
 	vars(nv).density_max_y = 1.1;
 	vars(nv).density_bins = 100;
-	
+	vars(nv).include_in_bigcorr = true;
+
 
 	nv=nv+1;
 	vars(nv).id = 'initial_orientation';
+	vars(nv).letter = 'io';
 	vars(nv).interesting = [0, 360];
 	vars(nv).name = 'Initial orientation';
 	vars(nv).values = mod([saccades.orientation_start], 360);
 	vars(nv).unit = 'deg';
+	vars(nv).include_in_bigcorr = false;
 
 	nv=nv+1;
 	vars(nv).id = 'final_orientation';
+	vars(nv).letter = 'fo';
 	vars(nv).interesting = [0, 360];
 	vars(nv).name = 'Final orientation';
 	vars(nv).values = mod([saccades.orientation_stop], 360);
 	vars(nv).unit = 'deg';
+	vars(nv).include_in_bigcorr = false;
 % 
 % 	nv=nv+1;
 % 	vars(nv).id = 'time_start';
@@ -64,39 +77,50 @@ function sac_distributions(saccades, out_dir)
 
 	nv=nv+1;
 	vars(nv).id = 'amplitudeL';
+	vars(nv).letter = 'pA';	
 	vars(nv).name = 'Previous amplitude';
 	vars(nv).interesting = [1 200];
 	x = [saccades.amplitude];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
 	vars(nv).unit = 'deg';
+	vars(nv).include_in_bigcorr = true;
+	
 
 	nv=nv+1;
 	vars(nv).id = 'durationL';
+	vars(nv).letter = 'pD';
 	vars(nv).name = 'Previous duration';
 	vars(nv).interesting = [0.01 0.3];
 	x = [saccades.duration];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
 	vars(nv).unit = 's';
+	vars(nv).include_in_bigcorr = true;
 
 	nv=nv+1;
 	vars(nv).id = 'top_velocityL';
+	vars(nv).letter = 'pV';
 	vars(nv).name = 'Previous top velocity';
 	vars(nv).interesting = [10 2000];
 	x = [saccades.top_velocity];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
 	vars(nv).unit = 'deg/s';
+	vars(nv).include_in_bigcorr = true;
+	
 
 	nv=nv+1;
 	vars(nv).id = 'intervalL';
+	vars(nv).letter = 'pI';
 	vars(nv).name = 'Previous interval';
 	vars(nv).interesting = [0.01 8];
 	x = [saccades.time_passed];
 	y = [nan x(1:end-1)];
 	vars(nv).values = y;
 	vars(nv).unit = 's';
+	vars(nv).include_in_bigcorr = true;
+	
 
 	for i=1:numel(vars)
 		vars(i).is_delayed = numel(strfind(vars(i).id, 'L'))>0;
@@ -106,7 +130,9 @@ function sac_distributions(saccades, out_dir)
 		% do not create histogram for delayed variables
 		if not(vars(i).is_delayed)
 			create_dist_plots(vars(i), out_dir);
+			create_dist_samples_plots(saccades, vars(i), out_dir);
 			create_xcorr_plots(vars(i), out_dir);
+			create_xcorr_sample_plots(saccades, vars(i), out_dir);
 		end
 	end
 	
@@ -117,6 +143,113 @@ function sac_distributions(saccades, out_dir)
 				create_joint_plots(vars(i), vars(j), out_dir)
 			end
 		end
+	end
+	
+	vartoinclude = vars( [vars.include_in_bigcorr] == true );
+	create_bigcorr_plots(saccades, vartoinclude, out_dir);
+
+function create_bigcorr_plots(saccades, vars, out_dir)
+	basename='sac_bigcorr';
+	if report_should_I_skip(out_dir, basename), return, end
+	
+	[all_samples, saccades] = add_sample_num(saccades);
+	N = numel(all_samples);
+	nvars = numel(vars);
+	bigR = zeros(nvars, nvars);
+	for a=1:N
+		for_this_sample = [saccades.sample_num] == a;
+		sample_len = numel(find(for_this_sample));
+		% create a big array with all the values
+		X = zeros(sample_len, nvars);
+		for v=1:numel(vars)
+			x = vars(v).values(for_this_sample);
+			assert(numel(x) == sample_len);
+			X(:, v) = x;
+		end
+		% remove rows that have nans
+		good_rows = not(any(isnan(X),2));
+		X = X(good_rows, :);
+		
+%		C = cov(X);
+		R = corr(X);
+		% average all correlation matrices
+		fraction = sample_len / numel(saccades);
+		assert(fraction <= 1);
+		bigR = bigR + R * fraction;
+	end
+	
+	f = sac_figure(70); hold on
+	im = colorcorr(bigR);
+	image(1:nvars, 1:nvars, im);
+	axis([0 nvars+1 0 nvars+1])
+	letters = {vars.letter};
+	set(gca, 'XTick', 1:nvars);
+	set(gca, 'XTickLabel', letters);
+	set(gca, 'YTick', 1:nvars);
+	set(gca, 'YTickLabel', letters);
+	
+
+
+	ftitle=sprintf('variables correlation');
+	sac_print(out_dir, basename, ftitle);
+	close(f)
+
+function create_dist_samples_plots(saccades, var1, out_dir)
+	basename=sprintf('sac_dist_samples-%s', var1.id);
+	if ~report_should_I_skip(out_dir, basename)
+		[all_samples, saccades] = add_sample_num(saccades);
+		f = sac_figure(70); hold on
+		N = numel(all_samples);
+		percentiles = [1 5 25 50 75 95 99];
+		colors = {'k','r','b','g','b','r','k'};
+		perc_results = [];
+		variable_average = [];
+		variable_std = [];
+		for a=1:N
+			saccades_for_sample = [saccades.sample_num] == a;
+			assert(numel(saccades_for_sample) == numel(var1.values));
+			
+			selected_values = var1.values(saccades_for_sample);
+			variable_average(a) = mean( selected_values);
+			variable_std(a) = std( selected_values);
+			perc_results(a,:) = prctile(selected_values, percentiles);
+		end
+		
+		A=[0 N+1 var1.interesting(1)*1.5 var1.interesting(2)];
+		axis(A)
+		% lets order by the median
+		median = perc_results(:,4);
+		[dummy, ordered_by_median] = sort(median);
+		
+		perc_results = perc_results(ordered_by_median, :);
+		
+		legend_entries = {};
+		for i=1:numel(percentiles)
+			vals = perc_results(:, i);
+			plot(1:N, vals, sprintf('%s.--', colors{i}));
+			legend_entries{i} = sprintf('%d%%', percentiles(i));
+		end
+		
+		colors2 = {'k','r','b','b','r','k'};
+		for i=1:(numel(percentiles)-1)
+			for a=1:N
+				from = perc_results(a,i);
+				to = perc_results(a,i+1);
+				plot([a a], [from to], sprintf('%s-', colors2{i}));
+			end
+		end
+%		legend(legend_entries)
+		%errorbar(1:N,variable_average,variable_std*3,'rx')
+		ylabel(sprintf('%s (%s)', var1.name, var1.unit))
+		xlabel('sample')
+		axis(A);
+
+		
+		%axis([0 N+1 0 100])
+		%legend(all_samples)
+		ftitle=sprintf('Percentiles of %s (1 5 25 50 75 95 99)', var1.name);
+		sac_print(out_dir, basename, ftitle);
+		close(f)
 	end
 
 function create_xcorr_plots(var1, out_dir)
@@ -136,6 +269,39 @@ function create_xcorr_plots(var1, out_dir)
 		sac_print(out_dir, basename, ftitle);
 		close(f)
 	end
+
+function create_xcorr_sample_plots(saccades, var1, out_dir)
+	maxlag = 10;
+	
+	basename=sprintf('sac_xcorr_sample-%s', var1.id);
+	if ~report_should_I_skip(out_dir, basename)	
+		[all_samples, saccades] = add_sample_num(saccades);
+		N = numel(all_samples);
+		colors={'r','g','b','k','m'};
+		f = sac_figure(21); hold on
+		
+		for a=1:N
+			saccades_for_sample = [saccades.sample_num] == a;
+			assert(numel(saccades_for_sample) == numel(var1.values));
+			x = var1.values(saccades_for_sample);
+			x = x(not(isnan(x)));
+			x = x - mean(x);
+			[S_xcorr, lags] = xcorr(x, maxlag, 'coeff');
+			color_index = 1 + mod(a-1, numel(colors));
+			style = sprintf('%s.-', colors{color_index});
+			plot(lags, S_xcorr, style);
+		end
+		
+		ylabel('Autocorrelation')
+		xlabel(sprintf('distance in saccade sequence'))
+		axis([-maxlag +maxlag -0.5 1])
+		ftitle=sprintf('Autocorrelation of %s ', var1.name);
+		sac_print(out_dir, basename, ftitle);
+		close(f)
+	end
+
+
+
 
 	
 function create_dist_plots(var1, out_dir)
@@ -195,6 +361,8 @@ function create_dist_plots(var1, out_dir)
 		close(f)
 	end
 	end
+	
+	
 	
 function create_joint_plots(var1, var2, out_dir)
 	if false

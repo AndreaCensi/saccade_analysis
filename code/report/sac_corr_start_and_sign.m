@@ -10,7 +10,6 @@ function sac_corr_start_and_sign(saccades, out_dir)
 	orientation_start_left  = theta0(S == +1);
 	orientation_start_right = theta0(S == -1);
 	
-	
 	nbins = 90;
 	[hist_left, bin_positions] = hist(orientation_start_left, nbins);
 	[hist_right, bin_positions] = hist(orientation_start_right, nbins);

@@ -69,7 +69,6 @@ function sac_correlation(saccades, out_dir)
 	basename = 'sac_sign_averages';
 	if ~report_should_I_skip(out_dir, basename)
 		[all_samples, saccades] = add_sample_num(saccades);
-%		colors={'r','g','b','k','m'};
 		f = sac_figure(21); hold on
 		N = numel(all_samples);
 		sample_saccades_num = [];
@@ -95,25 +94,5 @@ function sac_correlation(saccades, out_dir)
 		close(f)
 	end
 
-function [all_samples, saccades] = add_sample_num(saccades)
-	all_samples = unique( {saccades.sample} );
-	for i=1:numel(saccades)
-		for a=1:numel(all_samples)
-			if strcmp(all_samples{a}, saccades(i).sample)
-				saccades(i).sample_num = a;
-			end
-		end	
-	end
 	
-	
-		% 
-		% A = abs([saccades.amplitude]);
-		% [A_xcorr, lags] = xcorr(A, maxlag, 'coeff');
-		% 
-		% f = sac_figure(22);
-		% plot(lags, A_xcorr, '.')
-		% ylabel('correlation')
-		% xlabel('distance in the sequence')
-		% ftitle = 'Correlation of saccade amplitude';
-		% sac_print(out_dir, 'sac_amp_corr', ftitle);
-		% 
+	 

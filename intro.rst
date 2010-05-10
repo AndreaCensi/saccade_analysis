@@ -5,6 +5,32 @@ General usage notes
 	
   >> addpath(genpath(pwd)) 
 
+How to do the complete analysis
+================================
+
+Saccade detection
+-----------------
+
+* ...
+* Create a symbolic link 'use_for_report' for the configuration we are
+  going to use in the 
+
+Run the analysis
+----------------
+
+>> addpath(genpath(code)) 
+>> create_report_data('data', 'use_for_report')
+
+
+How to create the PDF report
+----------------------------
+
+	>> create_report('data', 'use_for_report')
+	$ python code/report/report_generation_utils/create_report_data.py data
+	$ make -C data/report all.pdf
+
+
+
 
 How to annotate the data
 ========================
@@ -35,15 +61,6 @@ When you have marked all saccades in the current screen, press enter to go to th
 
 How to run detection and verify the results
 ===========================================
-
-
-How to create the report
-========================
-
-	>> create_report('data', 'use_for_report')
-	$ python code/report/report_generation_utils/create_report_data.py data
-	$ make -C data/report all.pdf
-
 
 How to recreate some pictures 
 =============================
