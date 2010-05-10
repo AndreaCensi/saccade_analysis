@@ -1,3 +1,6 @@
+.. contents:
+
+
 General usage notes
 ===================
 
@@ -11,7 +14,26 @@ How to do the complete analysis
 Saccade detection
 -----------------
 
-* ...
+The main method to run the analysis is::
+
+    process_data('data', conf)
+
+Where ``configuration`` is a struct whose fields are described next.
+Reference values are also shown.
+
+	* ``conf.id ``
+	* ``conf.saccade_detection_method = 'linear';
+	* ``conf.smooth_steps = 3 ``
+	* ``conf.filtered_velocity_significant_threshold  = 50 ``
+	* ``conf.filtered_velocity_zero_threshold = 15;``
+	* ``conf.min_significant_amplitude = 5;``
+	* ``conf.filtered_velocity_significant_threshold = ... ``
+
+ 
+	
+
+    >> test_different_thresholds
+
 * Create a symbolic link 'use_for_report' for the configuration we are
   going to use in the 
 
