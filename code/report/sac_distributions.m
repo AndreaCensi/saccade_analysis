@@ -17,12 +17,13 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'duration';
 	vars(nv).letter = 'D';
-	vars(nv).interesting = [0.01 0.3];
+%	vars(nv).interesting = [0.01 0.3];
+	vars(nv).interesting = [0.01 0.9];
 	vars(nv).name = 'Duration';
 	vars(nv).values = [saccades.duration];
 	vars(nv).unit = 's';
-	vars(nv).density_max_y = 40;
-	vars(nv).density_bins = 100;
+	vars(nv).density_max_y = 10;
+	vars(nv).density_bins = 50;
 	vars(nv).include_in_bigcorr = true;
 	
 	
@@ -48,6 +49,17 @@ function sac_distributions(saccades, out_dir)
 	vars(nv).density_max_y = 1.1;
 	vars(nv).density_bins = 100;
 	vars(nv).include_in_bigcorr = true;
+
+	nv=nv+1;
+	vars(nv).id = 'sign';
+	vars(nv).letter = 'S';
+	vars(nv).interesting = [-1.1 1.1];
+	vars(nv).name = 'Sign';
+	vars(nv).values = [saccades.sign];
+	vars(nv).unit = '';
+	vars(nv).density_max_y = 1.1;
+	vars(nv).density_bins = 100;
+	vars(nv).include_in_bigcorr = false;
 
 
 	nv=nv+1;
@@ -120,7 +132,8 @@ function sac_distributions(saccades, out_dir)
 	vars(nv).values = y;
 	vars(nv).unit = 's';
 	vars(nv).include_in_bigcorr = true;
-	
+
+    sac_temporal_correlation(saccades, vars(1:5), out_dir);
 
 	for i=1:numel(vars)
 		vars(i).is_delayed = numel(strfind(vars(i).id, 'L'))>0;
@@ -155,6 +168,10 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 	[all_samples, saccades] = add_sample_num(saccades);
 	N = numel(all_samples);
 	nvars = numel(vars);
+
+    side = 4;
+    bigbigR = zeros(nvars*side, nvars*side);
+
 	bigR = zeros(nvars, nvars);
 	for a=1:N
 		for_this_sample = [saccades.sample_num] == a;
@@ -176,7 +193,18 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 		fraction = sample_len / numel(saccades);
 		assert(fraction <= 1);
 		bigR = bigR + R * fraction;
-	end
+	
+        u = mod(a-1, side);
+        v = floor( (a-1)/side);
+        assert(u<=side && v<=side);
+        for i=1:size(R,1)
+        for j=1:size(R,2)
+            m = 1+(i-1)*side + u;
+            n = 1+(j-1)*side + v;
+            bigbigR(m,n) = R(i,j);
+        end
+        end 
+    end
 	
 	f = sac_figure(70); hold on
 	im = colorcorr(bigR);
@@ -187,11 +215,22 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 	set(gca, 'XTickLabel', letters);
 	set(gca, 'YTick', 1:nvars);
 	set(gca, 'YTickLabel', letters);
-	
-
-
 	ftitle=sprintf('variables correlation');
 	sac_print(out_dir, basename, ftitle);
+	close(f)
+
+
+	f = sac_figure(70); hold on
+	im = colorcorr(bigbigR);
+	image(1:nvars, 1:nvars, im);
+	axis([0 nvars+1 0 nvars+1])
+	letters = {vars.letter};
+	set(gca, 'XTick', 1:nvars);
+	set(gca, 'XTickLabel', letters);
+	set(gca, 'YTick', 1:nvars);
+	set(gca, 'YTickLabel', letters);
+	ftitle=sprintf('variables correlation (per sample)');
+	sac_print(out_dir, 'sac_bigcorr_2', ftitle);
 	close(f)
 
 function create_dist_samples_plots(saccades, var1, out_dir)

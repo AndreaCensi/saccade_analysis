@@ -1,11 +1,11 @@
-tmp_conf = default_configuration();
+tmp_conf = struct;
 tmp_conf.id = 'tmp_conf';
 tmp_conf.saccade_detection_method = 'linear';
-
 tmp_conf.smooth_steps = 3;
 tmp_conf.filtered_velocity_significant_threshold = 50;
 tmp_conf.filtered_velocity_zero_threshold = 15;
 tmp_conf.min_significant_amplitude = 5;
+tmp_conf.robust_amplitude_delta = 0.1;
 
 significant_threshold = 25:5:100;
 

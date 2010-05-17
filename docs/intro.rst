@@ -99,12 +99,20 @@ Saccade record
 
 Saccade record description:
 
-- time_start       time event
-- time_stop        time event
+- time_start       time saccade started
+- time_stop        time sacced  ended
+- time_passed      time passed since last saccade
+- orientation_start orientation at the beginning
+- orientation_stop  orientation at the end
 - side             L=1 or R=-1
 - amplitude        >0
+- sign             +1 or -1
+- letter           'L' or 'R'  (same info as sign)
+- duration         time_stop - time_start
 - top_velocity     top velocity measured in the saccade       
-- time_passed      time passed since last saccade
+- species
+- filename 
+- sample
 
 Configuration record
 ---------------------
