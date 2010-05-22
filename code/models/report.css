@@ -1,0 +1,14 @@
+
+img { width: 400px; border: solid 1px black;}
+h { font-family: monospace; font-size: 120%; color: black; font-weight: bold;  display: block;}
+
+sssection { border: solid 2px gray; display: block; clear: both; padding: 1em; margin: 1em;}
+
+.report-node { display: block; border: solid 2px gray; padding: 1em; margin: 1em}
+.report-figure { display: block; border: solid 2px green; padding: 1em; margin: 1em}
+.report-figure-caption { display: block; clear: both; border: solid 1px blue;}
+.report-subfigure {  padding: 1em; padding-bottom: 0; margin: 1em; border: solid 1px red; display: block;}
+.report-subfigure-caption { clear: both; display: block; font-weight: bold; text-align: center; border: solid 1px blue;}
+
+.node-class { margin:1em; float: right; font-family: monospace; color: blue;}
+.node-id {margin:1em;  float: right; font-family: monospace; font-weight: bold; color: green;}
