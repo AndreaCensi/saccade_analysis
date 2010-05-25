@@ -100,6 +100,7 @@ class BernouilliSign:
         else:
             return - 1
 
+        
 class Exponential:
     def __init__(self, rate):
         self.rate = rate
