@@ -1,5 +1,7 @@
-from create_tests import IndependentModel, BernouilliSign, Exponential, \
+from models import IndependentModel, BernouilliSign, Exponential, \
     ParallelIndependentModel, Uniform, ParallelModel
+from numpy import array
+from markov import Markov
 
 
 
@@ -26,9 +28,9 @@ def create_models():
     
     
     generators = {
-        + 1: Exponential(2),
+        + 1: Exponential(4),
          0: Exponential(1),
-        - 1: Exponential(0.5)
+        - 1: Exponential(0.25)
     } 
     
     for same in [-1, 0, +1]:
@@ -41,5 +43,24 @@ def create_models():
             names = {-1:'I', 0:'N', +1:'E'}
             name = 'par%s%s' % (names[same], names[other])
             models.append((name, model))
+
+    E, I, N = (0.7, 0.3, 0.5) 
+    probabilities = [
+        ('markov_independent', N, N),
+        ('markov_selfexcite', E, E),
+        ('markov_selfinhibit', I, I),
+        ('markov_excite_left', E, N),
+        ('markov_inhibit_left', I, N)
+    ]
+
+    for name, alpha, beta in probabilities:
+        P = array([[alpha, 1 - beta], [1 - alpha, beta]])
+        print P
+        interval_generator = Exponential(1)
+        sign_generator = Markov(array(P))
+        duration = Uniform(0.1, 0.2)
+        model = IndependentModel(interval_generator, sign_generator, duration)
+        models.append((name, model))
+
 
     return models

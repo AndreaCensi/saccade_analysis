@@ -10,11 +10,22 @@ class Markov:
         self.state = sample_discrete_distribution(self.pi)
         
     def sample(self):
-        self.pi = numpy.dot(self.P, self.pi)
+        assert_stochastic(self.P)
+        assert self.state in [0, 1]
+        
+        if self.state == 0:
+            dist = numpy.array([1, 0])
+        else:
+            dist = numpy.array([0, 1])
+        self.pi = numpy.dot(self.P, dist)
         assert_distribution(self.pi)
         self.pi = self.pi / self.pi.sum()
+        #  print "state=%s, pi=%s, P=%s" % (self.state, self.pi, self.P)
         self.state = sample_discrete_distribution(self.pi)
-        return self.state
+        if self.state == 0:
+            return - 1
+        else:
+            return + 1
     
 
 
@@ -32,7 +43,7 @@ def assert_almost_equal(a, b, threshold=1e-6):
     
 def assert_stochastic(P):
     n = P.shape[0]
-    assert(P.shape == (n, n))
+    assert(P.shape[1] == n)
     assert_almost_equal(P.sum(axis=0), numpy.array([1, 1]))
     PP = numpy.dot(P, P)
     assert_almost_equal(PP.sum(axis=0), numpy.array([1, 1]))

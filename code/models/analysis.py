@@ -14,8 +14,11 @@ def my_xcorr(v, max_lags=20):
     
     some = numpy.nonzero(numpy.abs(lags) <= max_lags)
     
-    xc = xc[some]
+    #max_value = numpy.nonzero(numpy.abs(lags) == 0)
+    xc = xc[some] 
     lags = lags[some]
+    
+    xc = xc / numpy.max(xc)
     
     return xc, lags
     
@@ -33,10 +36,16 @@ def analyze_saccades(report_id, saccades):
 
             xc, lags = my_xcorr(sign, max_lags=10) 
 
-            pylab.plot(lags, xc, 'x-') 
+            pylab.plot(lags, lags * 0, 'r--') 
+            pylab.plot(lags, xc, 'o-',
+     markerfacecolor='blue', markersize=12) 
             pylab.xlabel('lags')
             pylab.ylabel('correlation')
-            pylab.title('Sign correlation vs distance')
+            pylab.title('Sign correlation (%s)' % report_id)
+            
+            x0, x1, y0, y1 = pylab.axis()
+            pylab.axis((x0, x1, -0.4, 1.1))
+            
             pylab.savefig(filename)
             pylab.close()
     fig1.add_subfigure('sign_xcorr', caption='sign_xcorr')

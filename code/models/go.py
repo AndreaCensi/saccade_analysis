@@ -1,7 +1,7 @@
 from analysis import analyze_saccades
-from create_tests import saccades_to_ndarray
 from create_models import create_models
-from report_tools.node import ReportNode
+from report_tools.node import ReportNode #@UnresolvedImport
+from models import saccades_to_ndarray
 
 
 def generate_saccade(model, num):
@@ -16,7 +16,7 @@ def write_report(report, basename):
     report.to_html_document(basename + '.html')
 
 
-from compmake import comp, comp_prefix
+from compmake import comp, comp_prefix #@UnresolvedImport
 
 models = create_models()
 
