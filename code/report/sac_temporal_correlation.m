@@ -10,6 +10,7 @@ function create_temporal_correlation(saccades, vars, out_dir)
     
     % let's create the delayed version
     deltas = [1,2,3,5,10,20];
+%    deltas = [1,2,3];
     for i=1:numel(deltas)
         delta = deltas(i);
         
@@ -79,6 +80,11 @@ function create_temporal_correlation(saccades, vars, out_dir)
 	ftitle=sprintf('variables correlation');
 	sac_print(out_dir, basename, ftitle);
 	close(f)
+	
+	astext = write_corr_as_text(bigR);
+	f=fopen(sprintf('%s/%s.txt', out_dir, basename),'w');
+	fwrite(f,astext);
+	fclose(f);
 
 
 	f = sac_figure(70); hold on

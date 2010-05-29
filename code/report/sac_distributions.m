@@ -219,6 +219,11 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 	sac_print(out_dir, basename, ftitle);
 	close(f)
 
+	
+	astext = write_corr_as_text(bigR);
+	f=fopen(sprintf('%s/%s.txt', out_dir, basename),'w');
+	fwrite(f,astext);
+	fclose(f);
 
 	f = sac_figure(70); hold on
 	im = colorcorr(bigbigR);
