@@ -1,13 +1,14 @@
 function skip = report_should_I_skip(report_dir, basename)
 % function res = report_should_I_skip(report_dir, basename)
 %
-%  Returns true if the output image  basename+.eps is already present
+%  Returns true if the output image  basename+.eps or the text file (+.txt) is already present
 %  and skipping is enabled.
 
 	skip_if_possible = true;
 
-	output_file =  path_join(report_dir, sprintf('%s.eps', basename) );
-	file_is_there = exist(output_file, 'file');
+	output_file1 =  path_join(report_dir, sprintf('%s.eps', basename) );
+	output_file2 =  path_join(report_dir, sprintf('%s.txt', basename) );
+	file_is_there = exist(output_file1, 'file') |  exist(output_file2, 'file') ;
 	
 	skip = file_is_there & skip_if_possible;
 	

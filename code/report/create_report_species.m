@@ -8,6 +8,8 @@ function create_report_species(species_dir, conf_id)
 	
 	load(sprintf('%s/processed/%s/saccades.mat', species_dir, conf_id));
 
+%	[all_samples, saccades] = add_sample_num(saccades);
+
 	out_dir = path_join(species_dir, 'report');
 	my_mkdir(out_dir);
 
@@ -20,3 +22,6 @@ function create_report_species(species_dir, conf_id)
 	
 	sac_interval_analysis(saccades, out_dir);
 	
+	sac_plot_virtual_trajectories(saccades, out_dir);
+	sac_sign_overview(saccades, out_dir);
+	sac_sign_statistics(saccades, out_dir);
