@@ -30,30 +30,13 @@ function sac_sign_statistics(saccades, out_dir)
 		stats = compute_seq_statistics([sample_saccades.letter]);
 		assert(stats.N == stats.L + stats.R);
 		
-		r = stats.L / stats.N;
-		% stats.LL ~ Binomial( x, stats.L, r)
-		% stats.LR ~ Binomial( x, stats.L, 1-r) --- but dependent on the previous
-		% stats.RL ~ Binomial( x, stats.R, r)
-		% stats.RR ~ Binomial( x, stats.R, 1-r) --- but dependent on the previous
+		r = stats.L / stats.N; 
 		
-		cdf_LL = binocdf( stats.LL, stats.L, r);
-		pvalue_LL(a) = min( [cdf_LL, 1-cdf_LL] );
-		cdf_RL = binocdf( stats.RL, stats.R, r);
-		pvalue_RL(a) = min( [cdf_RL, 1-cdf_RL] );
-		pvalue_independence(a) = min(pvalue_LL(a), pvalue_RL(a));
+		pvalue_independence(a) = stats.independent_pvalue;
 
-		LL_neg(a) = cdf_LL < threshold;
-		LL_pos(a) = cdf_LL > 1 - threshold;
-		RL_neg(a) = cdf_RL < threshold;
-		RL_pos(a) = cdf_RL > 1 - threshold;
-		
-		significant_pos_corr(a) = LL_pos(a) | RL_neg(a);
-		significant_neg_corr(a) = LL_neg(a) | RL_pos(a);
-		
-%		fprintf(f_comments, 'LL %.4f  RL %.4f  ind %.4f   LL+ %d  LL- %d  RL+ %d  RL- %d \n', ...
-%			pvalue_LL(a), pvalue_RL(a),	pvalue_independence(a),...
-%			LL_pos(a),LL_neg(a),RL_pos(a),RL_neg(a) );
-			
+		significant_pos_corr(a) = stats.independent_rej_pos;
+		significant_neg_corr(a) = stats.independent_rej_neg;
+		 
 		fprintf(f_comments, '%s %s\n', stats.independent_desc, stats.firstorder_desc);
 		fprintf('%s %s\n', stats.independent_desc, stats.firstorder_desc);
 	end

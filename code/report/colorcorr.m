@@ -1,5 +1,8 @@
-function res = colorcorr(R)
+function rgb = colorcorr(R)
 	% returns a RGB representation of the correlation matrix R
+	
+	nans = isnan(R);
+	R(nans) = 0;
 	
 	m = max(max(abs(R)));
 	R = R / (m*1.00001);;
@@ -13,13 +16,19 @@ function res = colorcorr(R)
 %	fprintf('Maximum abs neg =  %f\n', max(max(abs(negative_part))))
 %	fprintf('Maximum abs any =  %f\n', max(max(abs(anysign))))
 		
-	res = zeros(size(R,1), size(R,2), 3);
 	
 
-	res(:,:,1) = -negative_part + 1;
-	res(:,:,2) = -anysign + 1;
-	res(:,:,3) = -positive_part + 1;
+	R = -negative_part + 1;
+	G = -anysign + 1;
+	B = -positive_part + 1;
 	
-
+	R(nans) = 1;
+	G(nans) = 1;
+	B(nans) = 0.5;
 	
-%	fprintf('Maximum value %f , %f\n', max(max(res)), min(min(res)));
+	rgb = zeros(size(R,1), size(R,2), 3);
+	rgb(:,:,1)=R;
+	rgb(:,:,2)=G;
+	rgb(:,:,3)=B;
+	
+	

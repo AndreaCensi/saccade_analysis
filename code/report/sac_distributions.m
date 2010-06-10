@@ -133,7 +133,9 @@ function sac_distributions(saccades, out_dir)
 	vars(nv).unit = 's';
 	vars(nv).include_in_bigcorr = true;
 
-    sac_temporal_correlation(saccades, vars(1:5), out_dir);
+    sac_temporal_correlation(saccades, vars(1:4), out_dir);
+
+	create_joint_plots_by_sample(saccades, vars(1), vars(4), out_dir);
 
 	for i=1:numel(vars)
 		vars(i).is_delayed = numel(strfind(vars(i).id, 'L'))>0;
@@ -405,7 +407,45 @@ function create_dist_plots(var1, out_dir)
 		close(f)
 	end
 	end
+
+% XXXX I changed var2-var1 because it's late
+function create_joint_plots_by_sample(saccades, var2, var1, out_dir)
+	colors = {'k','r','b','g','m','y'};
+	basename=sprintf('sac_joint_samples-%s-%s', var2.id, var1.id);
+	if report_should_I_skip(out_dir, basename), return, end	
 	
+	[all_samples, saccades] = add_sample_num(saccades);
+	N = numel(all_samples);
+
+	f = sac_figure;
+	hold on
+	N = 5;
+	for a=1:N
+		for_this_sample = [saccades.sample_num] == a;
+		x = var1.values(for_this_sample);
+		y = var2.values(for_this_sample);
+		col = sprintf('%s.', colors{mod(a-1,numel(colors))+1});
+		loglog(x,y,col,'MarkerSize',1)
+		h=plot(x,y,col);
+%		get(h,'MarkerSize')
+	end
+	a=axis;
+	if numel(var1.interesting) == 2
+		a(1) = var1.interesting(1);
+		a(2) = var1.interesting(2);
+	end
+	if numel(var2.interesting) == 2
+		a(3) = var2.interesting(1);
+		a(4) = var2.interesting(2);
+	end
+	axis(a);
+	
+		
+	xlabel(sprintf('%s (%s)', var1.name, var1.unit))
+	ylabel(sprintf('%s (%s)', var2.name, var2.unit))
+	ftitle = sprintf('Joint distribution of %s / %s ', var1.name, var2.name);
+	sac_print(out_dir, basename, ftitle);
+	close(f)
 	
 	
 function create_joint_plots(var1, var2, out_dir)

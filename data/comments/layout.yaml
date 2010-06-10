@@ -1,6 +1,6 @@
-excluded: [sac_dist-amplitude_all, sac_dist-amplitude, sac_dist-top_velocity_all,
-  sac_dist-interval_all, sac_dist-sign_all, sac_dist-sign, sac_dist_samples-sign,
-  sac_xcorr_sample-sign, sac_xcorr-sign, sac_dist_samples-initial_orientation, sac_dist-initial_orientation_all,
+excluded: [sac_dist-amplitude_all, sac_dist-top_velocity_all, sac_dist-interval_all,
+  sac_dist-sign_all, sac_dist-sign, sac_dist_samples-sign, sac_xcorr_sample-sign,
+  sac_xcorr-sign, sac_dist_samples-initial_orientation, sac_dist-initial_orientation_all,
   sac_xcorr_sample-initial_orientation, sac_dist-final_orientation_all, sac_xcorr-initial_orientation,
   sac_dist_samples-final_orientation, sac_xcorr-final_orientation, sac_xcorr_sample-final_orientation,
   sac_joint-sign-amplitude, sac_joint-sign-interval, sac_joint-sign-top_velocity,
@@ -19,20 +19,20 @@ footer: ''
 header: ''
 order: [section_histograms.tex, sac_raw_orientation, sac_raw_orientation_sample, sac_virtual_traj,
   section_detection.tex, roc, section_left_or_right.tex, sac_sign_averages, sac_sign_overview,
-  sac_turn_count, sac_sign_corr, sac_dist_samples-amplitude, sac_dist-top_velocity,
+  sac_turn_count, sac_sign_corr, sac_dist-amplitude, sac_dist_samples-amplitude, sac_dist-top_velocity,
   sac_dist_samples-top_velocity, sac_dist-duration, sac_dist_samples-duration, sac_dist-interval,
   sac_dist_samples-interval, sac_interval_analysis, sac_dist-initial_orientation,
-  sac_dist-final_orientation, sac_bigcorr, sac_bigtime, section_xcorr.tex, sac_xcorr-amplitude,
-  sac_xcorr_sample-amplitude, sac_xcorr-top_velocity, sac_xcorr_sample-top_velocity,
-  sac_xcorr-duration, sac_xcorr_sample-duration, sac_xcorr-interval, sac_xcorr_sample-interval,
-  section_joint_distributions.tex, sac_joint-duration-amplitude, sac_joint-top_velocity-amplitude,
-  sac_joint-top_velocity-duration, sac_joint-interval-amplitude, sac_joint-interval-duration,
-  sac_joint-interval-top_velocity, sac_joint-amplitudeL-amplitude, sac_joint-amplitudeL-duration,
-  sac_joint-amplitudeL-top_velocity, sac_joint-amplitudeL-interval, sac_joint-durationL-amplitude,
-  sac_joint-durationL-duration, sac_joint-durationL-top_velocity, sac_joint-durationL-interval,
-  sac_joint-top_velocityL-amplitude, sac_joint-top_velocityL-top_velocity, sac_joint-top_velocityL-duration,
-  sac_joint-top_velocityL-interval, sac_joint-intervalL-amplitude, sac_joint-intervalL-top_velocity,
-  sac_joint-intervalL-duration, sac_joint-intervalL-interval]
+  sac_dist-final_orientation, sac_bigcorr, sac_joint_samples-amplitude-interval, sac_bigtime,
+  section_xcorr.tex, sac_xcorr-amplitude, sac_xcorr_sample-amplitude, sac_xcorr-top_velocity,
+  sac_xcorr_sample-top_velocity, sac_xcorr-duration, sac_xcorr_sample-duration, sac_xcorr-interval,
+  sac_xcorr_sample-interval, section_joint_distributions.tex, sac_joint-duration-amplitude,
+  sac_joint-top_velocity-amplitude, sac_joint-top_velocity-duration, sac_joint-interval-amplitude,
+  sac_joint-interval-duration, sac_joint-interval-top_velocity, sac_joint-amplitudeL-amplitude,
+  sac_joint-amplitudeL-duration, sac_joint-amplitudeL-top_velocity, sac_joint-amplitudeL-interval,
+  sac_joint-durationL-amplitude, sac_joint-durationL-duration, sac_joint-durationL-top_velocity,
+  sac_joint-durationL-interval, sac_joint-top_velocityL-amplitude, sac_joint-top_velocityL-top_velocity,
+  sac_joint-top_velocityL-duration, sac_joint-top_velocityL-interval, sac_joint-intervalL-amplitude,
+  sac_joint-intervalL-top_velocity, sac_joint-intervalL-duration, sac_joint-intervalL-interval]
 tex_preamble: \usepackage{varioref} \input{../comments/species_names.tex} \usepackage{amsmath}
   \usepackage{xspace}
 title: Saccade analysis report

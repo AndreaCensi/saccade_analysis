@@ -1,5 +1,5 @@
 function r = compute_seq_statistics(letters)
-
+	threshold = 0.01;
 	
 	r.N = numel(letters);
 	r.L = count(letters, 'L');
@@ -13,33 +13,46 @@ function r = compute_seq_statistics(letters)
 
 	[r.r, r.r_int] = binofit(r.L, r.N, 0.01);
 
-	r.LL_cdf = binocdf(r.LL, r.L, [r.r r.r_int]);
-	r.RL_cdf = binocdf(r.RL, r.R, [r.r r.r_int]);
-%	r.LL_pvalue = cdf2pvalue( r.LL_cdf);
-%	r.RL_pvalue = cdf2pvalue( r.RL_cdf);
+	r.LL_cdf = binocdf_better(r.LL, r.L, [r.r r.r_int]);
+	r.RL_cdf = binocdf_better(r.RL, r.R, [r.r r.r_int]); 
 
 	r.LL_pvalue = binopvalue(r.LL, r.L, [r.r r.r_int]);
 	r.RL_pvalue = binopvalue(r.RL, r.R, [r.r r.r_int]);
 	
-	r.independent_pvalue = max(...
-			[min([r.LL_pvalue(1) r.RL_pvalue(1)]), ...
-		     min([r.LL_pvalue(2) r.RL_pvalue(2)]), ...
-		     min([r.LL_pvalue(3) r.RL_pvalue(3)])] );
+	joint_pvalues = [min([r.LL_pvalue(1) r.RL_pvalue(1)]), ...
+     min([r.LL_pvalue(2) r.RL_pvalue(2)]), ...
+     min([r.LL_pvalue(3) r.RL_pvalue(3)])];
+
+	r.independent_pvalue = max(joint_pvalues);
 		
-	% r.independent_pvalue = more_extreme( ...
-	% 	[least_extreme(r.LL_cdf), ...
-	% 	 least_extreme(r.RL_cdf) ] );
-%	r.independent_pvalue = min( max(cdf2pvalue(r.LL_cdf)), ...
-%		                        max(cdf2pvalue(r.RL_cdf)) );
 		
-	r.independent_rejected = r.independent_pvalue < 0.01;
+	r.independent_rejected = r.independent_pvalue < threshold;
+	
+	% check which one was the key for nominal r
+	r.LL_sig_neg = r.LL_cdf(1) < threshold;
+	r.LL_sig_pos = r.LL_cdf(1) > 1 - threshold;
+	r.RL_sig_neg = r.RL_cdf(1) < threshold;
+	r.RL_sig_pos = r.RL_cdf(1) > 1 - threshold;
+	r.independent_rej_pos = r.LL_sig_pos | r.RL_sig_neg;
+	r.independent_rej_neg = r.LL_sig_neg | r.RL_sig_pos;
+	
 	
 	if r.independent_rejected
-		r.independent_desc = sprintf('%.4f *', r.independent_pvalue );
+			why = '   ';
+		if r.independent_rej_pos
+	 		why = ' + ';
+		end
+		if r.independent_rej_neg
+			why = ' - ';
+		end
+		r.independent_desc = sprintf('%.4f * %s', r.independent_pvalue, why );	
 	else
-		r.independent_desc = sprintf('%.4f  ', r.independent_pvalue);
+		r.independent_desc = sprintf('%.4f      ', r.independent_pvalue);
 	end
-	r.independent_desc = sprintf('indep: %s  r[%.2f %.2f %.2f] {LL[%d/%d] %.4f %.4f %.4f, RL[%d/%d] %.4f %.4f %.4f}',...
+	
+	
+	
+	r.independent_desc = sprintf('indep: %s  r[%.2f %.2f %.2f] {LL[%4d/%4d] %.4f %.4f %.4f, RL[%4d/%4d] %.4f %.4f %.4f}',...
 		r.independent_desc,...
 		r.r_int(1), r.r, r.r_int(2), ...
 		r.LL, r.L, r.LL_cdf(1), r.LL_cdf(2), r.LL_cdf(3), ...
@@ -60,10 +73,10 @@ function r = compute_seq_statistics(letters)
 	r.RLL_cdf = binocdf( r.RLL, r.RL, [r.p2 r.p2_int]);
 	r.LLL_cdf = binocdf( r.LLL, r.LL, [r.p2 r.p2_int]);
 	
-	r.RRL_pvalue = cdf2pvalue(r.RRL_cdf);
-	r.LRL_pvalue = cdf2pvalue(r.LRL_cdf);
-	r.RLL_pvalue = cdf2pvalue(r.RLL_cdf);
-	r.LLL_pvalue = cdf2pvalue(r.LLL_cdf);
+	r.RRL_pvalue = binopvalue( r.RRL, r.RR, [r.p1 r.p1_int]);
+	r.LRL_pvalue = binopvalue( r.LRL, r.LR, [r.p1 r.p1_int]);
+	r.RLL_pvalue = binopvalue( r.RLL, r.RL, [r.p2 r.p2_int]);
+	r.LLL_pvalue = binopvalue( r.LLL, r.LL, [r.p2 r.p2_int]);
 	
 	% r.firstorder_pvalue = max([...
 	% min([r.RRL_pvalue(1) r.LRL_pvalue(1)  r.RLL_pvalue(1) r.LLL_pvalue(1)]), ...
@@ -100,6 +113,6 @@ function  c = count(sequence, sub)
 	c = numel(strfind(sequence, sub));
 
 function v = cdf2pvalue(v)
-	for i=1:numel(v)
-		v(i) = min( v(i), 1-v(i));
-	end
+ 	for i=1:numel(v)
+ 		v(i) = min( v(i), 1-v(i));
+ 	end
