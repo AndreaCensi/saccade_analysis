@@ -1,0 +1,1 @@
+The code here translates from the Matlab format I was using for the luminance thing to the format defined by Rose.
