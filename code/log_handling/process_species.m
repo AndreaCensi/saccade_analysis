@@ -4,7 +4,6 @@ function process_species(directory, configuration)
 	%   directory: contains a bunch of data files with pattern 'data_*'
 	%   configuration: contains the parameters for the saccades extraction
 	%     configuration.id        name of the configuration
-	%     configuration.lambda    reguralization factor
 	%
 	%  The output of the procedure is in a series of files in the directory
 	%         <directory>/processed/<configuration.id>/*.mat

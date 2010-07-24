@@ -51,7 +51,8 @@ function res = convert_to_saccades_format(snpall, directory)
 		data.stim = stim;
 		dt = timestamp(2)-timestamp(1);
 		data.exp_timestamps = (0:numel(theta)-1) * dt;
-		data.exp_orientation = theta;
+		% Rose uses degrees instead of radians
+		data.exp_orientation = rad2deg(theta);
 
 		species = sprintf('mamarama%s', stim);
 		id = filename(5:(numel(filename)-4));

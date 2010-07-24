@@ -24,7 +24,13 @@ while true
 	dt = timestamp(2)-timestamp(1);
 	display_interval_steps = ceil(display_interval_s / dt); 
 	K = numel(timestamp);
-	k = rand_in(1+display_interval_steps, K-display_interval_steps);
+    
+    if K < 3*display_interval_steps
+       T = K * dt;
+       fprintf('Log is too small (%.1f seconds). Skipping. \n.', T);
+       continue
+    end
+	k = rand_in(1+display_interval_steps, K-display_interval_steps-10);
 	
 	from = k - display_interval_steps;
 	to = k + display_interval_steps;

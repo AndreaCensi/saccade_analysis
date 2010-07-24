@@ -66,7 +66,7 @@ How to annotate the data
     
     >> addpath(genpath(pwd)) 
 
-3. Start the annotation tool. The main function is ``annotate_logs``
+3. Start the annotation tool. The main function is ``annotate_species``
    Give it as the only argument the species directory. ::
 
     >> annotate_species('data/Dmelanogaster')

@@ -7,4 +7,4 @@ for i=1:numel(lambdas)
 	lambda_conf(i).saccade_detection_method = 'l1tf';
 end
 
-run_all_species('data', lambda_conf)
+process_data('data', lambda_conf)
