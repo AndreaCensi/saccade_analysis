@@ -9,7 +9,9 @@ def get_basename(x):
     
     
 def species_list(data_dir):
-    return [ get_basename(x) for x in glob.glob(os.path.join(data_dir, 'D*')) ]
+    species = [ get_basename(x) for x in glob.glob(os.path.join(data_dir, 'D*')) ]
+    species += ['mamaramanopost','allmamarama']
+    return species
 
 def images_list(report_dir, exclude_suffixes = []):
     """ Finds all basenames for images in the given dir """
