@@ -46,8 +46,10 @@ function res = convert_to_saccades_format(snpall, directory)
 		end
 		theta = theta_unwrap(theta);
 		
+		id = filename(5:(numel(filename)-4));
+		
 		data.species = 'Dmelanogaster';
-		data.sample = filename;
+		data.sample = id;
 		data.stim = stim;
 		dt = timestamp(2)-timestamp(1);
 		data.exp_timestamps = (0:numel(theta)-1) * dt;
@@ -55,7 +57,6 @@ function res = convert_to_saccades_format(snpall, directory)
 		data.exp_orientation = rad2deg(theta);
 
 		species = sprintf('mamarama%s', stim);
-		id = filename(5:(numel(filename)-4));
 		basename = sprintf('data_%s.mat', id);
 		species_dir = path_join(directory, species);
 		if ~exist(species_dir)

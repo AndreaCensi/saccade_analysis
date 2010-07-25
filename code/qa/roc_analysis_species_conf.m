@@ -9,7 +9,7 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 	%  if display is true, interactively display failures
 	%
 	%  if configuration_id is omitted, it deafults to 'default'.
-	%  if display is omitted, it deafults to 'false'.
+	%  if display is omitted, it defaults to 'false'.
 	
 	if nargin < 2
 		configuration_id = 'default';
@@ -35,6 +35,12 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 	
 	
 	annotations = load_all_qa_data(sprintf('%s/qa',directory));
+    for i=1:numel(annotations)
+    % jul10, mamarama data: annotated some samples with the wrong naming convention
+        if strcmp(annotations(i).sample(end-3:end), '.fh5')
+            annotations(i).sample = annotations(i).sample(5:end-4);
+        end    
+    end
 %	fprintf('Found %d annotations.\n', numel(annotations))
 %	a = load(sprintf('%s/saccades.mat', directory));
 %	saccades = a.saccades;
@@ -47,21 +53,24 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
     species_res.num_extra = 0;
 
 	for i=1:numel(annotated_samples)
-		sample = annotated_samples{i};
+		sample = annotated_samples{i}; 
 	
 		annotations_for_sample = select_specific_sample(annotations, sample);
 		saccades_for_sample = select_specific_sample(saccades, sample);
 		
 	%	fprintf('Sample %s: %d annotations, %d detected.\n', sample, numel(annotations_for_sample), numel(saccades_for_sample))
 		
-		% read the processed 
+		% read the processed data
 		processed = load(sprintf('%s/processed/%s/processed_data_%s.mat', directory, configuration_id, sample));
 		log = processed.res;
 		
+		% We keep two arrays that we use to detect hit & misses
 		K = numel(log.timestamp);
-		detected_saccade = zeros(K,1);
+		% This is initially 0 and it gets marked for each annotated saccade
 		marked_saccade = zeros(K,1);
 		
+		% This is normally 0 and it gets marked for each saccade detected
+		detected_saccade =  zeros(K,1);
 		detected_saccade = mark_saccades(saccades_for_sample, log.timestamp, detected_saccade);
 		
 		% mark excluded
@@ -273,6 +282,11 @@ function display_situation(log, saccades, annotations, time, delta)
 	
 	for an=1:numel(annotations)
 		for i=1:numel(annotations(an).saccades)
+			% added jul2010
+%			if annotations(an).saccades(i).ignore
+%				continue
+%			end
+			
 			plot([ annotations(an).from_ts annotations(an).to_ts], [min_orientation, min_orientation]-10, 'b--')
 			if abs(annotations(an).saccades(i).time_start - time) < delta + 1
 				plot_saccade_delimiters(annotations(an).saccades(i), 50)

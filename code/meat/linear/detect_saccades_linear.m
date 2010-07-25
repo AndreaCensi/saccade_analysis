@@ -6,7 +6,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	%  configuration.filtered_velocity_significant_threshold
 	%  configuration.filtered_velocity_zero_threshold
 	%  configuration.min_significant_amplitude 
-	%
+	%  configuration.debug   print figures and pause
 	% Returns res.saccades
 	% Output:
 	% 
@@ -54,6 +54,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	res.sac_detect = candidates & fast_enough;
 	res.saccades_moments = find(res.sac_detect);
  
+
 	% At this point, most of the program logic is needed
 	% to avoid to detect merged saccades.
 	
@@ -92,7 +93,11 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 			end
 			stop = stop + 1;
         end 
-         
+        duration = timestamp(stop) - timestamp(start);
+		if duration > 0.7 % remove ridicously large saccades, here the fly is moving slowly
+			continue
+		end
+
 		% We compute the orientation using the filtered orientation
 		amplitude = abs(res.filtered_orientation(stop) - res.filtered_orientation(start));
 		% If this is below a threshold, we ignore it
@@ -126,6 +131,10 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
     
 		% We mark the span of this saccade as "considered"
 		considered(start:stop) = 1;
+        
+        % for mamarama, july 2010
+        considered(max(start-3,1):min(numel(considered),stop+3)) = 1;
+        
 		
 		
 		% From now on, we just create the saccade structure.
@@ -157,7 +166,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 		res.saccades(ns).top_filtered_velocity = max( abs(res.filtered_velocity(start:stop)) );
 		res.saccades(ns).amplitude = amplitude;
 %		res.saccades(ns).duration  = res.saccades(ns).amplitude/ res.saccades(ns).top_velocity;
-		res.saccades(ns).duration = timestamp(stop) - timestamp(start);
+		res.saccades(ns).duration = duration; 
 		ns = ns + 1;
     end
 	
@@ -166,6 +175,12 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
         res.saccades = [];
     end	 
 
+
+	% if debug is active plot 
+	if configuration.debug
+		plot_debug_info(res, configuration);
+		pause
+	end
 
 function y = conv_pad(x, f)
 	% convolves with a filter, preserving distance
@@ -176,5 +191,18 @@ function y = conv_pad(x, f)
 	assert(numel(x) == numel(y))
 	
 	
+function plot_debug_info(res, configuration)
+	figure;
+	nr=2;nc=2;np=1;
+	subplot(nr,nc,np); np=np+1; hold on
+	plot(res.timestamp, res.orientation, 'r.');
+	legend('theta')
 	
+	k = [res.saccades.start];
+	plot(res.timestamp(k), res.orientation(k), 'b.');
 	
+	subplot(nr,nc,3); np=np+1; hold on
+	plot(res.timestamp, abs(res.filtered_velocity), '-');
+	plot(res.timestamp, ones(size(res.timestamp)) * 	configuration.filtered_velocity_significant_threshold, 'g--')
+	plot(res.timestamp, ones(size(res.timestamp)) * 	configuration.filtered_velocity_zero_threshold, 'r--')
+	legend('filtered velocity','threshold sign', 'theshold 0')
