@@ -1,14 +1,12 @@
 tmp_conf = struct;
-tmp_conf.id = 'tmp_conf';
-tmp_conf.saccade_detection_method = 'linear';
-tmp_conf.smooth_steps = 3;
-%tmp_conf.filtered_velocity_significant_threshold = 50;
-tmp_conf.filtered_velocity_significant_threshold = 80;
-%tmp_conf.filtered_velocity_zero_threshold = 15;
-tmp_conf.filtered_velocity_zero_threshold = 30;
-tmp_conf.min_significant_amplitude = 30;
-tmp_conf.robust_amplitude_delta = 0.1;
+tmp_conf.id = 'mamarama';
+tmp_conf.saccade_detection_method = 'mamarama';
 tmp_conf.debug = 0;
+tmp_conf.min_significant_amplitude = 20; % deg
+tmp_conf.robust_amplitude_delta = 0.03; % seconds
+tmp_conf.robust_amplitude_var = 15;
+%tmp_conf.robust_amplitude_var_ratio = 1.0/5; % ratio of amplitude
+
 
 process_species('data/mamaramanopost', tmp_conf);
 r=roc_analysis_species_conf('data/mamaramanopost', tmp_conf.id, false)

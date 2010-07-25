@@ -139,7 +139,8 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 							fprintf('\tMissed (already counted).\n')
 						end
 						% we missed this
-						missed = true;
+						% Jul 2010, this is not relevant to mamarama
+						% missed = true;
 					else
 						already_counted( ds ) = already_counted( ds )  + 1;
 					end

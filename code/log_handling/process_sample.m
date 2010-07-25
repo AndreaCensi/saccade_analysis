@@ -28,6 +28,9 @@ function res = process_sample(filename, configuration)
 		elseif strcmp(configuration.saccade_detection_method, 'linear')
 			res_chunk = detect_saccades_linear(timestamp, orientation, configuration);
 			res.chunk(i) = res_chunk; 
+		elseif strcmp(configuration.saccade_detection_method, 'mamarama')
+			res_chunk = detect_saccades_mamarama(timestamp, orientation, configuration);
+			res.chunk(i) = res_chunk; 
 		else
 			error(sprintf('Method "%s" not known',configuration.saccade_detection_method ) );
 		end

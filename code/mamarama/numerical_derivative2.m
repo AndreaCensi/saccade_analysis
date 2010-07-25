@@ -1,7 +1,9 @@
-function der = numerical_derivative(dt, x)
+function der = numerical_derivative2(dt, x)
 	% Computes the derivative numerically.
 	% timestamp is used to normalize the step size
 	assert(numel(dt) == 1);
+    assert(numel(x) >= 3);
+    
 	
 	% assert(min(size(x)) == 1);
 	% if size(x,1) > 1

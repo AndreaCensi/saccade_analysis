@@ -64,7 +64,18 @@ while true
 	
 	while true
 		hold off
+		% plot every 90 deg
+		grid_interval = 90;
+		first_line = floor(min(orientation(from:to)) / grid_interval) * grid_interval;
+		last_line = ceil(max(orientation(from:to)) / grid_interval) * grid_interval;
+		for line_pos=first_line:grid_interval:last_line
+			plot([timestamp(from) timestamp(to)], [line_pos, line_pos], 'k--')
+			hold on
+		end
+		
 		plot(timestamp(from:to), orientation(from:to), 'r.')
+		
+		
 		hold on
 		plot_saccade_delimiters(annotations(nd).saccades, 100)
 		axis(a)

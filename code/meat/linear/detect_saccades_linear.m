@@ -31,7 +31,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	% We create a smoothing filter where sigma is given
 	% by the input parameter "smooth_steps"
 	sigma = configuration.smooth_steps;
-	filter_g = fspecial('gaussian', [1 sigma*6], sigma);
+	filter_g = fspecial('gaussian', [1 ceil(sigma*6)], sigma);
 	
 	% With this filter, we smooth the orientation to create
 	% "filtered_orientation".
