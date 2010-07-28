@@ -11,7 +11,10 @@ function sac_correlation(saccades, out_dir)
 
 	maxlag = 8;
 	
-	[all_samples, saccades] = add_sample_num(saccades);
+%	[all_samples, saccades] = add_sample_num(saccades);
+
+	[all_samples, saccades] = add_sample_num_remove_too_small(saccades,10);
+
 	all_xcorr = [];
 	loglength = [];
 	for a=1:numel(all_samples)

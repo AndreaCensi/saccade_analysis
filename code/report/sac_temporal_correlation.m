@@ -4,7 +4,9 @@ function create_temporal_correlation(saccades, vars, out_dir)
 	
 	magnify=8;
 	
-	[all_samples, saccades] = add_sample_num(saccades);
+%	[all_samples, saccades] = add_sample_num(saccades);
+	[all_samples, saccades] = add_sample_num_remove_too_small(saccades,10);
+
 	N = numel(all_samples);
 	nvars = numel(vars);
 	noriginal_vars = numel(vars);
@@ -58,7 +60,9 @@ function create_temporal_correlation(saccades, vars, out_dir)
 		X = X(good_rows, :);
 		 
 		[R, pval] = corr(X);
-		
+
+		assert(all(all(not(isnan(R)))))
+
 		% average all correlation matrices
 		fraction = sample_len / numel(saccades);
 		assert(fraction <= 1);

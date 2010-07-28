@@ -256,6 +256,8 @@ function display_situation(log, saccades, annotations, time, delta)
 	plot( log.timestamp(from:to), log.orientation(from:to), 'r.');
 	hold on
 	
+	plot_90deg_lines();
+
 	for i=1:numel(saccades)
 		if abs(saccades(i).time_start - time) < delta + 2
 			plot_saccade_delimiters(saccades(i), 50)
@@ -277,6 +279,8 @@ function display_situation(log, saccades, annotations, time, delta)
 	plot( log.timestamp(from:to), log.orientation(from:to), 'r.');
 	hold on
 	
+	plot_90deg_lines();
+
 	plot([ time time], [a(3) a(4)], 'k--')
 	
 	min_orientation = min(log.orientation(from:to));

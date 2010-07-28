@@ -2,7 +2,7 @@ function cdf = binocdf_better(X,N,p)
 	% Returns p-values for one-sided test
 	% p can be an array
 	assert(X>=0);
-	assert(N>0);
+    assert(N>=0);
 	assert(X<=N);
 	assert(all(0<=p));
 	assert(all(p<=1));

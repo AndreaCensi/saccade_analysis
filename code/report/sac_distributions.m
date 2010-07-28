@@ -167,8 +167,13 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 	basename='sac_bigcorr';
 	if report_should_I_skip(out_dir, basename), return, end
 	
-	[all_samples, saccades] = add_sample_num(saccades);
+%	[all_samples, saccades] = add_sample_num(saccades);
+	[all_samples, saccades] = add_sample_num_remove_too_small(saccades,10);
+
 	N = numel(all_samples);
+    if N > 16
+        N = 16;
+    end
 	nvars = numel(vars);
 
     side = 4;
@@ -191,6 +196,9 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 		
 %		C = cov(X);
 		R = corr(X);
+
+		assert(all(all(not(isnan(R)))))
+
 		% average all correlation matrices
 		fraction = sample_len / numel(saccades);
 		assert(fraction <= 1);

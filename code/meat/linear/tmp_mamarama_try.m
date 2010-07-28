@@ -2,7 +2,7 @@ tmp_conf = struct;
 tmp_conf.id = 'mamarama';
 tmp_conf.saccade_detection_method = 'mamarama';
 tmp_conf.debug = 0;
-tmp_conf.min_significant_amplitude = 20; % deg
+tmp_conf.min_significant_amplitude = 15; % deg
 tmp_conf.robust_amplitude_delta = 0.05; % seconds
 tmp_conf.robust_amplitude_var = 20;
 
@@ -22,10 +22,10 @@ tmp_conf.robust_amplitude_var = 20;
 % I move 0.03 -> 0.05
 %  now 15 -> 20
 process_species('data/mamaramanopost', tmp_conf);
-r=roc_analysis_species_conf('data/mamaramanopost', tmp_conf.id, false);
+r=roc_analysis_species_conf('data/mamaramanopost', tmp_conf.id, false)
 
-%r=roc_analysis_species_conf('data/mamaramanopost', tmp_conf.id, true)
-
+r=roc_analysis_species_conf('data/mamaramanopost', tmp_conf.id, true)
+pause
 
 %robust_amplitude_delta =  0.01:0.005:0.08;
 robust_amplitude_var = 10:20;

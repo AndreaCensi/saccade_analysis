@@ -1,4 +1,5 @@
-function res = detect_saccades_linear(timestamp, orientation, configuration) 
+function res = detect_saccades_mamarama(timestamp, orientation, configuration) 
+% 
 	% Parameters we look for in configuration, along with 
 	% "reasonable" parameters:
 	% Before and after it must remain in var for delta seconds
@@ -31,7 +32,8 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	
 	
 	% don't start/end right at the border
-	pad = 2*robust_amplitude_delta_steps;
+	% pad = 2*robust_amplitude_delta_steps;
+	pad = 7*robust_amplitude_delta_steps;
 	i = pad;
 	while i <  numel(timestamp) - pad
 		% consider it a saccade candidate if the difference is larger than
@@ -50,31 +52,69 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 			% look before and after and see if the variation is within the bounds
 %			before_ref = orientation(i-1);
 %			after_ref = orientation(i);
-			err = max(abs(orientation(before)-before_ref), ...
-			          abs(orientation(after)-after_ref));
-%			good = err < configuration.robust_amplitude_var_ratio * difference;
-			good = err < configuration.robust_amplitude_var;
+			if orientation(i) > orientation(i-1)
+				 % crescente
+				monotone = max(orientation(before)) < min(orientation(after));
+			else
+				monotone = min(orientation(before)) > max(orientation(after));
+			end
+
+			err = max(max(abs(orientation(before)-before_ref)), ...
+			          max(abs(orientation(after)-after_ref)));
+			good = true;
+			good = (err < 0.33 * difference);
+			
+			% good = (err < 0.33 * difference) & (err < 7);
+			%good = (err < 0.5 * difference) && (err < 40);
+			%good = err < configuration.robust_amplitude_var;
+			%good = (err < 0.5 * difference);
+			
+			amplitude = abs(orientation(i)-orientation(i-1));
+			robust_amplitude = abs(before_ref - after_ref);
+
+			good2 = (robust_amplitude > 0.5 * amplitude) & (robust_amplitude < 1.5 * amplitude);
+			%good2 = (robust_amplitude > 0.5 * amplitude) & (robust_amplitude > 10);
+			%good2 = true;			
+			%good2 = robust_amplitude > 0.5*configuration.min_significant_amplitude;
+			
+			period = (i-robust_amplitude_delta_steps*5):(i+robust_amplitude_delta_steps*5);
+			
+			period_mov = max(orientation(period)) - min(orientation(period));
+			good3 = period_mov < 200;
+			%good3 = true;
+
+
 			
 			% before_ok = all(abs(orientation(before)-before_ref) < configuration.robust_amplitude_var);
 			% after_ok = all(abs(orientation(after)-after_ref) < configuration.robust_amplitude_var);
 			% 
 			% if before_ok && after_ok
 				% if it is, great!
-			if good
+			if good & good2 & good3 & monotone
 				% arbitrary choices here
 				start = round(i-1-robust_amplitude_delta_steps/2);
 				stop  = round(i+robust_amplitude_delta_steps/2);
-				
-				saccade =fill_in_saccade_data(timestamp, orientation, velocity, start, stop) ;
+
+				start = round(i-1);
+				stop  = round(i+1);
+
+				saccade =fill_in_saccade_data(timestamp, orientation, velocity, start, stop, amplitude) ;
+
+				saccade.robust_amplitude = robust_amplitude;
+				saccade.variability = err;
+				saccade.period_mov = period_mov;
 				res.saccades(ns) = saccade;
 					
 				ns = ns + 1;
 				
 				% just skip ahead
-				i = i + ceil(2.1*robust_amplitude_delta_steps);
+				%i = i + ceil(2.1*robust_amplitude_delta_steps);
+
+				i = i + ceil(robust_amplitude_delta_steps);
 			else
 				% if not, just continue
-				i = i + ceil(2.1*robust_amplitude_delta_steps);
+				i = i + ceil(robust_amplitude_delta_steps);
+%				i = i + ceil(2.1*robust_amplitude_delta_steps);
 			end
 		else
 			i = i + 1;
@@ -95,7 +135,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	end
 	
 		
-function saccade = fill_in_saccade_data(timestamp, orientation, velocity, start, stop)
+function saccade = fill_in_saccade_data(timestamp, orientation, velocity, start, stop, amplitude)
 	saccade.start = start;
 	saccade.stop = stop;
 		
@@ -108,10 +148,15 @@ function saccade = fill_in_saccade_data(timestamp, orientation, velocity, start,
 	saccade.time_start  = timestamp(start);
 	saccade.time_stop   =  timestamp(stop);
 	saccade.duration = 	saccade.time_stop-saccade.time_start;
+
+	% we don't compute duration, but let's give it some jiggle otherwise
+ 	% stupid matlab gives us correlation = NaN
+	saccade.duration = saccade.duration + randn(1) * 0.01;
+
 	saccade.orientation_start = orientation(start);
 	saccade.orientation_stop  = orientation(stop);
 	saccade.top_velocity = max( abs(velocity(start:stop)) );
 	saccade.top_filtered_velocity =	saccade.top_velocity;
-	saccade.amplitude = abs(orientation(stop) - orientation(start));
-
+	% saccade.amplitude = abs(orientation(stop) - orientation(start));
+	saccade.amplitude = amplitude;
 	 

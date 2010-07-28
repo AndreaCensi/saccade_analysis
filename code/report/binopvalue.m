@@ -1,7 +1,14 @@
 function pvalue = binopvalue(X,N,p)
-	% Returns p-values for one-sided test
+    % Returns p-values for one-sided test
 	% p can be an array
-	assert(X>=0);
+	
+    % special case of 0 samples
+    if N == 0
+        assert(X == 0)
+        pvalue = ones(size(p));
+        return
+    end
+    assert(X>=0);
 	assert(N>0);
 	assert(X<=N);
 	assert(all(0<=p));

@@ -2,6 +2,12 @@ function B = make_mosaic(X, mini_rows, mini_cols)
 	rows = size(X,1);
 	cols = size(X,2);
 	nsamples = size(X,3);
+    if nsamples > mini_rows * mini_cols
+        % for mamarama
+        nsamples = mini_rows * mini_cols
+    end
+        
+        
 	assert(mini_rows * mini_cols >= nsamples);
 
 	B = nan*zeros(rows * mini_rows, cols * mini_cols);
