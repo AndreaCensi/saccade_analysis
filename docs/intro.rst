@@ -28,8 +28,6 @@ Reference values are also shown.
 	* ``conf.filtered_velocity_zero_threshold = 15;``
 	* ``conf.min_significant_amplitude = 5;``
 	* ``conf.filtered_velocity_significant_threshold = ... ``
-
- 
 	
 
     >> test_different_thresholds
@@ -104,9 +102,8 @@ Saccade record description:
 - time_passed      time passed since last saccade
 - orientation_start orientation at the beginning
 - orientation_stop  orientation at the end
-- side             L=1 or R=-1
 - amplitude        >0
-- sign             +1 or -1
+- sign             +1 (left) or -1 (right)
 - letter           'L' or 'R'  (same info as sign)
 - duration         time_stop - time_start
 - top_velocity     top velocity measured in the saccade       
@@ -153,8 +150,7 @@ Directory Layout, source code
 			Run all species with given configuration.
 		
 	code/log_handling     Routines for writing from/to files and running batch 
-
-Configuration
+ 
 
 
 
