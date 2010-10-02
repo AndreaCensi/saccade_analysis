@@ -193,6 +193,12 @@ function create_bigcorr_plots(saccades, vars, out_dir)
 		% remove rows that have nans
 		good_rows = not(any(isnan(X),2));
 		X = X(good_rows, :);
+        
+        if numel(X) == 0
+            fprintf('create_bigcorr_plots: Not enough data ');
+            fprintf(' for sample %d\n', a);
+            continue
+        end
 		
 %		C = cov(X);
 		R = corr(X);
@@ -312,6 +318,10 @@ function create_xcorr_plots(var1, out_dir)
 		f = sac_figure;
 		x = [var1.values];
 		x = x(not(isnan(x)));
+        if numel(x) == 0
+           fprintf('Not enough data for %s\n', var1.name); 
+           return
+        end
 		x = x - mean(x);
 		maxlag = 20;
 		[S_xcorr, lags] = xcorr(x, maxlag, 'coeff');
@@ -339,7 +349,13 @@ function create_xcorr_sample_plots(saccades, var1, out_dir)
 			assert(numel(saccades_for_sample) == numel(var1.values));
 			x = var1.values(saccades_for_sample);
 			x = x(not(isnan(x)));
-			x = x - mean(x);
+			
+            if numel(x) == 0
+                fprintf('Not enough data for sample %d, var %s\n', a, var1.id);
+                continue
+            end
+            x = x - mean(x);
+            
 			[S_xcorr, lags] = xcorr(x, maxlag, 'coeff');
 			color_index = 1 + mod(a-1, numel(colors));
 			style = sprintf('%s.-', colors{color_index});

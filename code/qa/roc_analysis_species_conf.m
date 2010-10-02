@@ -245,6 +245,10 @@ function annotations = load_all_qa_data(directory)
 		end
 	end
 
+	if na == 1
+		annotations = [];
+	end 
+
 function display_situation(log, saccades, annotations, time, delta)
 	f = figure(45);
 	subplot(2,1,1); hold off

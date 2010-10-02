@@ -13,8 +13,9 @@ function create_report_species(species_dir, conf_id)
 	out_dir = path_join(species_dir, 'report');
 	my_mkdir(out_dir);
 
-	report_roc(species_dir, conf_id, out_dir);
-	sac_raw_distributions(species_dir, out_dir);
+	% Sep'10: temporarely disabled
+	% report_roc(species_dir, conf_id, out_dir);
+	% sac_raw_distributions(species_dir, out_dir);
 	markov_analysis(saccades, out_dir);
 	sac_correlation(saccades, out_dir);
 	sac_distributions(saccades, out_dir);

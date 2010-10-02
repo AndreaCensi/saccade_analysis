@@ -42,6 +42,7 @@ function create_temporal_correlation(saccades, vars, out_dir)
     %bigbigR = zeros(nvars*side, nvars*side);
 	correlation = nan * zeros(nvars,nvars,N);
 	correlation_pvalues = nan * zeros(nvars,nvars,N);
+	correlation_significant = nan * zeros(nvars,nvars,N);
 	
 	bigR = zeros(nvars, nvars);
 
@@ -57,7 +58,14 @@ function create_temporal_correlation(saccades, vars, out_dir)
 		end
 		% remove rows that have nans
 		good_rows = not(any(isnan(X),2));
-		X = X(good_rows, :);
+        
+        X = X(good_rows, :);
+		if numel(X) == 0
+           fprintf('Not enough valid data for computing ');
+           fprintf('correlations - perhaps always NaN? \n');
+           continue;
+        end
+        
 		 
 		[R, pval] = corr(X);
 

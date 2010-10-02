@@ -26,8 +26,10 @@ function sac_sign_statistics(saccades, out_dir)
 		
 	%	fprintf('- sample %3d:  N = %4d , L = %4d, R = %4d, m=%4d, p = %f\n',...
 	%		a,N(a),L(a),R(a),m(a),pvalue(a));
+    
+        letters = letters_from_saccades(sample_saccades);
 			
-		stats = compute_seq_statistics([sample_saccades.letter]);
+		stats = compute_seq_statistics(letters);
 		assert(stats.N == stats.L + stats.R);
 		
 		r = stats.L / stats.N; 

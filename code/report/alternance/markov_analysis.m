@@ -1,8 +1,9 @@
 function markov_analysis(saccades, out_dir)
 
 	if report_should_I_skip(out_dir, 'markov_first_fm'), return, end
-		
-	letters = [saccades.letter];
+
+	letters = letters_from_saccades(saccades);
+%	letters = [saccades.letter];
 
 	[r.L_after_L, r.R_after_L] = compute_seq_probability(letters, 'L');
 	[r.L_after_R, r.R_after_R] = compute_seq_probability(letters, 'R');
