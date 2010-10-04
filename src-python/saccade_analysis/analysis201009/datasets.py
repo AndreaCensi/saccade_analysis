@@ -4,65 +4,72 @@ from saccade_analysis import logger
 from geometric_saccade_detector.io import saccades_read_mat
 import numpy
 datasets_description = '''
-Dananassae:
-   species: D. Ananassae
-   experiment: tethered
-   version: use_for_report  
-Dmelanogaster:
-   species: D. Melanogaster
-   experiment: tethered
-   version: use_for_report
-Dmojavensis:
-   species: D. Mojavensis
-   experiment: tethered
-   version: use_for_report
-Dpseudoobscura:
-   species: D. Pseudoobscura
-   experiment: tethered
-   version: use_for_report
-Dhydei:
-   species: D. Mojavensis
-   experiment: tethered
-   version: use_for_report
-mamarama:
-   species: D. Melanogaster
-   experiment: mamarama
-   description: All mamarama data.
-   version: use_for_report
-mamaramanoposts:
-   species: D. Melanogaster
-   experiment: mamarama
-   description: Logs without posts.
-   version: use_for_report
-mamaramaposts:
-   species: D. Melanogaster
-   experiment: mamarama
-   description: Logs with posts.
-   version: use_for_report
+---
+id: Dananassae
+species: D. Ananassae
+experiment: tethered
+version: use_for_report  
+---
+id: Dmelanogaster
+species: D. Melanogaster
+experiment: tethered
+version: use_for_report
+---
+id: Dmojavensis
+species: D. Mojavensis
+experiment: tethered
+version: use_for_report
+---
+id: Dpseudoobscura
+species: D. Pseudoobscura
+experiment: tethered
+version: use_for_report
+---
+id: Dhydei
+species: D. Hydei
+experiment: tethered
+version: use_for_report
+---
+id: mamaramanoposts
+species: D. Melanogaster
+experiment: mamarama
+description: Logs without posts.
+version: use_for_report
+---
+id: mamaramaposts
+species: D. Melanogaster
+experiment: mamarama
+description: Logs with posts.
+version: use_for_report
+#---
+#id: mamarama
+#species: D. Melanogaster
+#experiment: mamarama
+#description: All mamarama data.
+#version: use_for_report
 ''' 
 
 def load_datasets(data_dir='.'):
     cache = os.path.join(data_dir, 'datasets.pickle')
     if os.path.exists(cache):
         logger.info('Using cache %s' % cache)
-        datasets = pickle.load(open(cache))
-        for name, data in datasets.items():
-            add_sample_num(data['saccades'])
+        datasets = pickle.load(open(cache)) 
         return datasets
     
     import yaml
-    datasets = yaml.load(datasets_description)
+    datasets = list(yaml.load_all(datasets_description))
 
-    for name, info in datasets.items():
-        use = info['version']
-        filename = os.path.join(data_dir, name, 'processed', use, 'saccades.mat')
+    for dataset in datasets:
+        id = dataset['id']
+        version = dataset['version']
+        filename = os.path.join(data_dir, id, 'processed', version, 'saccades.mat')
         
         logger.info('Reading from file %s.' % filename)
         saccades = saccades_read_mat(filename)
         
         add_sample_num(saccades)
             
-        info['saccades'] = saccades
+        dataset['saccades'] = saccades
     
     
     logger.info('Writing cache %s' % cache)
