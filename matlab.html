@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tethered data analysis &mdash; Saccade analysis tools v1.0 documentation</title>
+    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="Saccade analysis tools v1.0 documentation" href="index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p, .content ul, .content ol {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+/* Remove top level */
+div.header h1.heading SPAN {display: none;}
+
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!--
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>Saccade analysis tools v1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Tethered data analysis</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="tethered-data-analysis">
+<span id="tethered"></span><h1>Tethered data analysis<a class="headerlink" href="#tethered-data-analysis" title="Permalink to this headline">¶</a></h1>
+<p>This page explains the conventions used for the tethered saccade data analysis and gives instructions on how to run the annotation and analysis.</p>
+<p>The whole process goes like this:</p>
+<ol class="arabic simple">
+<li>Download the data files.</li>
+<li>In Matlab, create annotations for QA. See section <a class="reference internal" href="#create-annotations"><em>Data annotation</em></a>.</li>
+<li>In Matlab, run saccade extraction  (command <tt class="docutils literal"><span class="pre">process_data</span></tt>). See section <a class="reference internal" href="#process-data"><em>Saccade detection</em></a>.</li>
+<li>In Matlab, create the report figures (command <tt class="docutils literal"><span class="pre">create_report</span></tt>).  See section <em class="xref ref">create_report</em>.</li>
+<li>Use a python script to create the LaTeX report (command <tt class="docutils literal"><span class="pre">create_report</span></tt>) and compile it.  See section <a class="reference internal" href="#python-report"><em>Create the PDF report</em></a>.</li>
+</ol>
+<div class="section" id="data-annotation">
+<span id="create-annotations"></span><h2>Data annotation<a class="headerlink" href="#data-annotation" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Download the data. Due to the size, it is not committed to the repository.:</p>
+<div class="highlight-python"><pre>$ cd data/
+$ ./download_datafiles.sh</pre>
+</div>
+</li>
+<li><p class="first">Fire up Matlab. Add all the directories to the path.:</p>
+<div class="highlight-python"><pre>&gt;&gt; addpath(genpath(pwd))</pre>
+</div>
+</li>
+<li><p class="first">Start the annotation tool. The main function is <tt class="docutils literal"><span class="pre">annotate_species</span></tt>
+Give it as the only argument the species directory.</p>
+<div class="highlight-python"><pre>&gt;&gt; annotate_species('data/Dmelanogaster')</pre>
+</div>
+</li>
+</ol>
+<p>You are now inside the tool.</p>
+<p>You are presented with a random slice of data.
+Click twice to mark a saccade: at the beginning and the end.
+When you have marked all saccades in the current screen, press enter to go to the next screen.</p>
+<ul class="simple">
+<li>When you want to exit, press &#8220;x&#8221;+enter without clicking any point.</li>
+<li>If you want to undo the previous selection, press &#8220;u&#8221; + enter.</li>
+</ul>
+</div>
+<div class="section" id="saccade-detection">
+<span id="process-data"></span><h2>Saccade detection<a class="headerlink" href="#saccade-detection" title="Permalink to this headline">¶</a></h2>
+<p>The main method to run the analysis is</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">process_data</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">conf</span></tt> is a struct whose fields are described next.
+Reference values are also shown.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">conf.id</span></tt></dt>
+<dd>Configuration name. The processed data is created in
+<tt class="docutils literal"><span class="pre">data/&lt;species&gt;/processed/&lt;conf.id&gt;/</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">conf.saccade_detection_method</span> <span class="pre">=</span> <span class="pre">'linear'</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">linear</span></tt> is the only method that works well.</dd>
+<dt><tt class="docutils literal"><span class="pre">conf.smooth_steps</span> <span class="pre">=</span> <span class="pre">3</span></tt></dt>
+<dd><strong>to write</strong></dd>
+<dt><tt class="docutils literal"><span class="pre">conf.filtered_velocity_significant_threshold</span>&nbsp; <span class="pre">=</span> <span class="pre">50</span></tt></dt>
+<dd><strong>to write</strong></dd>
+<dt><tt class="docutils literal"><span class="pre">conf.filtered_velocity_zero_threshold</span> <span class="pre">=</span> <span class="pre">15</span></tt></dt>
+<dd><strong>to write</strong></dd>
+<dt><tt class="docutils literal"><span class="pre">conf.min_significant_amplitude</span> <span class="pre">=</span> <span class="pre">5</span></tt></dt>
+<dd><strong>to write</strong></dd>
+<dt><a href="#id1"><span class="problematic" id="id2">``</span></a>conf.filtered_velocity_significant_threshold = ... ``</dt>
+<dd><strong>to write</strong></dd>
+</dl>
+<p>This command tries different thresholds.</p>
+<div class="highlight-python"><pre>&gt;&gt; test_different_thresholds</pre>
+</div>
+<ul class="simple">
+<li>Create a symbolic link &#8216;use_for_report&#8217; for the configuration we are
+going to use in the</li>
+</ul>
+</div>
+<div class="section" id="create-the-reort">
+<span id="create-report-data"></span><h2>Create the reort<a class="headerlink" href="#create-the-reort" title="Permalink to this headline">¶</a></h2>
+<p>Running the analysis:</p>
+<div class="highlight-python"><pre>&gt;&gt; create_report_data('data', 'threshold1')</pre>
+</div>
+<div class="section" id="how-to-recreate-some-pictures">
+<h3>How to recreate some pictures<a class="headerlink" href="#how-to-recreate-some-pictures" title="Permalink to this headline">¶</a></h3>
+<p>Try this</p>
+<div class="highlight-python"><pre>$ rm data/D*/report/*hist_log*
+&gt;&gt; create_report('data', 'use_for_report')
+$ make -C data/report all.pdf</pre>
+</div>
+</div>
+</div>
+<div class="section" id="create-the-pdf-report">
+<span id="python-report"></span><h2>Create the PDF report<a class="headerlink" href="#create-the-pdf-report" title="Permalink to this headline">¶</a></h2>
+<p>Run this python script:</p>
+<div class="highlight-python"><pre>$ python code/report/report_generation_utils/create_report_data.py data</pre>
+</div>
+<p>And then compile the report:</p>
+<div class="highlight-python"><pre>$ make -C data/report all.pdf</pre>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0pre.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-12']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+
+
+  </body>
+</html>
