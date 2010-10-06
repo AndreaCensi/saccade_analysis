@@ -22,7 +22,8 @@ function sac_distributions(saccades, out_dir)
 	vars(nv).name = 'Duration';
 	vars(nv).values = [saccades.duration];
 	vars(nv).unit = 's';
-	vars(nv).density_max_y = 10;
+	% vars(nv).density_max_y = 10;
+	vars(nv).density_max_y = 15;
 	vars(nv).density_bins = 50;
 	vars(nv).include_in_bigcorr = true;
 	
@@ -30,7 +31,8 @@ function sac_distributions(saccades, out_dir)
 	nv=nv+1;
 	vars(nv).id = 'top_velocity';
 	vars(nv).letter = 'V';
-	vars(nv).interesting = [10 2000];
+	%vars(nv).interesting = [10 2000];
+	vars(nv).interesting = [10 4000]; % for mamarama
 	vars(nv).name = 'Top angular velocity';
 	vars(nv).values = [saccades.top_velocity];
 	vars(nv).unit = 'deg/s';
@@ -46,7 +48,9 @@ function sac_distributions(saccades, out_dir)
 	vars(nv).name = 'Interval';
 	vars(nv).values = [saccades.time_passed];
 	vars(nv).unit = 's';
-	vars(nv).density_max_y = 1.1;
+%	vars(nv).density_max_y = 1.1;
+	vars(nv).density_max_y = 2;
+
 	vars(nv).density_bins = 100;
 	vars(nv).include_in_bigcorr = true;
 
@@ -386,6 +390,7 @@ function create_dist_plots(var1, out_dir)
 		close(f)
 	end
 	
+	if 0
 	if (var1.interesting(1)>0)
 	basename=sprintf('sac_dist-%s_cdf', var1.id);
 	if ~report_should_I_skip(out_dir, basename)	
@@ -400,6 +405,7 @@ function create_dist_plots(var1, out_dir)
 		ftitle=sprintf('CDF of %s ', var1.name);
 		sac_print(out_dir, basename, ftitle);
 		close(f)
+	end
 	end
 	end
 	

@@ -10,7 +10,7 @@ def get_basename(x):
     
 def species_list(data_dir):
     species = [ get_basename(x) for x in glob.glob(os.path.join(data_dir, 'D*')) ]
-    species += ['mamaramanopost','allmamarama']
+    species += ['mamaramanoposts','mamaramaposts','mamarama']
     return species
 
 def images_list(report_dir, exclude_suffixes = []):
@@ -108,7 +108,7 @@ def write_figure(report_file, species, basename, caption):
         if i%row_len == 0:
             report_file.write("\hspace{-4.5cm}") 
 
-        report_file.write( "\subfloat[\\%s\\label{fig:%s:%s}]{\includegraphics[width=7cm]{../%s/report/%s}}" 
+        report_file.write( "\subfloat[\\%s\\label{fig:%s:%s}]{\includegraphics[width=6cm]{../%s/report/%s}}" 
         % (s,basename,s,s,basename))
 
         if i%row_len == row_len-1:
@@ -218,6 +218,8 @@ def create_report_data(data_dir, report_filename, include_empty_descriptions):
         if has_comments:
             section_head = "(*) " + section_head
         
+
+	#report_file.write("\\vspace{-1cm}\n")
         report_file.write("\\section{%s} \\label{sec:%s}\n\n" % (section_head, basename) )
         
         
