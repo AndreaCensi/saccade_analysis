@@ -10,9 +10,11 @@ setup(
          'console_scripts': [
            'sac_plot_xy  = saccade_analysis.hollywood.plot_xy_direction:main',
            'sac_sequence_analysis = saccade_analysis.analysis201009.sequence_analysis:main',
+           'sac_tammero_analysis = saccade_analysis.tammero.tammero_analysis:main',
         ]
       },
       
+    
     author="Andrea Censi",
     author_email="andrea@cds.caltech.edu",
     description="This package provides utils to analyse saccade data.",

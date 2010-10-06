@@ -5,18 +5,18 @@ from geometric_saccade_detector.io import saccades_read_mat
 import numpy
 datasets_description = '''
 ---
-id: Dananassae
-species: D. Ananassae
-experiment: tethered
-version: use_for_report  
----
-id: Dmelanogaster
-species: D. Melanogaster
+id: Dmojavensis
+species: D. Mojavensis
 experiment: tethered
 version: use_for_report
 ---
-id: Dmojavensis
-species: D. Mojavensis
+id: Dhydei
+species: D. Hydei
+experiment: tethered
+version: use_for_report
+---
+id: Dmelanogaster
+species: D. Melanogaster
 experiment: tethered
 version: use_for_report
 ---
@@ -25,10 +25,15 @@ species: D. Pseudoobscura
 experiment: tethered
 version: use_for_report
 ---
-id: Dhydei
-species: D. Hydei
+id: Darizonae
+species: D. Arizonae
 experiment: tethered
 version: use_for_report
+---
+id: Dananassae
+species: D. Ananassae
+experiment: tethered
+version: use_for_report  
 ---
 id: mamaramanoposts
 species: D. Melanogaster

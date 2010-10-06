@@ -233,12 +233,16 @@ p(\{x_{k}=L\}|\{x_{k-1}=L\})=p_{L}\end{equation}
 \end_layout
 
 \begin_layout Standard
-Assume for a moment that we knew the probability 
+Assume for a moment that we knew the probability
+\begin_inset space ~
+\end_inset
+
+
 \begin_inset Formula $p_{L}$
 \end_inset
 
 .
- Then we would have the following predictions:
+ Under the null hypothesis, we would have the following predictions:
 \begin_inset Formula \begin{equation}
 n_{RL}\sim\mbox{Bernouilli}(n_{R},p_{L})\end{equation}
 
@@ -250,7 +254,7 @@ n_{LL}\sim\mbox{Bernouilli}(n_{L},p_{L})\end{equation}
 
 \end_inset
 
-Thus we have two independent tests.
+Therefore, we could execute Thus we have two independent tests.
  In code:
 \end_layout
 

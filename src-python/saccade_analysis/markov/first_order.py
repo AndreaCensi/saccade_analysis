@@ -2,12 +2,12 @@ import numpy
 import scipy.stats
 from scipy.stats.morestats import binom_test
 from numpy.lib.function_base import linspace
+from scipy.stats import binom
 
-def first_order_analysis(s, significance=0.01):
+def first_order_analysis(s, significance=0.05):
     symbols = ['L', 'R']
 
     results = []
-    results.append(('significance', significance))
 
     N = len(s)
     
@@ -17,30 +17,16 @@ def first_order_analysis(s, significance=0.01):
     for x in s:
         if not x in symbols:
             raise ValueError('Unknown character "%s" in string.' % x)
-    
-    count = {}
-    frequencies = {}
-    for symbol in symbols:
-        count[symbol] = s.count(symbol)
-        frequencies[symbol] = zdiv(count[symbol], N) 
-    results.append(('N', N))
-    results.append(('count', count))
-    results.append(('frequencies', frequencies))
-    
-    fair_pvalue = scipy.stats.binom_test(count['L'], N, 0.5)
-    fair_rejected = fair_pvalue < significance
-    
-    results.append(('fair_pvalue', fair_pvalue))
-    results.append(('fair_rejected', fair_rejected))
-    
-    # rejecting independence, without knowing p_L
-
+     
     n_L = count_overlapping(s, 'L')
     n_R = count_overlapping(s, 'R')
     n_RL = count_overlapping(s, 'RL')
     n_LL = count_overlapping(s, 'LL')
     n_RR = count_overlapping(s, 'RR')
     n_LR = count_overlapping(s, 'LR')
+    
+    fair_pvalue = scipy.stats.binom_test(n_L, N, 0.5)
+    fair_rejected = fair_pvalue < significance
     
     # Get a confidence interval
     p_L_lb, p_L_ub = binofit(n_L, N, significance) 
@@ -52,10 +38,29 @@ def first_order_analysis(s, significance=0.01):
     whys = []
     
     for p in ps:
+        # we check if any of the two is significant
         RL_pvalue_p = binom_test(n_RL, n_R, p)
         LL_pvalue_p = binom_test(n_LL, n_L, p)
         pvalue_p = min([ RL_pvalue_p, LL_pvalue_p ])
-        correlation = '-' if RL_pvalue_p < LL_pvalue_p else '+'
+        
+        # More detailed test (somewhat redudand)
+        # We want to see if we are significantly POS or NEG correlated.
+        LL_significantly_positive = binom.cdf(n_LL, n_L, p) > 1 - significance
+        LL_significantly_negative = binom.cdf(n_LL, n_L, p) < significance
+        # note: there was a bug in Matlab
+        RL_significantly_negative = binom.cdf(n_RL, n_R, p) > 1 - significance
+        RL_significantly_positive = binom.cdf(n_RL, n_R, p) < significance
+        
+        significantly_negative = LL_significantly_negative or RL_significantly_negative
+        significantly_positive = LL_significantly_positive or RL_significantly_positive
+        
+        if  significantly_negative:
+            correlation = '-'
+        elif significantly_positive:
+            correlation = '+'
+        else:
+            correlation = ''
+        
         whys.append(correlation)
         pvalues.append(pvalue_p)
     
@@ -65,9 +70,14 @@ def first_order_analysis(s, significance=0.01):
     indep_rejected = indep_pvalue < significance
     why = whys[best] if indep_rejected else ''
         
+    
     results.extend([
+        ('significance', significance),
+        ('N', N),
         ('n_L', n_L),
+        ('p_L', zdiv(n_L, N)),
         ('n_R', n_R),
+        ('p_R', zdiv(n_R, N)),
         ('n_RL', n_RL),
         ('p_RL', zdiv(n_RL, n_R)),
         ('n_LL', n_LL),
@@ -76,14 +86,10 @@ def first_order_analysis(s, significance=0.01):
         ('p_RR', zdiv(n_RR, n_R)),
         ('n_LR', n_LR),
         ('p_LR', zdiv(n_LR, n_L)),
+        ('fair_pvalue', fair_pvalue),
+        ('fair_rejected', fair_rejected),
         ('p_L_lb', p_L_lb),
         ('p_L_ub', p_L_ub),
-#        ('RL_pvalue_lb', RL_pvalue_lb),
-#        ('LL_pvalue_lb', LL_pvalue_lb),
-#        ('pvalue_lb', pvalue_lb),
-#        ('RL_pvalue_ub', RL_pvalue_ub),
-#        ('LL_pvalue_ub', LL_pvalue_ub),
-#        ('pvalue_ub', pvalue_ub),
         ('indep_pvalue', indep_pvalue),
         ('indep_rejected', indep_rejected),
         ('why', why),
