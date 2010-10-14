@@ -208,6 +208,26 @@ Points visited by a levy flight form a fractal with dimension
 
 \end_deeper
 \begin_layout Itemize
+2007: Revisiting Levy flight search patterns of wandering albatross
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+They analyze new data and find no evidence of Levy flight behavior.
+ They find gamma distributed, with exponential decay for longest flight.
+\end_layout
+
+\begin_layout Itemize
+They reconsider the original data, and conclude they were wrong.
+\end_layout
+
+\begin_layout Itemize
+They introduce more rigororous tests for testing levy.
+ (Nice math summary at page 1046)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
 Helical Levy walks...
 \end_layout
 
@@ -224,8 +244,417 @@ Flight times of the dinoﬂagellate Oxyrrhis marina switched from an exponential
  sinuosity, or fractal dimension? 
 \end_layout
 
+\begin_layout Itemize
+2007, Levy processes in animal movement: an evolutionary hypothesis 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Bartumeus:2007p508"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Levy random walk include a uniform distribution for the turning angle; and
+ a Levy-stable distribution of movement
+\end_layout
+
+\begin_layout Itemize
+For example, consider 
+\begin_inset Formula $P(\ell)=\ell^{-\mu}$
+\end_inset
+
+.
+ Sum of such variables converge to the Levy-stable distribution with Levy-stable
+ index 
+\begin_inset Formula $\alpha_{L}=1-\mu$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+stable = family invariant to linear combination
+\end_layout
+
+\begin_layout Itemize
+From Wikipedia: 
+\begin_inset Quotes eld
+\end_inset
+
+Such distributions form a four-parameter family of continuous probability
+ distributions parametrized by location and scale parameters μ and c, respective
+ly, and two shape parameters β and α, roughly corresponding to measures
+ of asymmetry and concentration, respectively (see the figures).
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+We should distinguish between:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Levy flight: flights are instantaneous (more like jumping), time is not
+ involved.
+\end_layout
+
+\begin_layout Itemize
+Levy walk: we care about the intermediate time of travel
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Random search strategies: goal is to maximize chance of finding items.
+\end_layout
+
+\begin_layout Itemize
+A power law distribution of lengths creates the shape of local search +
+ big displacements
+\end_layout
+
+\begin_layout Itemize
+How to make peace of random vs sensing: local sensing does not influence
+ large scale statistics.
+\end_layout
+
+\begin_layout Itemize
+Example: Oxyrrhis Marina switches statistics when conditions change.
+\end_layout
+
+\begin_layout Itemize
+Good citation: 
+\begin_inset Quotes eld
+\end_inset
+
+to definitely reject this hypothesis ...
+ it is necessary to perform experiments where animals have no clues
+\begin_inset Quotes erd
+\end_inset
+
+.
+ (final page)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+2007, Reynolds, Frie
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Assume 90deg and use that for computing when the saccades happen.
+ This screws up the statistics.
+\end_layout
+
+\begin_layout Itemize
+Arena is 1m diameter, 11 flies, 5.3 s to 67.8 s.
+\end_layout
+
+\begin_layout Itemize
+Saccade interval lengths according to inverse square law.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+We also show that searching is intermittent, such that active searching
+ phases randomly alternate with relocation phases.
+ Behaviorally, this intermittency is reflected in frequently occurring short,
+ slow speed inter-saccade intervals randomly alternating with rarer, longer,
+ faster inter-saccade intervals.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+We analyzed the free-flight trajectories for (i) scale-free character- istics,
+ (ii) correspondence with m = 2 Le ´vy flights, (iii) persistence in turning
+ direction, (iv) intermittency of search and relocation phases, and for
+ (v) the influence of visual and olfactory sensory cues.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+Scale-free characteristics.
+ 
+\series default
+Compute the displacement norm
+\begin_inset Formula \begin{equation}
+\|\Delta X_{\tau}(t)\|=\|x(t+\tau)-x(t)\|\end{equation}
+
+\end_inset
+
+Compute the moments 
+\begin_inset Formula $\left\langle |\Delta X_{\tau}(t)|^{q}\right\rangle $
+\end_inset
+
+.
+ These are called 
+\begin_inset Quotes eld
+\end_inset
+
+structure functions
+\begin_inset Quotes erd
+\end_inset
+
+.
+ A power-law relationship of the form
+\begin_inset Formula \begin{equation}
+\left\langle |\Delta X_{\tau}(t)|^{q}\right\rangle \propto\tau^{\xi(q)}\end{equation}
+
+\end_inset
+
+ with 
+\begin_inset Formula $\xi(q)=\alpha q$
+\end_inset
+
+ would be indicative of scale-free behvior.
+ They find this relationship with 
+\begin_inset Formula $\alpha=0.9$
+\end_inset
+
+ when 
+\begin_inset Formula $\tau<1s$
+\end_inset
+
+ (time to cross the arena)\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+correspondence with m = 2 levy flight
+\series default
+.
+ They computed the distribution of interval (actually, length of segments)
+ and found that it does NOT follow a inverse-square power law (
+\begin_inset Formula $\mu=2$
+\end_inset
+
+) which would be predicted.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+correlation
+\series default
+ Define 
+\begin_inset Formula $u(t)$
+\end_inset
+
+ = number of turning intervals between 
+\begin_inset Formula $t$
+\end_inset
+
+ and 
+\begin_inset Formula $t+\Delta t$
+\end_inset
+
+.
+ Then we can define a dimensionless 
+\begin_inset Quotes eld
+\end_inset
+
+displacement
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Formula \begin{equation}
+n(t)=\sum_{i=0}^{N}u(i\Delta t)\end{equation}
+
+\end_inset
+
+(Easier definition: let 
+\begin_inset Formula $n(t)$
+\end_inset
+
+ be the number of turns before 
+\begin_inset Formula $t$
+\end_inset
+
+.)
+\end_layout
+
+\begin_layout Itemize
+They predict the root mean sequare displacement 
+\begin_inset Formula \begin{equation}
+D=\sqrt{\left\langle \left(n(t)-\left\langle n(t)\right\rangle \right)^{2}\right\rangle }\propto t^{\beta}\end{equation}
+
+\end_inset
+
+with 
+\series bold
+
+\begin_inset Formula $\beta=1/2$
+\end_inset
+
+.
+ 
+\series default
+They remove some samples close to the walls.
+\end_layout
+
+\begin_layout Itemize
+I don't understand...
+ but they say 
+\begin_inset Quotes eld
+\end_inset
+
+flight behaviour near the center of the arena and therefore not associated
+ with collision-avoidance maneuvers, is not represented by a characteristic
+ scale
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+fractal dimension.
+ 
+\series default
+not that interesting
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+persistence in turning direction.
+ 
+\series default
+4 consecutive are correlated (yet another thing depending on the shape)
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+2007, HOW MANY ANIMALS REALLY DO THE LE´VY WALK? 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Very sensisble idea: 
+\begin_inset Quotes eld
+\end_inset
+
+LW pattern is not necessarily produced by a LW process but may emerge from
+ the way the animal interacted with the environment structure through more
+ classical movement processes.
+ In any case, emergent movement patterns should not be confused with the
+ processes that gave rise to them.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The main difference between Markov Random Walk and Levy Walk is that MRW
+ have finite step variance, while LW have infinite variance (long tail).
+\end_layout
+
+\begin_layout Itemize
+Because of the inﬁnite step length variance, the asymptotic distribution
+ of the location coordinates (on any arbitrary axis) of a Le´vy walker is
+ not Gaussian but a Le´vy symmetric a-stable distribution
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+2007, Reynolds, Honeybees perform optimal scale-free searching flights when
+ attempting to locate a food source
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Same criterium as other Reynolds paper: saccade = +- 90 deg
+\end_layout
+
+\begin_layout Itemize
+Same analysis.
+\end_layout
+
+\begin_layout Itemize
+Results: searching flights are consistent with an optimal Levy flight search
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+2008, Sanderson, Bumblebee ﬂight distances in relation to the forage landscape
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+not really interesting for our goals
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+2008, Evidence for olfactory search in wandering albatross, Diomedea exulans
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+describes typical animal behavior following plumes
+\end_layout
+
+\begin_layout Itemize
+not really interesting for our goals
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+2008, Nathan, An emerging movement ecology paradigm 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+introduction to special issue
+\end_layout
+
+\begin_layout Itemize
+very general discussion
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+?, Scaling laws of marine predator search behaviour
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Studies movement of predators and prey distribution
+\end_layout
+
+\begin_layout Itemize
+Marine predators should adopt a search strategy that maximizes encounters
+\end_layout
+
+\end_deeper
 \begin_layout Title
-Literature summary
+References
 \end_layout
 
 \begin_layout Standard

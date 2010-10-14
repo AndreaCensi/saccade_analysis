@@ -1,9 +1,10 @@
 from optparse import OptionParser
-from geometric_saccade_detector.io import saccades_read_h5
+from geometric_saccade_detector.io import saccades_read_h5, saccades_write_all
 import numpy
-from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
+from geometric_saccade_detector.math_utils import merge_fields
 from reprep import Report
 from saccade_analysis.tammero.approach_angle import compute_approach_angle
+import os
 
 
 
@@ -11,7 +12,7 @@ def main():
     
     parser = OptionParser()
     parser.add_option("--saccades", help="Saccades file (.h5 created by geo_sac_compact)")
-    parser.add_option("--output", help="Output directory", default='sequence_analysis_output')
+    parser.add_option("--output", help="Output directory", default='tammero_analysis')
 
     (options, args) = parser.parse_args()
 
@@ -20,9 +21,18 @@ def main():
 
     saccades = saccades_read_h5(options.saccades)
     saccades = add_position_information(saccades)
-    subsets = divide_into_subsets(saccades)
+    subsets = list(divide_into_subsets(saccades))
+    
+    
     report = create_report(subsets)
-    write_report(report)
+    write_report(report, options.output)
+    
+    if False:
+        print "Writing on files"
+        for id, desc, sub_saccades in subsets:
+            basename = os.path.join(options.output, 'saccades-%s' % id)
+            saccades_write_all(basename=basename, saccades=sub_saccades)
+        
     
 def divide_into_subsets(saccades):
     close_threshold = 0.65
@@ -93,6 +103,8 @@ It contains %d saccades.
         pylab.axis([-60, 60, -180, 180])
     
     
+    
+    
     # compute probabili
     approach, probability_left = \
         compute_turning_probability(approach_angle=approach_angle,
@@ -111,7 +123,51 @@ It contains %d saccades.
         pylab.axis([-60, 60, 0, 1])
         pylab.legend()
  
+    bin_size = 10
+    saccade_bin_centers = numpy.array(range(-180, 185, bin_size))
+    n = len(saccade_bin_centers)
+    saccade_bins = numpy.zeros(shape=(n + 1))
+    saccade_bins[0:n] = saccade_bin_centers - bin_size
+    saccade_bins[n] = saccade_bin_centers[-1]
     
+    bin_centers = numpy.array(range(-50, 55, 10))
+    bin_size = 15
+    distributions = []
+    for angle in bin_centers:
+        indices, = numpy.nonzero(
+                    numpy.logical_and(
+                        approach_angle > angle - bin_size,
+                        approach_angle < angle + bin_size
+                    ))
+        x = saccade_angle[indices]
+        hist, edges = numpy.histogram(x, bins=saccade_bins, normed=True)
+
+        distributions.append(hist)
+ 
+    with report.data_pylab('distribution_vs_approach2') as pylab:
+        for k in range(len(bin_centers)):
+            label = '%d' % bin_centers[k]
+            pylab.plot(saccade_bin_centers, distributions[k], '-', label=label)
+        #a = pylab.axis()
+         
+        pylab.legend()
+        pylab.xlabel('saccade angle')
+        pylab.ylabel('density')
+ 
+    with report.data_pylab('distribution_vs_approach', figsize=(8, 20)) as pylab:
+        # get the maximum density
+        max_density = max(map(max, distributions))
+        num_plots = len(bin_centers)
+        for k in range(num_plots):
+            rect = [0.1, k * 1.0 / num_plots, 0.8, 1.0 / num_plots]
+            axes = pylab.axes(rect)
+            label = '%d' % bin_centers[k]
+            pylab.plot(saccade_bin_centers, distributions[k], '-', label=label)
+            pylab.axis([-180, 180, 0, max_density])
+        #a = pylab.axis()
+            pylab.legend()
+        pylab.xlabel('saccade angle')
+        pylab.ylabel('density')
         
     f = report.figure(shape=(3, 3))
     f.sub('distance_from_center', caption='Distance from center')
@@ -119,6 +175,7 @@ It contains %d saccades.
     f.sub('approach_angle', caption='Approach angle')
     f.sub('approach_vs_saccade', caption='Approach vs saccade angle')
     f.sub('turning_probability', caption='Probability of turning')
+    f.sub('distribution_vs_approach', caption='Saccade distribution vs approach angle')
     return report
 
 def compute_turning_probability(approach_angle, saccade_angle):
@@ -135,17 +192,20 @@ def compute_turning_probability(approach_angle, saccade_angle):
     return approach, numpy.array(probability_left)
 
 
-def write_report(report):
-    report.to_html('tammero_analysis/index.html')
+def write_report(report, output_dir):
+    filename = os.path.join(output_dir, 'index.html')
+    print "Writing on %s..." % filename
+    report.to_html(filename)
+    print "...done"
 
-def add_position_information(saccades, arena_center=[0.1, 0.5], arena_radius=1.0):
+def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1.0):
     info_dtype = [
         ('distance_from_wall', 'float64'),
         ('distance_from_center', 'float64'),
         ('approach_angle', 'float64'), # degrees
         ('saccade_angle', 'float64'), # degrees
     ]
-    
+
     info = numpy.zeros(dtype=info_dtype, shape=(len(saccades),))
     
     for i, saccade in enumerate(saccades):
