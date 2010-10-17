@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from geometric_saccade_detector.io import saccades_read_h5, saccades_write_all
 import numpy
-from geometric_saccade_detector.math_utils import merge_fields
+from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
 from reprep import Report
 from saccade_analysis.tammero.approach_angle import compute_approach_angle
 import os
@@ -22,7 +22,6 @@ def main():
     saccades = saccades_read_h5(options.saccades)
     saccades = add_position_information(saccades)
     subsets = list(divide_into_subsets(saccades))
-    
     
     report = create_report(subsets)
     write_report(report, options.output)
@@ -52,8 +51,9 @@ def divide_into_subsets(saccades):
 def create_report(subsets):
     report = Report('tammero_analysis')
     for id, desc, saccades in subsets:
-        node = create_report_subset(id, desc, saccades)
-        report.add_child(node)
+        # XXX temporary
+        # report.add_child(create_report_subset(id, desc, saccades))
+        report.add_child(create_report_randomness(id, desc, saccades))
     return report
 
 def create_report_subset(id, desc, saccades):
@@ -168,7 +168,9 @@ It contains %d saccades.
             pylab.legend()
         pylab.xlabel('saccade angle')
         pylab.ylabel('density')
+            
         
+    
     f = report.figure(shape=(3, 3))
     f.sub('distance_from_center', caption='Distance from center')
     f.sub('saccade_angle', caption='Saccade angle')
@@ -176,6 +178,70 @@ It contains %d saccades.
     f.sub('approach_vs_saccade', caption='Approach vs saccade angle')
     f.sub('turning_probability', caption='Probability of turning')
     f.sub('distribution_vs_approach', caption='Saccade distribution vs approach angle')
+    
+    
+def create_report_randomness(id, desc, saccades):
+    report = Report(id)
+
+    axis_angle = saccades['axis_angle']
+    distance_from_wall = saccades['distance_from_wall']
+
+
+    # additional analysis
+    with report.data_pylab('axisangle_vs_distance') as pylab:
+        pylab.plot(axis_angle, distance_from_wall, '.', markersize=1)
+        pylab.xlabel('axis angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('axis angle vs distance  (%s)' % id)
+        pylab.axis([-180, 180, 0, 1])
+    
+    right = saccades['sign'] < 0
+    left = saccades['sign'] > 0
+    
+    ms = 2
+    
+    with report.data_pylab('axisangle_vs_distance_lr') as pylab:
+        pylab.plot(axis_angle[right], distance_from_wall[right], 'r.', markersize=ms)
+        pylab.plot(axis_angle[left], distance_from_wall[left], 'b.', markersize=ms)
+        pylab.xlabel('axis angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('left and right saccades  (%s)' % id)
+        pylab.axis([-180, 180, 0, 1])
+  
+    with report.data_pylab('axisangle_vs_distance_l') as pylab:
+        # 
+        pylab.plot(axis_angle[left], distance_from_wall[left], 'b.', markersize=ms)
+        pylab.xlabel('axis angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('only left saccades  (%s)' % id)
+        pylab.axis([-180, 180, 0, 1])
+        
+    with report.data_pylab('axisangle_vs_distance_r') as pylab:
+        pylab.plot(axis_angle[right], distance_from_wall[right], 'r.', markersize=ms)
+        #
+        pylab.xlabel('axis angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('only right saccades  (%s)' % id)
+        pylab.axis([-180, 180, 0, 1])
+    
+    with report.data_pylab('axisangle_vs_distance_rm') as pylab:
+        pylab.plot(-axis_angle[right], distance_from_wall[right], 'r.', markersize=ms)
+        #
+        pylab.xlabel('axis angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('only right saccades (mirror) (%s)' % id)
+        pylab.axis([-180, 180, 0, 1])
+    
+    
+        
+    f = report.figure('randomness', shape=(3, 3))
+    f.sub('axisangle_vs_distance')
+    f.sub('axisangle_vs_distance_lr')
+    f.sub('axisangle_vs_distance_l')
+    f.sub('axisangle_vs_distance_r')
+    f.sub('axisangle_vs_distance_rm')
+    
+    
     return report
 
 def compute_turning_probability(approach_angle, saccade_angle):
@@ -202,6 +268,7 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
     info_dtype = [
         ('distance_from_wall', 'float64'),
         ('distance_from_center', 'float64'),
+        ('axis_angle', 'float64'),
         ('approach_angle', 'float64'), # degrees
         ('saccade_angle', 'float64'), # degrees
     ]
@@ -219,18 +286,23 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         distance_from_wall = arena_radius - distance_from_center
         assert distance_from_wall > 0
         
-        # XXX temporary fix
-        saccade_angle = -saccade['sign'] * saccade['amplitude']
+        saccade_angle = saccade['sign'] * saccade['amplitude']
         # NOTE that Tammero's definition is different than ours
         #saccade_angle = 180 - saccade['sign'] * saccade['amplitude']
         #saccade_angle = numpy.degrees(normalize_pi(numpy.radians(saccade_angle)))
         
         theta = numpy.radians(saccade['orientation_start'])
+        
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
+        
+        angle = numpy.arctan2(ay, ax)
+        axis_angle = normalize_pi(theta - angle)
+        
         
         info[i]['distance_from_center'] = distance_from_center
         info[i]['distance_from_wall'] = distance_from_wall
         info[i]['saccade_angle'] = saccade_angle
+        info[i]['axis_angle'] = numpy.degrees(axis_angle)
         info[i]['approach_angle'] = numpy.degrees(approach_angle)
         
     return merge_fields(saccades, info)

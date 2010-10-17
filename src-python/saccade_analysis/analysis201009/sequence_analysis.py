@@ -27,7 +27,6 @@ def main():
     
     for dataset in datasets:
     
-    
         id = dataset['id']
         saccades = dataset['saccades']
         

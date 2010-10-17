@@ -1,5 +1,5 @@
 import os
-import pickle
+import cPickle as pickle
 from saccade_analysis import logger
 from geometric_saccade_detector.io import saccades_read_mat
 import numpy
