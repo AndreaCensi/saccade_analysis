@@ -63,10 +63,14 @@ def main():
             yc = y - arena_center[1]
             # angle with respect to center
             angle = numpy.arctan2(yc, xc)
+            # fly orientation
+            
+            # angle with respect to axis
+            axis_angle = 
             # compute distance from wall
             distance_from_center = numpy.hypot(xc, yc)
             distance_from_wall = -distance_from_center + arena_radius
-             
+            stats.update()
 
     for i, sample_id in enumerate(do_samples):
         

@@ -167,8 +167,7 @@ It contains %d saccades.
         #a = pylab.axis()
             pylab.legend()
         pylab.xlabel('saccade angle')
-        pylab.ylabel('density')
-            
+        pylab.ylabel('density') 
         
     
     f = report.figure(shape=(3, 3))
@@ -184,6 +183,7 @@ def create_report_randomness(id, desc, saccades):
     report = Report(id)
 
     axis_angle = saccades['axis_angle']
+    approach_angle = saccades['approach_angle']
     distance_from_wall = saccades['distance_from_wall']
 
 
@@ -232,7 +232,14 @@ def create_report_randomness(id, desc, saccades):
         pylab.title('only right saccades (mirror) (%s)' % id)
         pylab.axis([-180, 180, 0, 1])
     
-    
+    with report.data_pylab('approachangle_vs_distance_lr') as pylab:
+        pylab.plot(approach_angle[right], distance_from_wall[right], 'r.', markersize=ms)
+        pylab.plot(approach_angle[left], distance_from_wall[left], 'b.', markersize=ms)
+        pylab.xlabel('approach angle (deg)')
+        pylab.ylabel('distance from wall  (m)')
+        pylab.title('left and right saccades  (%s)' % id)
+        pylab.axis([-60, 60, 0, 1])
+  
         
     f = report.figure('randomness', shape=(3, 3))
     f.sub('axisangle_vs_distance')
@@ -240,8 +247,21 @@ def create_report_randomness(id, desc, saccades):
     f.sub('axisangle_vs_distance_l')
     f.sub('axisangle_vs_distance_r')
     f.sub('axisangle_vs_distance_rm')
+    f.sub('approachangle_vs_distance_lr')
     
     
+    smooth_displacement = saccades['smooth_displacement']
+    with report.data_pylab('smooth_displacement_hist') as pylab:
+        bins = range(-180, 180, 10)
+        pylab.hist(smooth_displacement, bins, normed=True)
+        pylab.xlabel('inter-saccade smooth displacement (deg)')
+        pylab.ylabel('density')
+        pylab.title('smooth displacement  (%s)' % id)
+        # pylab.axis([-180, 180, 0, 700])
+  
+    f = report.figure('smooth')
+    f.sub('smooth_displacement_hist')
+  
     return report
 
 def compute_turning_probability(approach_angle, saccade_angle):
