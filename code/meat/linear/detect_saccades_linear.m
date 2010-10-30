@@ -66,7 +66,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 	ns = 1;
 	% Look at all the candidates
 	for m=res.saccades_moments'
-		% Skip if the moment is already part of a detecte saccaded
+		% Skip if the moment is already part of a detected saccade
 		if considered(m)
 			continue
 		end
