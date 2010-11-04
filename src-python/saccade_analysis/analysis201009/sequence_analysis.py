@@ -225,7 +225,6 @@ def xcorr(a, b=None, maxlag=None):
     a = numpy.array(a)
     b = numpy.array(b)
     
-    
     if maxlag is None:
         maxlag = len(a) / 2
         
