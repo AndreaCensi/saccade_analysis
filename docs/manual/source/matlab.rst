@@ -93,10 +93,7 @@ This command tries different thresholds. ::
     >> test_different_thresholds
 
 * Create a symbolic link 'use_for_report' for the configuration we are
-  going to use in the 
-
-
-
+  going to use in the report.
 
 
 .. _create_report_data:

@@ -4,7 +4,7 @@ setup(
     name='saccade_analysis',
 	version="1.0",
     package_dir={'':'src-python'},
-    py_modules=['saccade_analysis'],
+    py_modules=['saccade_analysis','expdb'],
     install_requires=['geometric_saccade_detector', 'matplotlib'],
     entry_points={
          'console_scripts': [
@@ -12,10 +12,12 @@ setup(
            'sac_sequence_analysis = saccade_analysis.analysis201009.sequence_analysis:main',
            'sac_levy_analysis = saccade_analysis.analysis201009.levy_analysis:main',
            'sac_tammero_analysis = saccade_analysis.tammero.tammero_analysis:main',
+           'sac_peter2ros = expdb.peter2ros:main',
+           
+           'sac_db_stats = expdb.db_stats:main',
         ]
       },
       
-    
     author="Andrea Censi",
     author_email="andrea@cds.caltech.edu",
     description="This package provides utils to analyse saccade data.",

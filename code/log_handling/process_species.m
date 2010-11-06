@@ -16,14 +16,14 @@ function process_species(directory, configuration)
 		configuration = default_configuration()
 	end
 	
-	d = dir(sprintf('%s/data_*.mat',directory));
-
+	out_dir = sprintf('%s/processed/%s', directory, configuration.id);
+	my_mkdir(out_dir)
+    
+    d = dir(sprintf('%s/data_*.mat',directory));    
 	for i=1:numel(d)
 		filename = sprintf('%s/%s', directory, d(i).name);
 		
 		my_mkdir(sprintf('%s/processed', directory))
-		out_dir = sprintf('%s/processed/%s', directory, configuration.id);
-		my_mkdir(out_dir)
 		out_filename = sprintf('%s/processed_%s', out_dir, d(i).name);
 		
 		if exist(out_filename, 'file') & use_cached_results
