@@ -191,6 +191,10 @@ body {
     height: 5%;
     border: 0;
 }
+#topbar a {
+    font-weight: bold;
+    margin-right: 2em;
+}
 #window {
     border: 0;
     height: 90%;
@@ -200,9 +204,9 @@ body {
 </head>
 <body>
 <div id="topbar">
-    <a href="expdata_plots.html" target="window">Browse raw data plots</a>
-    <a href="group_plots.html" target="window">Browse as groups/configuration</a>
-    <a href="saccade_plots.html" target="window">Browse as groups/configuration/function</a>
+    <a href="expdata_plots.html" target="window">Raw data stats</a>
+    <a href="group_plots.html" target="window">Groups stats</a>
+    <a href="saccade_plots.html" target="window">Single sample stats</a>
 </div>
 <iframe src="expdata_plots.html" name="window" id="window">
 No iframes supported.

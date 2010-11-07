@@ -6,26 +6,22 @@ from compmake  import set_namespace, comp, compmake_console, batch_command
 from compmake.jobs.syntax.parsing import parse_job_list
 
 from expdb.db import SamplesDB
-from saccade_analysis.analysis201009.plots_trajectories import \
-    plot_sample_hist_group
 
 from reprep.table import Table
 
 # The various plots
 from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
     create_main_gui
-from saccade_analysis.analysis201009.stats.fairness import fairness
-from saccade_analysis.analysis201009.stats.independence import independence
-from saccade_analysis.analysis201009.stats.raw_trajectories \
-     import plot_raw_trajectories
-from saccade_analysis.analysis201009.stats.simulated_trajectories \
-     import plot_simulated_sample_trajectories
+from saccade_analysis.analysis201009.stats import \
+    fairness,  independence,  levy_exp, plot_raw_trajectories, \
+    plot_simulated_sample_trajectories, group_sign_xcorr
 
 
 group_plots = [
-    ('sample_hist_group', plot_sample_hist_group),
+    ('sign_xcorr', group_sign_xcorr), 
     ('fairness', fairness),
     ('independence', independence),
+    ('levy_vs_exp', levy_exp)
 ]
 
 sample_expdata_plots = [
@@ -111,12 +107,13 @@ def main():
                              sample, configuration, function,
                              job_id=job_id)    
 
-        for sample in db.list_samples(group):
-            for id, function in sample_expdata_plots:
-                job_id = '%s-%s' % (sample,  id)
-                index_sample_expdata_plots[(sample,id)] = \
-                    comp(wrap_sample_expdata_plot, options.data, 
-                         sample,  function, job_id=job_id)    
+        if db.group_has_experimental_data(group):
+            for sample in db.list_samples(group):
+                for id, function in sample_expdata_plots:
+                    job_id = '%s-%s' % (sample,  id)
+                    index_sample_expdata_plots[(sample,id)] = \
+                        comp(wrap_sample_expdata_plot, options.data, 
+                             sample,  function, job_id=job_id)    
 
     # now we create the indices 
     # fix configuration, function; iterate groups
@@ -148,17 +145,18 @@ def main():
     
     # fix group, function; iterate samples
     for group in groups:
-        for function_id, function in sample_expdata_plots:
-            subs = []; descs = [];
-            for sample in db.list_samples(group):
-                descs.append(sample)
-                subs.append(index_sample_expdata_plots[(sample,function_id)])
+        if db.group_has_experimental_data(group):    
+            for function_id, function in sample_expdata_plots:
+                subs = []; descs = [];
+                for sample in db.list_samples(group):
+                    descs.append(sample)
+                    subs.append(index_sample_expdata_plots[(sample,function_id)])
+                    
+                page_id = "%s.%s" % (group, function_id)
                 
-            page_id = "%s.%s" % (group, function_id)
-            
-            job_id = page_id
-            comp(combine_reports, subs, descs, page_id, output_dir,
-                 job_id=job_id) 
+                job_id = page_id
+                comp(combine_reports, subs, descs, page_id, output_dir,
+                     job_id=job_id) 
 
     comp(create_gui,
          filename=os.path.join(output_dir, 'expdata_plots.html'),
@@ -264,7 +262,10 @@ def wrap_group_plot(data_dir, group, configuration, plot_func):
 def wrap_sample_saccades_plot(data_dir, sample, configuration, plot_func):
     """  def plot_func(sample, configuration, exp_data, saccades) """
     db = SamplesDB(data_dir)
-    exp_data = db.get_experimental_data(sample)
+    if db.has_experimental_data(sample):
+        exp_data = db.get_experimental_data(sample)
+    else:
+        exp_data = None
     saccades = db.get_saccades_for_sample(sample, configuration)
     return plot_func(sample, exp_data, configuration, saccades)
 

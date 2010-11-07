@@ -25,6 +25,12 @@ def main():
     for group in groups:
         print "Group: %s" % group
         print "  Configurations: %s. " %  db.list_configurations(group)
+        print "  Samples: %s" % db.list_samples(group)
+        print "  Has exp data: %s" % db.has_experimental_data(group)
+        
+    
+    for group in groups:
+        print "Group: %s" % group
         for sample in db.list_samples(group):
             exp_data = db.get_experimental_data(sample)
             
