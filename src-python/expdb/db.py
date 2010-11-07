@@ -1,14 +1,15 @@
 import os
 import cPickle
 import scipy.io
-import numpy
-import pickle
+import numpy 
+from geometric_saccade_detector.io import saccades_read_mat
+from expdb.natsort import natsorted
 
 
 
 class SamplesDB:
     
-    def __init__(self, data):
+    def __init__(self, data, verbose=False):
         ''' data: base directory '''
         
         if not os.path.exists(data) or not os.path.isdir(data):
@@ -22,8 +23,14 @@ class SamplesDB:
         self.sample2exppickle = {}
         # maps id to actual loaded data (cached
         self.sample2exp = {}
+        # maps group -> list of configurations
+        self.group2configurations = {}
+        # list of all configurations
+        self.configurations = set()
+        # maps sample -> group
+        self.sample2group = {}
         
-        print "Loading data in %s" % data
+        #print "Loading data in %s" % data
         
         for group in os.listdir(data):
             group_dir = os.path.join(data, group)
@@ -31,7 +38,7 @@ class SamplesDB:
                 
                 continue
             
-            print "Reading group %s" % group
+            # print "Reading group %s" % group
             
             self.group2samples[group] = set()
             
@@ -40,56 +47,84 @@ class SamplesDB:
                 id = file[5:-4]
                 self.group2samples[group].add(id)
                 self.sample2expmat[id] =  os.path.join(group_dir,file)
+                self.sample2group[id] = group
                 
             for file in [file for file in os.listdir(group_dir) 
                 if file.startswith('data_') and file.endswith('.pickle')]: 
                 id = file[5:-7]
                 self.group2samples[group].add(id)
                 self.sample2exppickle[id] = os.path.join(group_dir,file)
-                
+                self.sample2group[id] = group
+
         
             if not self.group2samples[group]:
-                print 'Empty group "%s".' % group
+                # print 'Empty group "%s".' % group
                 del self.group2samples[group]
                 
+            self.group2configurations[group] = {}
+            
+            processed_dir = os.path.join(group_dir, 'processed')
+            if not os.path.exists(processed_dir):
+                if verbose:
+                    print "No processed data found for %s." % group
+                pass
+                
+            else:
+                for conf in os.listdir(processed_dir):                
+                    saccades = os.path.join(processed_dir, conf, 'saccades.mat')
+                    if os.path.exists(saccades): 
+                        self.group2configurations[group][conf] = saccades
+                    
+                        # add to general list
+                        self.configurations.add(conf)
                 
     
     def list_groups(self):
-        return sorted(list(self.group2samples.keys()))
+        return natsorted(list(self.group2samples.keys()))
     
     def list_samples(self, group):
-        return sorted(list(self.group2samples[group]))
+        return natsorted(list(self.group2samples[group]))
     
+    def list_all_configurations(self):
+        return natsorted(self.configurations)
+        
     def list_configurations(self, group):
         """ Lists the configurations for the given group. """
-        pass
+        return natsorted(list(self.group2configurations[group].keys()))
     
     def get_group_for_sample(self, sample):
         """ Returns the sample associated to the group. """
-        pass
+        return self.sample2group[sample]
     
-    
-    def get_saccades_for_group(self, group, configuration=None):
+    def get_saccades_for_group(self, group, configuration):
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
-        pass
-    
-    def get_saccades_for_sample(self, sample, configuration=None):
+        filename   = self.group2configurations[group][configuration]
+        return saccades_read_mat(filename)
+
+    def get_saccades_for_sample(self, sample, configuration):
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
-        pass
+        group = self.get_group_for_sample(sample)
+        group_saccades  = self.get_saccades_for_group(group, configuration) 
+        
+        mine = group_saccades['sample'] == sample
+        
+        saccades = group_saccades[mine]
+        
+        if len(saccades) == 0:
+            raise Exception('No saccades found for %s' % sample)
+        
+        return saccades
         
     def get_experimental_data(self, sample):
         if sample in self.sample2exp:
             return self.sample2exp[sample]
         
-        if sample in self.sample2exppickle:
-            with open(self.sample2exppickle[sample], 'rb') as f:
-                data = cPickle.load(f)      
                 
-        elif sample in self.sample2expmat:
+        if sample in self.sample2expmat:
             data = scipy.io.loadmat(self.sample2expmat[sample], squeeze_me=True)
             data = data['data']
             # convert from array to hash
@@ -108,6 +143,9 @@ class SamplesDB:
             data['exp_orientation'] = as1d(data['exp_orientation'])
             data['exp_timestamps'] = as1d(data['exp_timestamps'])
             
+        elif sample in self.sample2exppickle:
+            with open(self.sample2exppickle[sample], 'rb') as f:
+                data = cPickle.load(f)      
             
         else:
             raise Exception('no data for sample %s found' % sample)

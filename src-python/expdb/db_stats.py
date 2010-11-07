@@ -16,14 +16,15 @@ def main():
         
     (options, args) = parser.parse_args()
     
-    db = SamplesDB(options.data)
+    db = SamplesDB(options.data, verbose=True)
     
     groups = db.list_groups()
     
-    groups = ['Dananassae', 'indoorhalogen']
+#    groups = ['Dananassae', 'indoorhalogen']
     
     for group in groups:
         print "Group: %s" % group
+        print "  Configurations: %s. " %  db.list_configurations(group)
         for sample in db.list_samples(group):
             exp_data = db.get_experimental_data(sample)
             
@@ -34,7 +35,7 @@ def main():
         
             length = T[-1]-T[0]
 
-            print "- sample %s,  length %fs " % (sample, length)
+            print "- sample %s,  length: %d minutes" % (sample, length/60)
             print "  - orientation ", theta.dtype, theta.shape
             print "  - time        ", time.dtype, time.shape
 
