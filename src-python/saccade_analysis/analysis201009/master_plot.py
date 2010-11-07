@@ -1,4 +1,4 @@
-import sys 
+import sys, os 
 from optparse import OptionParser
 
 from reprep import Report
@@ -6,15 +6,26 @@ from compmake  import set_namespace, comp, compmake_console, batch_command
 from compmake.jobs.syntax.parsing import parse_job_list
 
 from expdb.db import SamplesDB
-from saccade_analysis.analysis201009.plots_trajectories import plot_raw_trajectories,\
-    plot_sample_hist_group, plot_simulated_sample_trajectories
-import os
+from saccade_analysis.analysis201009.plots_trajectories import \
+    plot_sample_hist_group
+
+from reprep.table import Table
+
+# The various plots
 from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
     create_main_gui
+from saccade_analysis.analysis201009.stats.fairness import fairness
+from saccade_analysis.analysis201009.stats.independence import independence
+from saccade_analysis.analysis201009.stats.raw_trajectories \
+     import plot_raw_trajectories
+from saccade_analysis.analysis201009.stats.simulated_trajectories \
+     import plot_simulated_sample_trajectories
 
 
 group_plots = [
     ('sample_hist_group', plot_sample_hist_group),
+    ('fairness', fairness),
+    ('independence', independence),
 ]
 
 sample_expdata_plots = [
@@ -30,8 +41,10 @@ description = """ Main function to plot everything. """
  
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--data", help="Main data directory", default='saccade_data')
-    parser.add_option("--interactive", action="store_true",default=False,
+    parser.add_option("--data", help="Main data directory", 
+                      default='saccade_data')
+    parser.add_option("--interactive", action="store_true",
+                      default=False,
                       help="Starts an interactive compmake session.")
     parser.add_option("--report", help="Saccade report directory", 
                       default='saccade_report')
@@ -40,7 +53,7 @@ def main():
     parser.add_option("--configurations", help="Which configurations to consider", 
                       default=None)
         
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args() #@UnusedVariable
     
     db = SamplesDB(options.data, verbose=True)
     
@@ -58,7 +71,10 @@ def main():
         configurations = db.list_all_configurations()
         confset = "all"
         
-    set_namespace('master_plot_%s_%s' % (groupset, confset))
+    combination = '%s_%s' % (groupset, confset)
+    output_dir = os.path.join(options.report, combination)
+    
+    set_namespace('master_plot_%s' % combination)
         
     
     # we maintain several indices
@@ -83,7 +99,8 @@ def main():
                 job_id = '%s-%s-%s' % (group, configuration, id)
                 
                 index_group_plots[(group,configuration,id)] = \
-                    comp(wrap_group_plot, options.data, group, configuration, function,
+                    comp(wrap_group_plot, options.data, group, 
+                         configuration, function,
                          job_id=job_id)    
 
             for sample in db.list_samples(group):
@@ -101,17 +118,14 @@ def main():
                     comp(wrap_sample_expdata_plot, options.data, 
                          sample,  function, job_id=job_id)    
 
-    # now we create the indices
-    
-    output_dir = options.report
-     
+    # now we create the indices 
     # fix configuration, function; iterate groups
     for configuration in configurations:
         for function_id, function in group_plots:
         
             subs = []; descs = [];
         
-            page_id = "%s.%s" % (configuration, id)
+            page_id = "%s.%s" % (configuration, function_id)
             
             for group in groups:
                 if not configuration in configurations_for_group[group]:
@@ -134,13 +148,13 @@ def main():
     
     # fix group, function; iterate samples
     for group in groups:
-        for id, function in sample_expdata_plots:
+        for function_id, function in sample_expdata_plots:
             subs = []; descs = [];
             for sample in db.list_samples(group):
                 descs.append(sample)
-                subs.append(index_sample_expdata_plots[(sample,id)])
+                subs.append(index_sample_expdata_plots[(sample,function_id)])
                 
-            page_id = "%s.%s" % (group, id)
+            page_id = "%s.%s" % (group, function_id)
             
             job_id = page_id
             comp(combine_reports, subs, descs, page_id, output_dir,
@@ -160,15 +174,16 @@ def main():
             if not configuration in configurations_for_group[group]:
                 continue
                 
-            for id, function in  sample_saccades_plots:
+            for function_id, function in  sample_saccades_plots:
                 
                 subs = []; descs = [];
                 for sample in db.list_samples(group):
                     descs.append(sample)
-                    r = index_sample_saccades_plots[(sample,configuration,id)]
+                    r = index_sample_saccades_plots[(sample,configuration,
+                                                     function_id)]
                     subs.append(r)
                     
-                page_id = "%s.%s.%s" % (configuration,group,id)
+                page_id = "%s.%s.%s" % (configuration,group,function_id)
                 
                 job_id = page_id
                 comp(combine_reports, subs, descs, page_id, output_dir,
@@ -204,19 +219,41 @@ def combine_reports(subs, descs, page_id, output_dir):
     comp(combine_reports, subs, page_id)
     
     for id, dummy in subs[0].childid2node.items():
-        f = r.figure(id, shape=(5,4))
+        node = subs[0].childid2node[id]
         
-        for i, sub in enumerate(subs):
-            node = sub.childid2node[id]
-            node.id = sub.id
-            r.add_child(node)
-            f.sub(node.id, caption=descs[i])
-    
+        if isinstance(node, Table):
+            
+            for i, sub in enumerate(subs):
+                node = sub.childid2node[id]
+                #node.id = sub.id
+                node.id = None
+                r.add_child(node)
+                node.caption = descs[i]
+            
+        else: # images -> use figures
+            
+            f = r.figure(id, shape=(5,4))
+            for i, sub in enumerate(subs):
+                node = sub.childid2node[id]
+                # node.id = sub.id
+                node.id = None
+                r.add_child(node)
+                f.sub(node.id, caption=descs[i])
+        
+    extra_css = """
+h { display: none !important; }
+
+.report-figure, .report-node {
+    border: 0 !important;
+}   
+.datanode { display: none !important; }
+
+"""
     
     resources_dir = os.path.join(output_dir, 'images')
     filename = os.path.join(output_dir, "%s.html" % page_id)
     print "Writing to %s" % filename
-    r.to_html(filename, resources_dir)
+    r.to_html(filename, resources_dir, extra_css=extra_css)
                     
 def wrap_group_plot(data_dir, group, configuration, plot_func):
     """  def plot_func(group, configuration, saccades) """

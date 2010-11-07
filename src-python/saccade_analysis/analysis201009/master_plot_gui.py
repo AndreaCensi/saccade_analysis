@@ -29,7 +29,7 @@ div.box {
 
 
 #topbar {margin:0;  height: 9%; padding: 1em; display: block; }
-#window {margin:0;  width: 95%; height: 90%;}
+#window {margin:0;  width: 95%; height: 90%;border: 0;}
 
 
 
@@ -112,8 +112,6 @@ No iframes supported.
 </html>
 """
 
-
-
 def create_gui(filename, menus):
     f = open(filename, 'w')
    
@@ -191,8 +189,10 @@ body {
 
 #topbar {
     height: 5%;
+    border: 0;
 }
 #window {
+    border: 0;
     height: 90%;
     width: 100%;
 }
