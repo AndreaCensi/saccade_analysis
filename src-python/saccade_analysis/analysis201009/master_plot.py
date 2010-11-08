@@ -6,7 +6,7 @@ from reprep.table import Table
 from compmake  import set_namespace, comp, compmake_console, batch_command
 from compmake.jobs.syntax.parsing import parse_job_list
 
-from expdb.db import SamplesDB
+from expdb.db import SamplesDB, read_samples_db
 # The various plots
 from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
     create_main_gui
@@ -64,7 +64,7 @@ def main():
         
     (options, args) = parser.parse_args() #@UnusedVariable
     
-    db = SamplesDB(options.data, verbose=True)
+    db = read_samples_db(options.data, verbose=True)
     
     if options.groups:
         groups = options.groups.split(', ')
@@ -311,14 +311,14 @@ def write_report(report, output_dir, page_id):
     
 def wrap_group_plot(data_dir, group, configuration, plot_func, function_args):
     """  def plot_func(group, configuration, saccades) """
-    db = SamplesDB(data_dir)
+    db = read_samples_db(data_dir)
     saccades = db.get_saccades_for_group(group, configuration)
     return plot_func(group, configuration, saccades, **function_args)
 
 def wrap_sample_saccades_plot(data_dir, sample, configuration,
                                plot_func, function_args):
     """  def plot_func(sample, configuration, exp_data, saccades) """
-    db = SamplesDB(data_dir)
+    db = read_samples_db(data_dir)
     if db.has_experimental_data(sample):
         exp_data = db.get_experimental_data(sample)
     else:
@@ -328,7 +328,7 @@ def wrap_sample_saccades_plot(data_dir, sample, configuration,
 
 def wrap_sample_expdata_plot(data_dir, sample, plot_func, function_args):
     """  def plot_func(sample, exp_data) """
-    db = SamplesDB(data_dir)
+    db = read_samples_db(data_dir)
     exp_data = db.get_experimental_data(sample)
     return plot_func(sample, exp_data, **function_args)
 

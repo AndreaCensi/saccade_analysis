@@ -4,14 +4,15 @@ import numpy
 
 def sample_var_hist(sample, expdata, configuration, saccades, variable):
     x = saccades[variable.field]
+    if variable.mod:
+        M = variable.interesting[1]
+        x = numpy.fmod(x,M)
     
-    # TODO: add mod()
-
     hist, bin_edges = numpy.histogram(x, bins=variable.density_bins, 
                 range=variable.interesting, normed=True)
 
     bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
-    
+     
     r = Report()
     with r.data_pylab('histogram') as pylab:
         pylab.plot(bin_centers, hist, 'b-')

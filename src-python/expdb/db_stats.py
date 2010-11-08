@@ -1,8 +1,6 @@
 from optparse import OptionParser
-from expdb.db import SamplesDB
-import numpy
-
-
+from expdb.db import SamplesDB, read_samples_db
+import time
 
 description = """
 
@@ -14,13 +12,17 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--data", help="Main data directory", default='.')
         
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args() #@UnusedVariable
     
-    db = SamplesDB(options.data, verbose=True)
+    start = time.time()
+    db = read_samples_db(options.data, verbose=True)
+    print "DB indexed in %.2f seconds." % (time.time()-start)
     
     groups = db.list_groups()
     
 #    groups = ['Dananassae', 'indoorhalogen']
+
+    start = time.time()
     
     for group in groups:
         print "Group: %s" % group
@@ -35,15 +37,15 @@ def main():
             exp_data = db.get_experimental_data(sample)
             
             theta = exp_data['exp_orientation']
-            time  = exp_data['exp_timestamps']
-
             T = exp_data['exp_timestamps']
         
             length = T[-1]-T[0]
 
             print "- sample %s,  length: %d minutes" % (sample, length/60)
             print "  - orientation ", theta.dtype, theta.shape
-            print "  - time        ", time.dtype, time.shape
+            print "  - time        ", T.dtype, T.shape
+
+    print "Database read in %d seconds. " % (time.time() - start)
 
 if __name__ == '__main__':
     main()

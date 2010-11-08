@@ -93,7 +93,7 @@ variables.append(Variable(
     name = 'Initial orientation',
     unit = 'deg',
     density_max_y= None,
-    density_bins = None,
+    density_bins = 180,
     include = False,
     mod=True
 )) 
@@ -107,7 +107,7 @@ variables.append(Variable(
     name = 'Final orientation',
     unit = 'deg',
     density_max_y= None,
-    density_bins = None,
+    density_bins = 180,
     include = False,
     mod=True
 )) 

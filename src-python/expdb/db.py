@@ -88,15 +88,19 @@ class SamplesDB:
         
     
     def list_groups(self):
+        """ Returns a list of the groups. """
         return natsorted(list(self.groups.keys()))
     
     def list_all_samples(self):
+        """ Returns a list of all samples for all groups. """
         return natsorted(list(self.sample2group.keys()))
     
     def list_samples(self, group):
+        """ Lists the samples in the given group. """
         return natsorted(list(self.groups[group].samples))
     
     def list_all_configurations(self):
+        """ Lists all the configurations present in the data. """
         return natsorted(self.configurations)
         
     def list_configurations(self, group):
@@ -115,9 +119,12 @@ class SamplesDB:
         return saccades_read_mat(filename)
     
     def group_has_experimental_data(self, group):
+        """ Returns true if this group has the raw orientation data.
+            (mamarama has only saccades data. ) """
         return self.groups[group].has_experimental_data
     
     def has_experimental_data(self, sample):
+        """ Returns true if this sample has the raw orientation data. """
         return sample in self.sample2expmat or sample in self. sample2exppickle
 
     def get_saccades_for_sample(self, sample, configuration):
@@ -172,3 +179,21 @@ class SamplesDB:
         
         return data
         
+        
+def read_samples_db(data, verbose=False):
+    cache = os.path.join(data, 'index.pickle')
+    if os.path.exists(cache):
+        print "Using cache %s" % cache
+        return cPickle.load(open(cache))
+    else:
+        db = SamplesDB(data, verbose)
+        print "Writing to cache %s" % cache
+        with open(cache, 'wb') as f:
+            cPickle.dump(db, f)   
+        return db
+    
+        
+        
+        
+    
+    
