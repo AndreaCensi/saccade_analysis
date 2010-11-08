@@ -14,10 +14,12 @@ from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
     create_main_gui
 from saccade_analysis.analysis201009.stats import \
     fairness,  independence,  levy_exp, plot_raw_trajectories, \
-    plot_simulated_sample_trajectories, group_sign_xcorr
+    plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist
+
 
 
 group_plots = [
+    ('sign_hist', group_sign_hist),
     ('sign_xcorr', group_sign_xcorr), 
     ('fairness', fairness),
     ('independence', independence),

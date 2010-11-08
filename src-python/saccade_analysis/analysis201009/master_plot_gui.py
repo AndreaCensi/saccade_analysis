@@ -55,8 +55,8 @@ function update_gui() {
     $('#window').attr("src", src); 
 
     message = (
-    '<span>See details for combination <a target="_blank" '+
-    'href="{data_id}.html">{title}</a>. ') .format(
+    '<span><a target="_blank" '+
+    'href="{data_id}.html">Open {title} in a new tab.</a>. ') .format(
                            { 'title': data_id, 
                            'data_id': data_id});
         
