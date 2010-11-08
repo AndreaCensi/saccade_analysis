@@ -90,6 +90,9 @@ class SamplesDB:
     def list_groups(self):
         return natsorted(list(self.groups.keys()))
     
+    def list_all_samples(self):
+        return natsorted(list(self.sample2group.keys()))
+    
     def list_samples(self, group):
         return natsorted(list(self.groups[group].samples))
     
@@ -108,7 +111,7 @@ class SamplesDB:
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
-        filename   = self.groups[group].configurations[configuration]
+        filename = self.groups[group].configurations[configuration]
         return saccades_read_mat(filename)
     
     def group_has_experimental_data(self, group):

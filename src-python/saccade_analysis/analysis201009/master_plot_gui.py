@@ -207,6 +207,7 @@ body {
     <a href="expdata_plots.html" target="window">Raw data stats</a>
     <a href="group_plots.html" target="window">Groups stats</a>
     <a href="saccade_plots.html" target="window">Single sample stats</a>
+    <a href="sample_fullscreen_plots.html" target="window">Single sample fullpage</a>
 </div>
 <iframe src="expdata_plots.html" name="window" id="window">
 No iframes supported.
