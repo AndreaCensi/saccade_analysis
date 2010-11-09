@@ -87,8 +87,6 @@ for i, var1 in enumerate(variables):
                             (var1.name, var2.name)))
             
             
-            
-    
 sample_expdata_plots = [
     Plot('raw_trajectories', plot_raw_trajectories,
          desc = "Plot of simulated trajectories (from raw orientation data)" ),
@@ -105,7 +103,51 @@ sample_fullscreen_plots = [
          desc="Plot of each and every detected saccade" )
 ]
 
-description = """ Main function to plot everything. """
+
+# define group order and give descriptions
+all_groups_description = [   
+    ('Dananassae', 'D. ananassae (Ros)'),
+    ('Darizonae', 'D. arizonae (Ros)'),
+    ('Dhydei', 'D. hydei (Ros)'),
+    ('Dmelanogaster', 'D. melanogaster (Ros)'),
+    ('Dmojavensis', 'D. mojavensis (Ros)'),
+    ('Dpseudoobscura', 'D. pseudoobscura (Ros)'),
+    
+    ('mamaramanoposts', 'D. melanogaster (Mamarama, no posts)'),
+    ('mamaramaposts', 'D. melanogaster (Mamarama, with posts)'),
+    
+    ('indoorhalogen', 'D. melanogaster (Peter, indoor/halogen)'),
+    ('blueFilter', 'D. melanogaster (Peter, blue filter)'),
+    ('circularPolarizer', 'D. melanogaster (Peter, circ. polarizer)'),
+    ('circularPolarizercloudy', 'D. melanogaster (Peter, circ. polarizer, cloudy)'),
+    ('grayFilter', 'D. melanogaster (Peter, gray filter)'),
+    ('grayFiltercloudy', 'D. melanogaster (Peter, gray filter, cloudy)'), 
+    ('noFilter', 'D. melanogaster (Peter, no filter)'),
+    ('noFiltercloudy', 'D. melanogaster (Peter, no filter, cloudy)'),
+]   
+
+def order_groups(groups):
+    ''' yields group, group_desc according to the order
+        defined in all_groups_description.
+        Note that groups might contain entries not present in all_groups_description. '''
+        
+    # these are the ones we know a priori
+    known_groups =  map(lambda t: t[0], all_groups_description)
+    # these are the ones that we know and see
+    seen = [x for x in known_groups if  x in groups]
+    # these are the extra 
+    others = [x for x in groups if not x in known_groups]
+    order = seen + others
+  
+    group2desc = dict(all_groups_description)
+    # use id as description if not known
+    for x in others:
+        group2desc[x] = x
+        
+    for group in order:
+        yield group, group2desc[group]
+ 
+description = """ Main script to plot everything. """
  
 def main():
     parser = OptionParser(usage=description)
@@ -156,7 +198,7 @@ def main():
     
     configurations_for_group = {}
     
-    for group in groups:         
+    for group in groups:     
         
         configurations_for_group[group] = \
             set(configurations).intersection(db.list_configurations(group))
@@ -196,11 +238,11 @@ def main():
         
             page_id = "%s.%s" % (configuration, plot.id)
             
-            for group in groups:
+            for group, group_desc in order_groups(groups):
                 if not configuration in configurations_for_group[group]:
                     continue
                 
-                descs.append(group)
+                descs.append(group_desc)
                 subs.append(index_group_plots[(group,configuration,plot.id)])
         
             job_id = page_id
@@ -231,10 +273,14 @@ def main():
                 comp(combine_reports, subs, descs, page_id, output_dir,
                      job_id=job_id) 
 
+    # get the ordered group lists and desc
+    ordered_groups = map(lambda t: t[0], order_groups(groups))
+    ordered_groups_desc = map(lambda t: t[1], order_groups(groups))
+    
     comp(create_gui,
          filename=os.path.join(output_dir, 'expdata_plots.html'),
          menus = [
-                  ('Group',  groups, groups), 
+                  ('Group',  ordered_groups, ordered_groups_desc), 
                   ('Plot/table', map(lambda x:x.id, sample_expdata_plots),
                         map(lambda x:x.description, sample_expdata_plots) )
         ])
@@ -270,7 +316,7 @@ def main():
          filename=os.path.join(output_dir, 'saccade_plots.html'),
          menus = [
                   ('Detector',  configurations, configurations),
-                  ('Group',  groups, groups), 
+                  ('Group',  ordered_groups, ordered_groups_desc),
                   ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
                                  map(lambda x:x.description, sample_saccades_plots))
         ])

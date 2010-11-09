@@ -4,7 +4,7 @@ function res = process_sample(filename, configuration)
 	
 	n = numel(res.timestamp);
 	
-	chunk_length = 10000;
+	chunk_length = 200000;
 	num_chunks = ceil(n / chunk_length);
 	
 	for i = 1:num_chunks
@@ -50,3 +50,5 @@ function res = process_sample(filename, configuration)
 			ts = ts + 1;
 		end
 	end
+
+    % TODO: at this point recompute the intra-saccade stats

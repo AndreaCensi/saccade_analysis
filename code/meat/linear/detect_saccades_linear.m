@@ -134,9 +134,7 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
         
         % for mamarama, july 2010
         considered(max(start-3,1):min(numel(considered),stop+3)) = 1;
-        
-		
-		
+        		
 		% From now on, we just create the saccade structure.
         
 		res.saccades(ns).maximum = m;
@@ -156,6 +154,8 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 				res.saccades(ns).time_start - res.saccades(ns-1).time_stop;
 				
 			assert( res.saccades(ns).time_passed > 0 )
+
+            % TODO: add other computation here
 		else
 			res.saccades(ns).time_passed = nan;
 		end
@@ -173,7 +173,11 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
     % no saccades detected
     if ns == 1
         res.saccades = [];
-    end	 
+%    else
+        % remove first saccade
+        % because we cannot compute the intra-saccade statistics
+ %       res.saccades(1) = [];
+    end
 
 
 	% if debug is active plot 
