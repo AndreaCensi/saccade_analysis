@@ -6,7 +6,7 @@ from reprep.table import Table
 from compmake  import set_namespace, comp, compmake_console, batch_command
 from compmake.jobs.syntax.parsing import parse_job_list
 
-from expdb.db import SamplesDB, read_samples_db
+from expdb.db import  read_samples_db
 # The various plots
 from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
     create_main_gui
@@ -14,9 +14,16 @@ from saccade_analysis.analysis201009.master_plot_vars import variables
 from saccade_analysis.analysis201009.stats import \
     fairness,  independence,  levy_exp, plot_raw_trajectories, \
     plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
-    plot_detected_saccades, sample_var_hist,group_var_xcorr,group_var_hist
+    plot_detected_saccades, sample_var_hist,group_var_xcorr,group_var_hist, \
+    group_var_percentiles, group_var_joint, sample_var_joint
 
-
+class Plot:
+    def __init__(self, id, command, args={}, description=None):
+        self.id = id
+        self.command = command
+        self.args = args
+        self.description = description
+        
 
 group_plots = [
     ('sign_hist', group_sign_hist, {}),
@@ -26,17 +33,33 @@ group_plots = [
     ('levy_vs_exp', levy_exp, {})
 ]
 
+sample_saccades_plots = [
+    ('simulated_trajectories', plot_simulated_sample_trajectories, {}),
+]
+
 for var in variables:
-    group_plots.append(('xcorr_%s' % var.id, group_var_xcorr, {'variable': var}))
     group_plots.append(('hist_%s' % var.id, group_var_hist, {'variable': var}))
+    if var.percentiles:
+        group_plots.append(('percentiles_%s' % var.id, 
+                        group_var_percentiles, {'variable': var}))
+        group_plots.append(('xcorr_%s' % var.id, group_var_xcorr, {'variable': var}))
+    
+for i, var1 in enumerate(variables):
+    for j, var2 in enumerate(variables):
+        if i < j and var1.percentiles and var2.percentiles:
+            group_plots.append(('joint_%s_%s' % (var1.id, var2.id), 
+                        group_var_joint, {'var1': var1, 'var2': var2,
+                                          'delay1': 0, 'delay2': 0}))
+            
+            sample_saccades_plots.append(('joint_%s_%s' % (var1.id, var2.id), 
+                        sample_var_joint, {'var1': var1, 'var2': var2,
+                                          'delay1': 0, 'delay2': 0}))
+            
     
 sample_expdata_plots = [
     ('raw_trajectories', plot_raw_trajectories, {}),
 ]
 
-sample_saccades_plots = [
-    ('simulated_trajectories', plot_simulated_sample_trajectories, {}),
-]
 
 for var in variables:
     sample_saccades_plots.append(
@@ -183,6 +206,12 @@ def main():
 
         for group in groups:
             if not configuration in configurations_for_group[group]:
+                for function_id, function, function_args  in  sample_saccades_plots:
+                    page_id = "%s.%s.%s" % (configuration,group,function_id)
+                    comp(write_empty, page_id, output_dir, 
+                         'Group %s has not been processed with algorithm "%s".'%
+                         (group, configuration),
+                         job_id=page_id)
                 continue
                 
             for function_id, function, function_args  in  sample_saccades_plots:
@@ -215,11 +244,25 @@ def main():
     for configuration in configurations:
         for sample in all_samples:
             group = db.get_group_for_sample(sample)
+            # XXX make it clenaer
             if not configuration in configurations_for_group[group]:
+                for function_id, function, function_args  in  sample_fullscreen_plots:
+                    page_id = '%s.%s.%s' % (sample, configuration, function_id)
+                    comp(write_empty, page_id, output_dir, 
+                         'Group %s has not been processed with algorithm "%s".'%
+                         (group, configuration),
+                         job_id=page_id)
                 #print "skipping sample %s group %s config %s" %\
                 #     (sample,group, configuration)
                 continue
+            
             if not db.group_has_experimental_data(group):
+                for function_id, function, function_args  in  sample_fullscreen_plots:
+                    page_id = '%s.%s.%s' % (sample, configuration, function_id)
+                    comp(write_empty, page_id, output_dir, 
+                         'Group %s does not have raw experimental data.'%
+                         (group),
+                         job_id=page_id)
                 continue    
 
             for function_id, function, function_args  in  sample_fullscreen_plots:
@@ -302,7 +345,26 @@ def combine_reports(subs, descs, page_id, output_dir):
     filename = os.path.join(output_dir, "%s.html" % page_id)
     print "Writing to %s" % filename
     r.to_html(filename, resources_dir, extra_css=extra_css)
+
+def write_empty(page_id, output_dir,reason):
+    filename = os.path.join(output_dir, "%s.html" % page_id)
+    print "Writing to %s" % filename
+    with open(filename, 'w') as f:
+        f.write("""
+<html>
+<head><title>Not available</title>
+<style type="text/css">
+p { font-weight: bold; text-align: center; }
+span { font-family: monospace; }
+</style>
+</head>
+<body>
+    <p> Page <span>%s</span> not available: %s </p>
+</body>
+</html>
+""" % (page_id, reason))
     
+     
 def write_report(report, output_dir, page_id):
     filename = os.path.join(output_dir, page_id + '.html')
     resources_dir = os.path.join(output_dir, 'images')

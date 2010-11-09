@@ -33,17 +33,29 @@ def main():
     
     for group in groups:
         print "Group: %s" % group
-        for sample in db.list_samples(group):
-            exp_data = db.get_experimental_data(sample)
-            
-            theta = exp_data['exp_orientation']
-            T = exp_data['exp_timestamps']
+        for configuration in db.list_configurations(group):
+            saccades = db.get_saccades_for_group(group, configuration)
+            print " - group saccades:  %6d  (%s)" % (len(saccades), configuration) 
         
-            length = T[-1]-T[0]
+        for sample in db.list_samples(group):
+            print "- sample %s " % (sample)
+            if db.has_experimental_data(sample):
+                exp_data = db.get_experimental_data(sample)
+            
+                theta = exp_data['exp_orientation']
+                T = exp_data['exp_timestamps']
+        
+                length = T[-1]-T[0]
 
-            print "- sample %s,  length: %d minutes" % (sample, length/60)
-            print "  - orientation ", theta.dtype, theta.shape
-            print "  - time        ", T.dtype, T.shape
+                print "  - length: %d minutes" % (length/60)
+                print "  - orientation ", theta.dtype, theta.shape
+                print "  - time        ", T.dtype, T.shape
+                
+            for configuration in db.list_configurations(group):
+                saccades = db.get_saccades_for_sample(sample, configuration)
+                print " - saccades:  %6d  (%s)" % (len(saccades), configuration) 
+            
+            
 
     print "Database read in %d seconds. " % (time.time() - start)
 

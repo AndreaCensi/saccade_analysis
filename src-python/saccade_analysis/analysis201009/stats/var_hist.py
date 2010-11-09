@@ -19,9 +19,9 @@ def sample_var_hist(sample, expdata, configuration, saccades, variable):
         
         pylab.ylabel('density')
         pylab.xlabel('%s (%s)' % (variable.name, variable.unit))
-        a = pylab.axis()
         
-        # pylab.axis([a[0],a[1],0, variable.density_max_y])
+        pylab.axis([variable.interesting[0],variable.interesting[1],
+                    0, variable.density_max_y])
     return r
 
 
@@ -41,8 +41,9 @@ def group_var_hist(group, configuration, saccades, variable):
         
         pylab.ylabel('density')
         pylab.xlabel('%s (%s)' % (variable.name, variable.unit))
-        a = pylab.axis()
         
-        # pylab.axis([a[0],a[1],0, variable.density_max_y])
+        
+        pylab.axis([variable.interesting[0],variable.interesting[1],
+                    0, variable.density_max_y])
     return r
 

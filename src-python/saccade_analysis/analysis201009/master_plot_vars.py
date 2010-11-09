@@ -6,7 +6,7 @@ Definition of variable of interests for plotting.
 class Variable():
     def __init__(self, id, letter, name, interesting, 
                  unit, density_max_y, density_bins, include, mod=False,
-                 field=None):
+                 field=None, percentiles=True):
         
         if field is None:
             field= id
@@ -20,6 +20,7 @@ class Variable():
         self.include = include
         self.mod = mod
         self.field = field
+        self.percentiles=percentiles
 
 variables = []
 
@@ -93,9 +94,10 @@ variables.append(Variable(
     name = 'Initial orientation',
     unit = 'deg',
     density_max_y= None,
-    density_bins = 180,
+    density_bins = 90,
     include = False,
-    mod=True
+    mod=True,
+    percentiles=False
 )) 
 
 
@@ -107,9 +109,10 @@ variables.append(Variable(
     name = 'Final orientation',
     unit = 'deg',
     density_max_y= None,
-    density_bins = 180,
+    density_bins = 90,
     include = False,
-    mod=True
+    mod=True,
+    percentiles=False
 )) 
 # 
 #% 

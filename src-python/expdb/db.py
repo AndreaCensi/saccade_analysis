@@ -4,6 +4,8 @@ import scipy.io
 import numpy 
 from geometric_saccade_detector.io import saccades_read_mat
 from expdb.natsort import natsorted
+import shelve
+import pickle
 
 class Group:
     def __init__(self):
@@ -20,7 +22,12 @@ class SamplesDB:
         if not os.path.exists(data) or not os.path.isdir(data):
             raise Exception()
         
+        self.use_cache = True
+        
         self.data = data
+        
+        self.open_shelve()
+        
         self.groups = {}
         
         #self.group2samples = {}
@@ -86,7 +93,10 @@ class SamplesDB:
             if len(group_record.samples)> 0:
                 self.groups[group] = group_record
         
-    
+    def open_shelve(self):
+        shelve_fname = os.path.join(self.data, 'shelve')
+        self.shelve = shelve.open(shelve_fname, protocol=pickle.HIGHEST_PROTOCOL)
+        
     def list_groups(self):
         """ Returns a list of the groups. """
         return natsorted(list(self.groups.keys()))
@@ -115,8 +125,19 @@ class SamplesDB:
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
+        if self.use_cache:
+            key = str(('get_saccades_for_group', group, configuration))
+            if key in self.shelve:
+                return self.shelve[key]
+    
         filename = self.groups[group].configurations[configuration]
-        return saccades_read_mat(filename)
+        saccades = saccades_read_mat(filename)
+        
+        
+        if self.use_cache:
+            self.shelve[key] = saccades
+            
+        return saccades
     
     def group_has_experimental_data(self, group):
         """ Returns true if this group has the raw orientation data.
@@ -131,6 +152,11 @@ class SamplesDB:
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
+        if self.use_cache:
+            key = str(('get_saccades_for_sample', sample, configuration))
+            if key in self.shelve:
+                return self.shelve[key]
+    
         group = self.get_group_for_sample(sample)
         group_saccades  = self.get_saccades_for_group(group, configuration) 
         
@@ -141,12 +167,16 @@ class SamplesDB:
         if len(saccades) == 0:
             raise Exception('No saccades found for %s' % sample)
         
+        
+        if self.use_cache:
+            self.shelve[key] = saccades
+        
         return saccades
         
     def get_experimental_data(self, sample):
-#        if sample in self.sample2exp:
-#            return self.sample2exp[sample]
-#        
+        if self.use_cache:
+            if sample in self.shelve:
+                return self.shelve[sample]
                 
         if sample in self.sample2expmat:
             data = scipy.io.loadmat(self.sample2expmat[sample], squeeze_me=True)
@@ -174,26 +204,30 @@ class SamplesDB:
         else:
             raise Exception('no data for sample %s found' % sample)
         
-        # cache disabled
-        # self.sample2exp[sample] = data
+        if self.use_cache:
+            self.shelve[sample] = data
         
         return data
-        
+    
+    def __getstate__(self):
+        # do not pickle the shelve
+        all = dict(self.__dict__)
+        all['shelve'] = None
+        return all
         
 def read_samples_db(data, verbose=False):
     cache = os.path.join(data, 'index.pickle')
     if os.path.exists(cache):
-        print "Using cache %s" % cache
-        return cPickle.load(open(cache))
+        # print "Using cache %s" % cache
+        db = cPickle.load(open(cache))
+        # reopen shelve
+        db.open_shelve()
+        return db
     else:
         db = SamplesDB(data, verbose)
-        print "Writing to cache %s" % cache
+        # print "Writing to cache %s" % cache
         with open(cache, 'wb') as f:
             cPickle.dump(db, f)   
         return db
-    
-        
-        
-        
     
     
