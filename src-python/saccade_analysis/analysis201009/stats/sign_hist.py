@@ -1,16 +1,19 @@
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples
-from saccade_analysis.analysis201009.stats.math_utils import xcorr
+from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
+    attach_description
 from reprep import Report
 import numpy
 
+description = """This figure shows the proportion of left vs right saccades. """
+
 def group_sign_hist(group, configuration, saccades):
     r = Report()
+    attach_description(r, description)
 
     left_percentage = []
-    for sample, saccades_for_sample in iterate_over_samples(saccades):
+    for sample, saccades_for_sample in iterate_over_samples(saccades): #@UnusedVariable
         
         sign = saccades_for_sample['sign']
-        left, = numpy.nonzero(sign==+1)
+        left, = numpy.nonzero(sign == +1)
         
         perc = len(left) * 100.0 / len(sign)
         
@@ -21,5 +24,5 @@ def group_sign_hist(group, configuration, saccades):
         R = range(N)
         pylab.bar(R, left_percentage)
         pylab.ylabel('percentage of left turns')
-        pylab.axis([0,N,0,100])
+        pylab.axis([0, N, 0, 100])
     return r

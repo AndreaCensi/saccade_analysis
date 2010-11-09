@@ -1,14 +1,15 @@
 from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples 
+from saccade_analysis.analysis201009.stats.utils import iterate_over_samples , \
+    attach_description
 import numpy
 
 
 description = """ 
 
-This plot shows the percentiles for ${name}, for each sample.
+This plot shows the percentiles for ${var.name}, for each sample.
 The percentiles shown are ${percentiles}.
-The samples are ordered by the median.
 
+The samples are ordered left-to-right by increasing median value.
 """
  
     
@@ -16,8 +17,8 @@ def group_var_percentiles(group, configuration, saccades, variable):
      
     
     percentiles = [1, 5, 25, 50, 75, 95, 99]
-    colors = [ 'k', 'r','b','g','b','r','k']
-    vcolors = ['k','r','b','b','r','k']
+    colors = [ 'k', 'r', 'b', 'g', 'b', 'r', 'k']
+    vcolors = ['k', 'r', 'b', 'b', 'r', 'k']
     scores = {}
     for p in percentiles:
         scores[p] = []
@@ -39,6 +40,7 @@ def group_var_percentiles(group, configuration, saccades, variable):
     
     
     r = Report()
+    attach_description(r, description.format(var=variable, percentiles=",".join(percentiles)))
     with r.data_pylab('%s_percentiles' % variable.id) as pylab:
         #print percentiles
         # plot horizontal 
@@ -50,14 +52,14 @@ def group_var_percentiles(group, configuration, saccades, variable):
         for x, index in enumerate(order):            
             sample_scores = scores_for_sample[index]
             
-            for i in range(0, len(sample_scores)-1):
+            for i in range(0, len(sample_scores) - 1):
                 y0 = sample_scores[i]
-                y1 = sample_scores[i+1]
+                y1 = sample_scores[i + 1]
                 col = "%s-" % vcolors[i]
                 #print x, y0, y1
                 pylab.plot([x, x], [y0, y1], col)
         
-        pylab.axis([-0.5, len(order)-0.5, variable.interesting[0], 
+        pylab.axis([-0.5, len(order) - 0.5, variable.interesting[0],
                     variable.interesting[1]])
          
         pylab.ylabel('%s (%s)' % (variable.name, variable.unit))

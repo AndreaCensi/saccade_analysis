@@ -1,5 +1,6 @@
 import numpy
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples
+from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
+    attach_description
 from reprep import Report
 
 from numpy import log
@@ -57,10 +58,42 @@ def levy_vs_exp_sample(sample, saccades):
      
     return results
     
+description == """These tables compare the best fit of the interval distribution
+according to Levy or Exponential distribution. "interval" is the interval
+between two successive saccades.
+
+The fields shown are:
+
+``a``
+  This is the lower bound on the distribution used (we consider only x>a). 
+  It is fixed for all samples.
+  
+``mu``
+  Estimated mu parameter for Levy.
+  
+``Levy log.lik.``
+  Likelihood of the data with the estimate mu.
+  
+``lambda``
+  Estimated parameter of the exponential distribution.
+  
+``Exp. log.lik``
+  Likelihood of the data according to the estimated exponential distribution.
+  
+``Levy Akaike w.``, ``Exp. Akaike w.``
+  The Akaike weights for the two models, normalized such that they sum to one.
+  It seems always the case that one is 1 and the other is 0, which means
+  that the data fits one or the other model always considerably better.
+  Not what I expected, but I'm reasonably sure the math is correct.
+
+
+"""
+
+#TODO: compute bounds for mu
 def create_report(all_results):  
     cols_desc = ['ID', 'Num. saccades', 'a', 'mu',
-                 'Levy log.lik.' , 'Akaike weight', 'lambda',
-                  'Exponential log.lik.', 'Akaike weight', 'best model']
+                 'Levy log.lik.' , 'Levy Akaike w.', 'lambda',
+                  'Exp. log.lik.', 'Exp. Akaike w', 'best model']
     rows = []     
     
     for i, results in enumerate(all_results): 
@@ -89,7 +122,8 @@ def create_report(all_results):
     rows.sort(key=lambda x:-float(x[2]))
     
     r = Report()
-    r.table('levy_vs_exp', rows, cols=cols_desc )
+    attach_description(r, description)
+    r.table('levy_vs_exp', rows, cols=cols_desc)
     return r
  
 

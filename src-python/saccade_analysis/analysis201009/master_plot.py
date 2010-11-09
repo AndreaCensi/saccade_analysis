@@ -8,14 +8,15 @@ from compmake.jobs.syntax.parsing import parse_job_list
 
 from expdb.db import  read_samples_db
 # The various plots
-from saccade_analysis.analysis201009.master_plot_gui import create_gui,\
+from saccade_analysis.analysis201009.master_plot_gui import create_gui, \
     create_main_gui
 from saccade_analysis.analysis201009.master_plot_vars import variables
 from saccade_analysis.analysis201009.stats import \
-    fairness,  independence,  levy_exp, plot_raw_trajectories, \
+    fairness, independence, levy_exp, plot_raw_trajectories, \
     plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
-    plot_detected_saccades, sample_var_hist,group_var_xcorr,group_var_hist, \
-    group_var_percentiles, group_var_joint, sample_var_joint
+    plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist, \
+    group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
+    group_saccade_count, group_saccade_density
 
 class Plot:
     def __init__(self, id, command, args={}, desc=None):
@@ -24,18 +25,22 @@ class Plot:
         assert isinstance(args, dict)
         self.args = args
         if desc is None:
-            desc= id
+            desc = id
         self.description = desc
     def __str__(self):
         return 'Plot(%s)' % str(self.__dict__)
 
 group_plots = [
+    Plot('saccade_count', group_saccade_count,
+         desc="Number of detected saccades (raw count)"),
+    Plot('saccade_density', group_saccade_density,
+         desc="Saccade frequency (saccades/second)"),
     Plot('sign_hist', group_sign_hist, desc="Number of left/right turns"),
-    Plot('sign_xcorr', group_sign_xcorr, desc="Autocorrelation left/right turns"), 
+    Plot('sign_xcorr', group_sign_xcorr, desc="Autocorrelation left/right turns"),
     Plot('fairness', fairness, desc="Statistical tests for balanced left/right"),
-    Plot('independence', independence, 
+    Plot('independence', independence,
          desc="Statistical tests for independence of successive turns"),
-    Plot('levy_vs_exp', levy_exp, 
+    Plot('levy_vs_exp', levy_exp,
          desc="Levy and exponential fits for saccade interval")
 ]
 
@@ -48,48 +53,49 @@ for var in variables:
     group_plots.append(Plot('hist_%s' % var.id, group_var_hist, {'variable': var},
                             desc="Histograms of %s" % var.name))
     if var.percentiles:
-        group_plots.append(Plot('percentiles_%s' % var.id, 
+        group_plots.append(Plot('percentiles_%s' % var.id,
                         group_var_percentiles, {'variable': var},
                         desc="Percentile plots of %s" % var.name))
-        group_plots.append(Plot('xcorr_%s' % var.id, group_var_xcorr, 
-                                {'variable': var}, 
+        group_plots.append(Plot('xcorr_%s' % var.id, group_var_xcorr,
+                                {'variable': var},
                                 desc="Autocorrelation of %s" % var.name))
     
 for i, var1 in enumerate(variables):
     for j, var2 in enumerate(variables):
         if i < j and var1.percentiles and var2.percentiles:
-            group_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id), 
+            group_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id),
                         group_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 0},
-                        desc = "Joint distribution of %s and %s." % 
+                        desc="Joint distribution of %s and %s." % 
                             (var1.name, var2.name)))
             
-            sample_saccades_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id), 
+            sample_saccades_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id),
                         sample_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 0},
-                        desc = "Joint distribution of %s and %s." % 
+                        desc="Joint distribution of %s and %s." % 
                             (var1.name, var2.name)))
 
 for i, var1 in enumerate(variables):
     for j, var2 in enumerate(variables):
         if  var1.percentiles and var2.percentiles:
-            group_plots.append(Plot('joint_%s_%s_delayed' % (var1.id, var2.id), 
+            group_plots.append(Plot('joint_%s_%s_delayed' % (var1.id, var2.id),
                         group_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 1},
-                        desc = "Joint distribution of %s at time k and %s at k-1." % 
+                        desc="Joint distribution of %s at time k and %s at k-1." % 
                         (var1.name, var2.name)))
             
             sample_saccades_plots.append(
-                    Plot('joint_%s_%s_delayed' % (var1.id, var2.id), 
+                    Plot('joint_%s_%s_delayed' % (var1.id, var2.id),
                         sample_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 1},
-                        desc = "Joint distribution of %s at time k and %s at k-1." % 
+                        desc="Joint distribution of %s at time k and %s at k-1." % 
                             (var1.name, var2.name)))
             
             
 sample_expdata_plots = [
+    Plot('raw_theta_hist', raw_theta_hist, desc="Histogram of raw orientation"),
     Plot('raw_trajectories', plot_raw_trajectories,
-         desc = "Plot of simulated trajectories (from raw orientation data)" ),
+         desc="Plot of simulated trajectories (from raw orientation data)"),
 ]
 
 
@@ -100,7 +106,7 @@ for var in variables:
 
 sample_fullscreen_plots = [
     Plot('saccade_detection', plot_detected_saccades,
-         desc="Plot of each and every detected saccade" )
+         desc="Plot of each and every detected saccade")
 ]
 
 
@@ -121,7 +127,7 @@ all_groups_description = [
     ('circularPolarizer', 'D. melanogaster (Peter, circ. polarizer)'),
     ('circularPolarizercloudy', 'D. melanogaster (Peter, circ. polarizer, cloudy)'),
     ('grayFilter', 'D. melanogaster (Peter, gray filter)'),
-    ('grayFiltercloudy', 'D. melanogaster (Peter, gray filter, cloudy)'), 
+    ('grayFiltercloudy', 'D. melanogaster (Peter, gray filter, cloudy)'),
     ('noFilter', 'D. melanogaster (Peter, no filter)'),
     ('noFiltercloudy', 'D. melanogaster (Peter, no filter, cloudy)'),
 ]   
@@ -132,7 +138,7 @@ def order_groups(groups):
         Note that groups might contain entries not present in all_groups_description. '''
         
     # these are the ones we know a priori
-    known_groups =  map(lambda t: t[0], all_groups_description)
+    known_groups = map(lambda t: t[0], all_groups_description)
     # these are the ones that we know and see
     seen = [x for x in known_groups if  x in groups]
     # these are the extra 
@@ -151,16 +157,16 @@ description = """ Main script to plot everything. """
  
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--data", help="Main data directory", 
+    parser.add_option("--data", help="Main data directory",
                       default='saccade_data')
     parser.add_option("--interactive", action="store_true",
                       default=False,
                       help="Starts an interactive compmake session.")
-    parser.add_option("--report", help="Saccade report directory", 
+    parser.add_option("--report", help="Saccade report directory",
                       default='saccade_report')
-    parser.add_option("--groups", help="Which groups to consider", 
+    parser.add_option("--groups", help="Which groups to consider",
                       default=None)
-    parser.add_option("--configurations", help="Which configurations to consider", 
+    parser.add_option("--configurations", help="Which configurations to consider",
                       default=None)
         
     (options, args) = parser.parse_args() #@UnusedVariable
@@ -175,7 +181,7 @@ def main():
         groupset = 'all' 
         
     if options.configurations:
-        configurations =options.configurations.split(', ')
+        configurations = options.configurations.split(', ')
         confset = "_".join(configurations)
     else:
         configurations = db.list_all_configurations()
@@ -208,26 +214,26 @@ def main():
             for plot in group_plots:
                 job_id = '%s-%s-%s' % (group, configuration, plot.id)
                 
-                index_group_plots[(group,configuration,plot.id)] = \
-                    comp(wrap_group_plot, options.data, group, 
+                index_group_plots[(group, configuration, plot.id)] = \
+                    comp(wrap_group_plot, options.data, group,
                          configuration, plot.command, plot.args,
                          job_id=job_id)    
 
             for sample in db.list_samples(group):
                 for plot  in sample_saccades_plots:
                     job_id = '%s-%s-%s' % (sample, configuration, plot.id)
-                    index_sample_saccades_plots[(sample,configuration,plot.id)] = \
-                        comp(wrap_sample_saccades_plot, options.data, 
+                    index_sample_saccades_plots[(sample, configuration, plot.id)] = \
+                        comp(wrap_sample_saccades_plot, options.data,
                              sample, configuration, plot.command, plot.args,
                              job_id=job_id)    
 
         if db.group_has_experimental_data(group):
             for sample in db.list_samples(group):
                 for plot  in sample_expdata_plots:
-                    job_id = '%s-%s' % (sample,  plot.id)
-                    index_sample_expdata_plots[(sample,plot.id)] = \
-                        comp(wrap_sample_expdata_plot, options.data, 
-                             sample,  plot.command, plot.args, job_id=job_id)    
+                    job_id = '%s-%s' % (sample, plot.id)
+                    index_sample_expdata_plots[(sample, plot.id)] = \
+                        comp(wrap_sample_expdata_plot, options.data,
+                             sample, plot.command, plot.args, job_id=job_id)    
 
     # now we create the indices 
     # fix configuration, function; iterate groups
@@ -243,7 +249,7 @@ def main():
                     continue
                 
                 descs.append(group_desc)
-                subs.append(index_group_plots[(group,configuration,plot.id)])
+                subs.append(index_group_plots[(group, configuration, plot.id)])
         
             job_id = page_id
             comp(combine_reports, subs, descs, page_id, output_dir,
@@ -251,10 +257,10 @@ def main():
     
     comp(create_gui,
          filename=os.path.join(output_dir, 'group_plots.html'),
-         menus = [
-                  ('Detector',  configurations, configurations),
+         menus=[
+                  ('Detector', configurations, configurations),
                   ('Plot/table', map(lambda x:x.id, group_plots),
-                    map(lambda x:x.description, group_plots) )
+                    map(lambda x:x.description, group_plots))
         ])
     
     
@@ -265,7 +271,7 @@ def main():
                 subs = []; descs = [];
                 for sample in db.list_samples(group):
                     descs.append(sample)
-                    subs.append(index_sample_expdata_plots[(sample,plot.id)])
+                    subs.append(index_sample_expdata_plots[(sample, plot.id)])
                     
                 page_id = "%s.%s" % (group, plot.id)
                 
@@ -279,10 +285,10 @@ def main():
     
     comp(create_gui,
          filename=os.path.join(output_dir, 'expdata_plots.html'),
-         menus = [
-                  ('Group',  ordered_groups, ordered_groups_desc), 
+         menus=[
+                  ('Group', ordered_groups, ordered_groups_desc),
                   ('Plot/table', map(lambda x:x.id, sample_expdata_plots),
-                        map(lambda x:x.description, sample_expdata_plots) )
+                        map(lambda x:x.description, sample_expdata_plots))
         ])
     
     # fix configuration, group, function; iterate samples
@@ -291,9 +297,9 @@ def main():
         for group in groups:
             if not configuration in configurations_for_group[group]:
                 for plot in  sample_saccades_plots:
-                    page_id = "%s.%s.%s" % (configuration,group,plot.id)
-                    comp(write_empty, page_id, output_dir, 
-                         'Group %s has not been processed with algorithm "%s".'%
+                    page_id = "%s.%s.%s" % (configuration, group, plot.id)
+                    comp(write_empty, page_id, output_dir,
+                         'Group %s has not been processed with algorithm "%s".' % 
                          (group, configuration),
                          job_id=page_id)
                 continue
@@ -303,10 +309,10 @@ def main():
                 subs = []; descs = [];
                 for sample in db.list_samples(group):
                     descs.append(sample)
-                    r = index_sample_saccades_plots[(sample,configuration,plot.id)]
+                    r = index_sample_saccades_plots[(sample, configuration, plot.id)]
                     subs.append(r)
                     
-                page_id = "%s.%s.%s" % (configuration,group,plot.id )
+                page_id = "%s.%s.%s" % (configuration, group, plot.id)
                 
                 job_id = page_id
                 comp(combine_reports, subs, descs, page_id, output_dir,
@@ -314,9 +320,9 @@ def main():
 
     comp(create_gui,
          filename=os.path.join(output_dir, 'saccade_plots.html'),
-         menus = [
-                  ('Detector',  configurations, configurations),
-                  ('Group',  ordered_groups, ordered_groups_desc),
+         menus=[
+                  ('Detector', configurations, configurations),
+                  ('Group', ordered_groups, ordered_groups_desc),
                   ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
                                  map(lambda x:x.description, sample_saccades_plots))
         ])
@@ -331,9 +337,9 @@ def main():
             # XXX make it clenaer
             if not configuration in configurations_for_group[group]:
                 for plot in  sample_fullscreen_plots:
-                    page_id = '%s.%s.%s' % (sample, configuration, plot.id )
-                    comp(write_empty, page_id, output_dir, 
-                         'Group %s has not been processed with algorithm "%s".'%
+                    page_id = '%s.%s.%s' % (sample, configuration, plot.id)
+                    comp(write_empty, page_id, output_dir,
+                         'Group %s has not been processed with algorithm "%s".' % 
                          (group, configuration),
                          job_id=page_id)
                 #print "skipping sample %s group %s config %s" %\
@@ -342,47 +348,47 @@ def main():
             
             if not db.group_has_experimental_data(group):
                 for plot in  sample_fullscreen_plots:
-                    page_id = '%s.%s.%s' % (sample, configuration, plot.id )
-                    comp(write_empty, page_id, output_dir, 
-                         'Group %s does not have raw experimental data.'%
+                    page_id = '%s.%s.%s' % (sample, configuration, plot.id)
+                    comp(write_empty, page_id, output_dir,
+                         'Group %s does not have raw experimental data.' % 
                          (group),
                          job_id=page_id)
                 continue    
 
             for plot  in  sample_fullscreen_plots:
   
-                job_id = '%s-%s-%s' % (sample, configuration, plot.id )
+                job_id = '%s-%s-%s' % (sample, configuration, plot.id)
                 
-                job = comp(wrap_sample_saccades_plot, options.data, 
-                         sample, configuration, plot.command,plot.args,
+                job = comp(wrap_sample_saccades_plot, options.data,
+                         sample, configuration, plot.command, plot.args,
                          job_id=job_id)    
                     
                 page_id = '%s.%s.%s' % (sample, configuration, plot.id)
                 comp(write_report, job, output_dir, page_id,
-                     job_id=job_id+'-write_report')
+                     job_id=job_id + '-write_report')
 
     
     comp(create_gui,
          filename=os.path.join(output_dir, 'sample_fullscreen_plots.html'),
-         menus = [
-            ('Sample',  all_samples, all_samples),
-            ('Detector',  configurations, configurations),                
+         menus=[
+            ('Sample', all_samples, all_samples),
+            ('Detector', configurations, configurations),
             ('Plot/table', map(lambda x:x.id, sample_fullscreen_plots),
-                           map(lambda x:x.description, sample_fullscreen_plots) )
+                           map(lambda x:x.description, sample_fullscreen_plots))
         ])
     
     tabs = [
         
-        ("group_plots", "By group", 
+        ("group_plots", "By group",
          "This set displays one plot/table for each group of samples. "
          "You have the further choice of detection algorithm and plot/table to display."),
         
-        ("saccade_plots", "By sample", 
+        ("saccade_plots", "By sample",
          "This set displays one plot/table for each individual sample. "
          "You have the further choice of which group to consider, which " 
          "detection algorithm, and which plot/table to display."),
         
-        ("expdata_plots", "By sample (raw)", 
+        ("expdata_plots", "By sample (raw)",
          "This set displays one plot/table for each individual sample, "
          " produced from the raw data (no saccade detection, so no choice of detector). "
          "You have the further choice of which group to consider, " 
@@ -442,7 +448,7 @@ def combine_reports(subs, descs, page_id, output_dir):
             
         else: # images -> use figures
             
-            f = r.figure(id, shape=(5,4))
+            f = r.figure(id, shape=(5, 4))
             for i, sub in enumerate(subs):
                 node = sub.childid2node[id]
                 # node.id = sub.id
@@ -456,7 +462,7 @@ def combine_reports(subs, descs, page_id, output_dir):
     print "Writing to %s" % filename
     r.to_html(filename, resources_dir, extra_css=extra_css)
 
-def write_empty(page_id, output_dir,reason):
+def write_empty(page_id, output_dir, reason):
     filename = os.path.join(output_dir, "%s.html" % page_id)
     print "Writing to %s" % filename
     with open(filename, 'w') as f:

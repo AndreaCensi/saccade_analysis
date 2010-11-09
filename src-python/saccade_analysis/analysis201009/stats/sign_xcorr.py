@@ -1,9 +1,16 @@
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples
+from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
+    attach_description
 from saccade_analysis.analysis201009.stats.math_utils import xcorr
 from reprep import Report
 
+description = """ This figures shows the autocorrelation of 
+saccades direction (left/right) in time. Negative correlation
+at lag 1 means that if the fly turned left, it is more likely to
+turn right, and vice verse. """
+
 def group_sign_xcorr(group, configuration, saccades):
     r = Report()
+    attach_description(r, description)
 
     with r.data_pylab('sign_xcorr') as pylab:
         for sample, saccades_for_sample in iterate_over_samples(saccades):

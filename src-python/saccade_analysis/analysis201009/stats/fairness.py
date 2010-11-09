@@ -2,8 +2,10 @@ from reprep import Report
 
 from saccade_analysis.markov.first_order import first_order_analysis
 
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples,\
-    create_letter_sequence
+from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
+    create_letter_sequence, attach_description
+    
+   
 
 
 def fairness(group, configuration, saccades):
@@ -27,11 +29,14 @@ def fairness(group, configuration, saccades):
     
     return fairness_table(all_results)
 
-
+description = """ This table reports the statistical tests used
+to discard the null hypothesis that the turns are balanced left/right,
+that is, binomial with p = 0.5. ``p_L`` is the probability 
+of left turns. The p-value is a two-sides binomial test. """ 
     
 def fairness_table(all_results):
         
-    cols_desc = [' ID', 'Length (m)', 'Num. saccades', 'saccades/s',
+    cols_desc = [' ID', 'Length (min)', 'Num. saccades', 'saccades/s',
                  'p_L', 'p value', 'rejected']
     rows = []     
     for i, results in enumerate(all_results):
@@ -55,6 +60,7 @@ def fairness_table(all_results):
     rows.sort(key=lambda x:-float(x[1]))
     
     r = Report()
+    attach_description(r, description)
     r.table('fairness', rows, cols=cols_desc)
     return r
 

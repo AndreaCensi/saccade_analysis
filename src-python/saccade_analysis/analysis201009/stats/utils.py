@@ -25,3 +25,10 @@ def iterate_over_samples(saccades):
         saccades_for_sample = saccades[select]
         
         yield sample, saccades_for_sample
+        
+        
+def attach_description(report, text):
+    ''' Attaches a general description to the report
+        such that it will be recognized by combine_reports()
+        and used as a description for the whole page. '''
+    pass  

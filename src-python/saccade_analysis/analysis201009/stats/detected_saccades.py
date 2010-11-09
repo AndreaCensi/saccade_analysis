@@ -1,29 +1,37 @@
 import numpy
 from reprep import Report
+from saccade_analysis.analysis201009.stats.utils import attach_description
 
+description = """ This is a plot of the detected saccades
+superimposed to the raw orientation data. Each saccade is 
+represented by two vertical lines: blue for start and green for the end. 
+"""
 
 def plot_detected_saccades(sample, exp_data, configuration, saccades):
-    thetas =  exp_data['exp_orientation']
+    thetas = exp_data['exp_orientation']
     T = exp_data['exp_timestamps']
     
     r = Report()
-    f = r.figure(shape=(100,2), caption='Detected saccades')
+    attach_description(r, description)
+    
+    f = r.figure(shape=(100, 2), caption='Detected saccades')
     
     
-    dt = T[1]-T[0]
+    dt = T[1] - T[0]
     chunk_length = 15 # seconds
     
     
-    chunk_size = numpy.ceil( chunk_length / dt)
+    chunk_size = numpy.ceil(chunk_length / dt)
     num_chunks = int(numpy.ceil(len(T) / chunk_size))
 
     # oopsi, we start from 0 in the saccades
+    # FIXME: detect this
     saccades['time_start'] += T[0]
     saccades['time_stop'] += T[0]
 
     for i in range(num_chunks):
         start = i * chunk_size
-        stop  = min(start + chunk_size, len(T))
+        stop = min(start + chunk_size, len(T))
         
         if stop - start < 10:
             continue 
@@ -37,8 +45,8 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
         node_id = 'chunk%d' % i
         
         s = 2.5
-        with r.data_pylab(node_id, figsize=(8*s,1.5*s)) as pylab:
-            pylab.plot( T_norm, theta_i, 'k-')
+        with r.data_pylab(node_id, figsize=(8 * s, 1.5 * s)) as pylab:
+            pylab.plot(T_norm, theta_i, 'k-')
             
             pylab.xlabel('time (s)')
             pylab.ylabel('orientation (deg)')
@@ -49,9 +57,9 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
             lb = int(numpy.floor(min(theta_i) / interval))
             if ub == lb:
                 lb = ub - 1
-            a = [T_norm[0], T_norm[-1], lb*interval-15, ub*interval+15]
+            a = [T_norm[0], T_norm[-1], lb * interval - 15, ub * interval + 15]
             
-            for k in range(lb,ub+1):
+            for k in range(lb, ub + 1):
                 line_theta = k * interval
                 pylab.plot([a[0], a[1]], [line_theta, line_theta], 'k--')
     
