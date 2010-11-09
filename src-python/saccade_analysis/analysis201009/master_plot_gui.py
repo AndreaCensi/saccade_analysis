@@ -3,7 +3,9 @@ from string import Template
 css = """
 
 body {
+    margin: 0; padding: 0;
     font-family: Verdana, Tahoma;
+    overflow-x: hidden;
 }
 
 div#allselectors {
@@ -29,7 +31,7 @@ div.box {
 
 
 #topbar {margin:0;  height: 9%; padding: 1em; display: block; }
-#window {margin:0;  width: 95%; height: 90%;border: 0;}
+#window {padding: 2px; margin:0;  width: 100%; height: 90%; border: 0;}
 
 
 
@@ -56,7 +58,7 @@ function update_gui() {
 
     message = (
     '<span><a target="_blank" '+
-    'href="{data_id}.html">Open {title} in a new tab.</a>. ') .format(
+    'href="{data_id}.html">Open this page ({title}) in a new tab.</a>') .format(
                            { 'title': data_id, 
                            'data_id': data_id});
         
@@ -176,50 +178,148 @@ def write_select_box(f, desc, name, choices):
     
     
     
-def create_main_gui(filename):
-    f = open(filename, 'w')
-    f.write("""
+def create_main_gui(tabs, filename):
+   
+    
+    topbar = StringIO()
+    
+    topbar.write("""
+<div id="tabs" class="widget">
+    <ul class="tabnav">
+""")
+    
+    for url, title, desc in tabs:
+        topbar.write('    <li><a href="#%s">%s</a></li>\n' % (url, title))
+        
+    topbar.write("""
+    </ul>
+    
+    """)
+    
+    for url, title, desc in tabs:
+        topbar.write(' <div id="%s" class="container tabdiv">\n' % url)
+        topbar.write('  <p class="desc"> %s </p>\n' % desc)
+        topbar.write("""
+        <iframe src="%s.html" class="window"> 
+            No iframes supported. 
+        </iframe>
+""" % url)
+    
+        topbar.write('  </div>\n')
+    topbar.write("""
+</div> 
+""")
+    
+    with open(filename, 'w') as f:
+        f.write(Template("""
 <html>
     <head>
         <title> Saccade analysis GUI </title>
-        <style type="text/css">${css}
+        <style type="text/css"> 
         
 body {
+    padding: 0px;
+    margin:0;
     font-family: Verdana, Tahoma;
-    font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
-#topbar {
-    height: 5%;
-    border: 0;
+.container {
+display: block;
+margin:0;padding:0;
+width: 100%;
 }
-#topbar a {
-    font-weight: bold;
-    margin-right: 2em;
-}
-#window {
+
+.window { 
     border: 0;
     height: 90%;
     width: 100%;
 }
+
+
+    .widget {
+    width: 100%;
+    margin: 0px;
+    // padding: 10px;
+    background: #f3f1eb;
+    border: 1px solid #dedbd1;
+    // margin-bottom: 15px;
+    }
+
+    .widget a {
+    color: #222;
+    text-decoration: none;
+    }
+
+    .widget a:hover {
+    color: #009;
+    text-decoration: underline;
+    }
+
+    .tabnav {
+        margin: 0;
+    }
+    .tabnav li {
+    display: inline;
+    list-style: none;
+    margin-left: 3em;        
+        padding-left: 2em;
+        padding-right: 2em;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    margin-bottom: 0;
+    }
+
+    .tabnav li a {
+    text-decoration: none; 
+    color: #222;
+    font-weight: bold; 
+    outline: none;
+    margin-bottom: 0;
+    }
+
+    .tabnav li a:hover, .tabnav li a:active, .tabnav li.ui-tabs-selected a {
+    background: #dedbd1;
+    color: #222;
+    text-decoration: none;
+    }
+
+    .tabdiv {
+    margin-top: 0px;
+    background: #fff;
+    border-top: 10px solid #dedbd1; 
+    padding-left: 5px;
+    }
+
+    
+
+/* The only one important. */
+.ui-tabs-hide {  
+display: none;  
+}  
+.ui-tabs-selected {
+background: #dedbd1;
+}
         </style>
+        <script type="text/javascript" src="images/static/jquery/jquery.js"></script>   
+        <script type="text/javascript" src="images/static/jquery/jquery.ui.js"></script>   
+        <script type="text/javascript">                                         
+    
+        $$(document).ready( function () {
+            $$( "#tabs" ).tabs(); 
+        });              
+            
+        </script>      
+        
 </head>
 <body>
-<div id="topbar">
-    <a href="expdata_plots.html" target="window">Raw data stats</a>
-    <a href="group_plots.html" target="window">Groups stats</a>
-    <a href="saccade_plots.html" target="window">Single sample stats</a>
-    <a href="sample_fullscreen_plots.html" target="window">Single sample fullpage</a>
-</div>
-<iframe src="expdata_plots.html" name="window" id="window">
-No iframes supported.
-</iframe>
+${topbar}
 </body>
 </html>
-""")
-    
-    
-    
+""").substitute(topbar=topbar.getvalue()))
     
     
     

@@ -33,8 +33,10 @@ group_plots = [
     Plot('sign_hist', group_sign_hist, desc="Number of left/right turns"),
     Plot('sign_xcorr', group_sign_xcorr, desc="Autocorrelation left/right turns"), 
     Plot('fairness', fairness, desc="Statistical tests for balanced left/right"),
-    Plot('independence', independence, desc="Statistical tests for independence of successive turns"),
-    Plot('levy_vs_exp', levy_exp, desc="Levy and exponential fits for saccade interval")
+    Plot('independence', independence, 
+         desc="Statistical tests for independence of successive turns"),
+    Plot('levy_vs_exp', levy_exp, 
+         desc="Levy and exponential fits for saccade interval")
 ]
 
 sample_saccades_plots = [
@@ -59,12 +61,32 @@ for i, var1 in enumerate(variables):
             group_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id), 
                         group_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 0},
-                        desc = "Joint distribution of %s and %s." % (var1.name, var2.name)))
+                        desc = "Joint distribution of %s and %s." % 
+                            (var1.name, var2.name)))
             
             sample_saccades_plots.append(Plot('joint_%s_%s' % (var1.id, var2.id), 
                         sample_var_joint, {'var1': var1, 'var2': var2,
                                           'delay1': 0, 'delay2': 0},
-                        desc = "Joint distribution of %s and %s." % (var1.name, var2.name)))
+                        desc = "Joint distribution of %s and %s." % 
+                            (var1.name, var2.name)))
+
+for i, var1 in enumerate(variables):
+    for j, var2 in enumerate(variables):
+        if  var1.percentiles and var2.percentiles:
+            group_plots.append(Plot('joint_%s_%s_delayed' % (var1.id, var2.id), 
+                        group_var_joint, {'var1': var1, 'var2': var2,
+                                          'delay1': 0, 'delay2': 1},
+                        desc = "Joint distribution of %s at time k and %s at k-1." % 
+                        (var1.name, var2.name)))
+            
+            sample_saccades_plots.append(
+                    Plot('joint_%s_%s_delayed' % (var1.id, var2.id), 
+                        sample_var_joint, {'var1': var1, 'var2': var2,
+                                          'delay1': 0, 'delay2': 1},
+                        desc = "Joint distribution of %s at time k and %s at k-1." % 
+                            (var1.name, var2.name)))
+            
+            
             
     
 sample_expdata_plots = [
@@ -188,7 +210,7 @@ def main():
     comp(create_gui,
          filename=os.path.join(output_dir, 'group_plots.html'),
          menus = [
-                  ('Configuration',  configurations, configurations),
+                  ('Detector',  configurations, configurations),
                   ('Plot/table', map(lambda x:x.id, group_plots),
                     map(lambda x:x.description, group_plots) )
         ])
@@ -247,7 +269,7 @@ def main():
     comp(create_gui,
          filename=os.path.join(output_dir, 'saccade_plots.html'),
          menus = [
-                  ('Configuration',  configurations, configurations),
+                  ('Detector',  configurations, configurations),
                   ('Group',  groups, groups), 
                   ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
                                  map(lambda x:x.description, sample_saccades_plots))
@@ -298,13 +320,38 @@ def main():
          filename=os.path.join(output_dir, 'sample_fullscreen_plots.html'),
          menus = [
             ('Sample',  all_samples, all_samples),
-            ('Configuration',  configurations, configurations),                
+            ('Detector',  configurations, configurations),                
             ('Plot/table', map(lambda x:x.id, sample_fullscreen_plots),
                            map(lambda x:x.description, sample_fullscreen_plots) )
         ])
     
+    tabs = [
+        
+        ("group_plots", "By group", 
+         "This set displays one plot/table for each group of samples. "
+         "You have the further choice of detection algorithm and plot/table to display."),
+        
+        ("saccade_plots", "By sample", 
+         "This set displays one plot/table for each individual sample. "
+         "You have the further choice of which group to consider, which " 
+         "detection algorithm, and which plot/table to display."),
+        
+        ("expdata_plots", "By sample (raw)", 
+         "This set displays one plot/table for each individual sample, "
+         " produced from the raw data (no saccade detection, so no choice of detector). "
+         "You have the further choice of which group to consider, " 
+         "and which plot/table to display."
+         " Note that some samples might be missing; for example, we don't use "
+         " raw orientation data for the Mamarama samples."),
+        
+        ("sample_fullscreen_plots", "By sample, single page",
+         "This set displays one entire page for each sample. "
+         "You have the further choice of sample, " 
+         "detection algorithm, and which plot/table to display."),
+    ]
     
-    comp(create_main_gui, filename=os.path.join(output_dir, 'main.html'))
+    
+    comp(create_main_gui, tabs, filename=os.path.join(output_dir, 'main.html'))
      
     if options.interactive:
         # start interactive session
