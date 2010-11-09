@@ -112,7 +112,8 @@ No iframes supported.
 </html>
 """
 
-def create_gui(filename, menus):
+def create_gui(filename, menus): 
+
     f = open(filename, 'w')
    
     script = StringIO()
@@ -124,12 +125,14 @@ function get_data_id() {
         var s = "";
     """)    
     for i, menu in enumerate(menus):
-        label, choices = menu
+        label, choices, descriptions = menu
         name = 'var%d' % i
-        choices = map(lambda x: (x,x), choices)
         
+        key_desc = []
+        for j in range(len(choices)):
+            key_desc.append(( choices[j], descriptions[j]))
     
-        write_select_box(topbar, label, name, choices)
+        write_select_box(topbar, label, name, key_desc)
         
         if i != 0:
             script.write("""
@@ -143,8 +146,7 @@ function get_data_id() {
     script.write("""
     return s;
 }
-    """)    
-
+    """)     
     
     f.write(Template(page).substitute(css=css, script=script.getvalue(),
                                       scriptb=scriptb, 

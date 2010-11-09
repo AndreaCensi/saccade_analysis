@@ -22,11 +22,11 @@ def get_delayed(x,delay1, y,delay2):
     assert len(x) == len(y)
     y = y[delay1:]
     x = x[delay2:]
-    n = min(len(x),len(y))
+    n = min(len(x), len(y))
     x = x[:n]
     y = y[:n]
     
-    return x,y
+    return x, y
 
 def group_var_joint(group, configuration, saccades, var1, delay1, var2, delay2):
     
@@ -51,7 +51,7 @@ def group_var_joint(group, configuration, saccades, var1, delay1, var2, delay2):
         pylab.xlabel('%s (%s)' % (var1.name, var1.unit))
         pylab.ylabel('%s (%s)' % (var2.name, var2.unit))
         
-    node_id+= "_log"
+    node_id += "_log"
     with r.data_pylab(node_id) as pylab:
     
         colors = ['r','g','b','m','k'] * 50        
