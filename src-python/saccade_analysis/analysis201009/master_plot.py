@@ -117,7 +117,7 @@ all_groups_description = [
     ('Darizonae', 'D. arizonae (Ros)'),
     ('Dhydei', 'D. hydei (Ros)'),
     ('Dmojavensis', 'D. mojavensis (Ros)'),
-    ('Dpseudoobscura', 'D. pseudoobscura (Ros)'),    
+    ('Dpseudoobscura', 'D. pseudoobscura (Ros)'),
     ('Dmelanogaster', 'D. melanogaster (Ros)'),
     
     ('mamaramanoposts', 'D. melanogaster (Mamarama, no posts)'),
@@ -416,7 +416,7 @@ def main():
         batch_command('make all')
         # start the console if we are not done
         # (that is, make all failed for some reason)
-        todo = parse_job_list('todo') 
+        todo = list(parse_job_list('todo')) 
         if todo:
             print('Still %d jobs to do.' % len(todo))
             sys.exit(-2)
