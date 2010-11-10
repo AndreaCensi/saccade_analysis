@@ -29,10 +29,12 @@ def fairness(group, configuration, saccades):
     
     return fairness_table(all_results)
 
-description = """ This table reports the statistical tests used
+description = """
+This table reports the statistical tests used
 to discard the null hypothesis that the turns are balanced left/right,
 that is, binomial with p = 0.5. ``p_L`` is the probability 
-of left turns. The p-value is a two-sides binomial test. """ 
+of left turns. The p-value is a two-sides binomial test. 
+""" 
     
 def fairness_table(all_results):
         

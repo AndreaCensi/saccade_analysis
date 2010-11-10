@@ -3,7 +3,7 @@ from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
 from reprep import Report
 import numpy
 
-description = """This figure shows the proportion of left vs right saccades. """
+description = """This figure shows the proportion of left (blue) vs right (pink) saccades. """
 
 def group_sign_hist(group, configuration, saccades):
     r = Report()
@@ -19,10 +19,21 @@ def group_sign_hist(group, configuration, saccades):
         
         left_percentage.append(perc)
 
+    left_percentage = numpy.array(left_percentage) 
     N = len(left_percentage)
     with r.data_pylab('sign_hist') as pylab:
         R = range(N)
-        pylab.bar(R, left_percentage)
+         
+        right_percentage = -left_percentage + 100
+        
+        pylab.bar(left=R, height=left_percentage, color='b')
+        pylab.bar(left=R, height=right_percentage, bottom=left_percentage, 
+                  color='#faacb6')
+        
+        pylab.plot([0],[0])
         pylab.ylabel('percentage of left turns')
+        pylab.xlabel('sample')
         pylab.axis([0, N, 0, 100])
+        
+        
     return r

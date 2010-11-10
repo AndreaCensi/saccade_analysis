@@ -58,7 +58,9 @@ def levy_vs_exp_sample(sample, saccades):
      
     return results
     
-description == """These tables compare the best fit of the interval distribution
+description = """
+
+These tables compare the best fit of the interval distribution
 according to Levy or Exponential distribution. "interval" is the interval
 between two successive saccades.
 

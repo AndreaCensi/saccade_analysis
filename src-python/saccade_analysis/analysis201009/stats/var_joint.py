@@ -3,7 +3,8 @@ from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
 from reprep import Report
 
 
-description = """This figure shows the joint distribution of the values 
+description = """
+This figure shows the joint distribution of the values 
 of {var1.name} {var1delay} and {var2.name} {var2delay}. The data is plotted
 both on a normal and on a log-log scale.
 """ 

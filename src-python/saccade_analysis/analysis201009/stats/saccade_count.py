@@ -2,9 +2,10 @@ from reprep import Report
 from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
     attach_description
 
-description = \
-"""This figure displays the average number of saccades per second
-over the whole sample. """  
+description = """
+This figure displays the average number of saccades per second
+over the whole sample. 
+"""  
 
 def group_saccade_density(group, configuration, saccades):
     r = Report()
@@ -21,15 +22,14 @@ def group_saccade_density(group, configuration, saccades):
         R = range(N)
         pylab.bar(R, stats)
         pylab.ylabel('saccade density (saccades/s)')
-        a = pylab.axis()
-        # TODO: 
-        pylab.axis([0, N, 0, a[3]])
+        pylab.axis([0, N, 0, 3.0])
     return r
 
-description = \
-"""This figure displays the total number of detected saccades.
+description = """
+This figure displays the total number of detected saccades.
 (note that this is an absolute count, and it is not normalized
- by the sample length.) """  
+by the sample length.) 
+"""  
 
 def group_saccade_count(group, configuration, saccades):
     r = Report()
@@ -44,7 +44,6 @@ def group_saccade_count(group, configuration, saccades):
         R = range(N)
         pylab.bar(R, stats)
         pylab.ylabel('number of saccades')
-        a = pylab.axis()
-        # TODO: 
-        pylab.axis([0, N, 0, a[3]])
+        
+        pylab.axis([0, N, 0, 4000])
     return r

@@ -4,7 +4,8 @@ from saccade_analysis.analysis201009.stats.utils import attach_description
 
 v = 0.3
 
-description = """This figure shows the simulated
+description = """
+This figure shows the simulated
 trajectories, considering only the turns detected as saccades,
 assuming that the fly flies at constant velocity (v= %.2f m/s),
 and that it flies completely straight between saccades.

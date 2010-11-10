@@ -2,7 +2,8 @@ from reprep import Report
 import numpy
 from saccade_analysis.analysis201009.stats.utils import attach_description
  
-description = """This figure shows the distribution of the values of {var.name}.
+description = """
+This figure shows the distribution of the values of {var.name}.
 The interval [{lb:.3f}, {ub:.3f}] is divided in {var.density_bins:d}.
 """ 
  

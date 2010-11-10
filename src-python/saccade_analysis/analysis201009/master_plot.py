@@ -18,6 +18,7 @@ from saccade_analysis.analysis201009.stats import \
     group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
     group_saccade_count, group_saccade_density
 
+
 class Plot:
     def __init__(self, id, command, args={}, desc=None):
         self.id = id
@@ -115,9 +116,9 @@ all_groups_description = [
     ('Dananassae', 'D. ananassae (Ros)'),
     ('Darizonae', 'D. arizonae (Ros)'),
     ('Dhydei', 'D. hydei (Ros)'),
-    ('Dmelanogaster', 'D. melanogaster (Ros)'),
     ('Dmojavensis', 'D. mojavensis (Ros)'),
-    ('Dpseudoobscura', 'D. pseudoobscura (Ros)'),
+    ('Dpseudoobscura', 'D. pseudoobscura (Ros)'),    
+    ('Dmelanogaster', 'D. melanogaster (Ros)'),
     
     ('mamaramanoposts', 'D. melanogaster (Mamarama, no posts)'),
     ('mamaramaposts', 'D. melanogaster (Mamarama, with posts)'),
@@ -428,30 +429,37 @@ h { display: none !important; }
 }   
 .datanode { display: none !important; }
 
+div.textnode span.textid { display: none; }
+div.textnode { max-width: 40em; }
 """
 
 def combine_reports(subs, descs, page_id, output_dir):
     r = Report(page_id)
     comp(combine_reports, subs, page_id)
     
-    for id, dummy in subs[0].childid2node.items():
-        node = subs[0].childid2node[id]
-        
-        if isinstance(node, Table):
+    # look if we have a description
+    if 'description' in subs[0].childid2node:
+        description = subs[0].childid2node['description']
+        r.add_child(description)
+    
+    for example_node in subs[0].children:
+        plot_id = example_node.id
+        if plot_id == 'description':
+            continue
+
+        if isinstance(example_node, Table):
             
             for i, sub in enumerate(subs):
-                node = sub.childid2node[id]
-                #node.id = sub.id
+                node = sub.childid2node[plot_id] 
                 node.id = None
-                r.add_child(node)
                 node.caption = descs[i]
+                r.add_child(node)
             
         else: # images -> use figures
             
-            f = r.figure(id, shape=(5, 4))
+            f = r.figure(example_node.id, shape=(5, 4))
             for i, sub in enumerate(subs):
-                node = sub.childid2node[id]
-                # node.id = sub.id
+                node = sub.childid2node[plot_id]
                 node.id = None
                 r.add_child(node)
                 f.sub(node.id, caption=descs[i])

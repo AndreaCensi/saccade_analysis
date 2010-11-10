@@ -31,4 +31,6 @@ def attach_description(report, text):
     ''' Attaches a general description to the report
         such that it will be recognized by combine_reports()
         and used as a description for the whole page. '''
-    pass  
+        
+    report.text('description', text, mime='text/x-rst')
+

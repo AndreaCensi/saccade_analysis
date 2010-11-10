@@ -2,7 +2,8 @@ import numpy
 from reprep import Report
 from saccade_analysis.analysis201009.stats.utils import attach_description
 
-description = """ This is a plot of the detected saccades
+description = """
+This is a plot of the detected saccades
 superimposed to the raw orientation data. Each saccade is 
 represented by two vertical lines: blue for start and green for the end. 
 """

@@ -5,9 +5,8 @@ import numpy
 
 
 description = """ 
-
-This plot shows the percentiles for ${var.name}, for each sample.
-The percentiles shown are ${percentiles}.
+This plot shows the percentiles for {var.name}, for each sample.
+The percentiles shown are {percentiles}.
 
 The samples are ordered left-to-right by increasing median value.
 """
@@ -40,7 +39,8 @@ def group_var_percentiles(group, configuration, saccades, variable):
     
     
     r = Report()
-    attach_description(r, description.format(var=variable, percentiles=",".join(percentiles)))
+    attach_description(r, description.format(var=variable, 
+            percentiles=",".join(map(str, percentiles))))
     with r.data_pylab('%s_percentiles' % variable.id) as pylab:
         #print percentiles
         # plot horizontal 

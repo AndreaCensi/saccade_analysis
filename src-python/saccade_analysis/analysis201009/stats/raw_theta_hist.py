@@ -10,7 +10,7 @@ def raw_theta_hist(sample, exp_data):
     r = Report()
     attach_description(r, description)
     with r.data_pylab('simulated_trajectory') as pylab:
-        pylab.hist(thetas, bins=180, normed=True) 
+        pylab.hist(thetas, bins=90, normed=True) 
         pylab.xlabel('orientation (degrees)') 
         pylab.ylabel('density')
         # TODO: choose ymax

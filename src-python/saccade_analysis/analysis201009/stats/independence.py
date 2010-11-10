@@ -26,7 +26,8 @@ def independence(group, configuration, saccades):
     
     return independence_table(all_results)
 
-description = """ The table reports the statistics used
+description = """
+The table reports the statistics used
 to reject the null hypothesis that the directions of successive turns
 are independent. 
 
