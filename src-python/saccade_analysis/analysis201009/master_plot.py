@@ -182,7 +182,7 @@ def main():
         groupset = 'all' 
         
     if options.configurations:
-        configurations = options.configurations.split(', ')
+        configurations = options.configurations.split(',')
         confset = "_".join(configurations)
     else:
         configurations = db.list_all_configurations()
@@ -190,7 +190,8 @@ def main():
         
     combination = '%s_%s' % (groupset, confset)
     output_dir = os.path.join(options.report, combination)
-    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     set_namespace('master_plot_%s' % combination)
         
     
@@ -490,6 +491,8 @@ span { font-family: monospace; }
     
      
 def write_report(report, output_dir, page_id):
+    # very important, otherwise images are in the same ns
+    report.id = page_id
     filename = os.path.join(output_dir, page_id + '.html')
     resources_dir = os.path.join(output_dir, 'images')
     print "Writing to %s" % filename

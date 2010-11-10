@@ -27,12 +27,12 @@ end
 
 
 peters_conf = struct;
-peters_conf.id = 'peters_conf_base';
+peters_conf.id = 'peters_conf_base3';
 peters_conf.saccade_detection_method = 'linear';
 peters_conf.smooth_steps = 3;
-peters_conf.filtered_velocity_significant_threshold = 50;
-peters_conf.filtered_velocity_zero_threshold = 15;
-peters_conf.min_significant_amplitude = 5;
+peters_conf.filtered_velocity_significant_threshold = 75;
+peters_conf.filtered_velocity_zero_threshold = 7.5;
+peters_conf.min_significant_amplitude = 15;
 peters_conf.robust_amplitude_delta = 0.1;
 peters_conf.debug = false;
 
