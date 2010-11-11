@@ -26,6 +26,7 @@ def group_turnogram(group, configuration, saccades, image_width=250, zoom=8):
         signs.append(saccades_for_sample['sign'])
 
     colors = {-1: [0, 0, 255, 255], 1: [255, 0, 0, 255]}
+    bgcolor = [240, 240, 240, 240]
     chunks = []
     
     for i in range(num_samples):
@@ -34,8 +35,7 @@ def group_turnogram(group, configuration, saccades, image_width=250, zoom=8):
         num_lines *= 2
         chunk = numpy.ndarray(shape=(num_lines, image_width, 4) , dtype='uint8')
         # white transparent
-        chunk[:, :, 0:3] = 255 
-        chunk[:, :, 3] = 0
+        chunk[:, :, :] = bgcolor
         for k in range(len(sign)):
             x = k % image_width
             y = ((k - x) / image_width) * 2
@@ -43,8 +43,7 @@ def group_turnogram(group, configuration, saccades, image_width=250, zoom=8):
         chunks.append(chunk)
         # add empty chunk
         chunk = numpy.ndarray((2, image_width, 4), dtype='uint8')
-        chunk[:, :, 0:3] = 255 
-        chunk[:, :, 3] = 0
+        chunk[:, :, :] = bgcolor
         chunks.append(chunk)
         
     img = numpy.vstack(chunks)
