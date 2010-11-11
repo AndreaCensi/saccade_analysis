@@ -8,3 +8,6 @@ scripts = [
     ('sac_db_stats', 'expdb.db_stats'),
     ('sac_master_plot', 'saccade_analysis.analysis201009.master_plot'),
 ]
+
+# this is the format for setuptools
+console_scripts = map(lambda s: '%s = %s:main' % (s[0], s[1]), scripts)
