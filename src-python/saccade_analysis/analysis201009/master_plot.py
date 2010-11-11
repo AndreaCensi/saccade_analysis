@@ -16,7 +16,7 @@ from saccade_analysis.analysis201009.stats import \
     plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
     plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist, \
     group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
-    group_saccade_count, group_saccade_density
+    group_saccade_count, group_saccade_density, group_turnogram
 
 
 class Plot:
@@ -37,6 +37,8 @@ group_plots = [
     Plot('saccade_density', group_saccade_density,
          desc="Saccade frequency (saccades/second)"),
     Plot('sign_hist', group_sign_hist, desc="Number of left/right turns"),
+    Plot('turnogram', group_turnogram,
+         desc="Sequence of left/right saccades as a picture."),
     Plot('sign_xcorr', group_sign_xcorr, desc="Autocorrelation left/right turns"),
     Plot('fairness', fairness, desc="Statistical tests for balanced left/right"),
     Plot('independence', independence,
