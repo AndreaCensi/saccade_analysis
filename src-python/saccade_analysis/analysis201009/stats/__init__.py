@@ -18,3 +18,4 @@ from var_joint import *
 from saccade_count import *
 
 from turnograms import *
+from var_time_correlation import *

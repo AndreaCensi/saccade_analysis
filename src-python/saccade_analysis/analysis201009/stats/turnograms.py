@@ -10,7 +10,7 @@ These figures show in a compact way the sequence of
 left/right saccades. 
 
 Blue=left, Red=right. A white line separates the samples.
-One line comprises %{width} saccades.
+One line comprises {width} saccades.
 """
 
 def group_turnogram(group, configuration, saccades, image_width=250, zoom=8):

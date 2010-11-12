@@ -16,7 +16,9 @@ from saccade_analysis.analysis201009.stats import \
     plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
     plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist, \
     group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
-    group_saccade_count, group_saccade_density, group_turnogram
+    group_saccade_count, group_saccade_density, group_turnogram, \
+    group_var_time_correlation, sample_var_time_correlation
+import itertools
 
 
 class Plot:
@@ -34,15 +36,25 @@ class Plot:
 group_plots = [
     Plot('saccade_count', group_saccade_count,
          desc="Number of detected saccades (raw count)"),
+         
     Plot('saccade_density', group_saccade_density,
          desc="Saccade frequency (saccades/second)"),
-    Plot('sign_hist', group_sign_hist, desc="Number of left/right turns"),
+         
+    Plot('sign_hist', group_sign_hist,
+         desc="Number of left/right turns"),
+         
     Plot('turnogram', group_turnogram,
-         desc="Sequence of left/right saccades as a picture."),
-    Plot('sign_xcorr', group_sign_xcorr, desc="Autocorrelation left/right turns"),
-    Plot('fairness', fairness, desc="Statistical tests for balanced left/right"),
+         desc="Sequence of left/right saccades as a picture"),
+         
+    Plot('sign_xcorr', group_sign_xcorr,
+         desc="Autocorrelation left/right turns"),
+         
+    Plot('fairness', fairness,
+         desc="Statistical tests for balanced left/right"),
+         
     Plot('independence', independence,
          desc="Statistical tests for independence of successive turns"),
+         
     Plot('levy_vs_exp', levy_exp,
          desc="Levy and exponential fits for saccade interval")
 ]
@@ -52,6 +64,21 @@ sample_saccades_plots = [
          desc="Plots of simulated trajectories (using saccades)"),
 ]
 
+    
+var_group = [v for v in variables if v.percentiles]
+
+for delays in [[0, 1], [0, 2]]:
+    for type in ['pearson', 'spearman', 'kendall']:
+        
+        name = 'timecorr%d%d%s' % (delays[0], delays[1], type)
+        desc = 'Correlation analysis (%s, delay: %d)' % (type, delays[-1])
+        args = {'variables': var_group, 'delays': delays,
+                'type': type}
+        
+        group_plots.append(Plot(name, group_var_time_correlation, args, desc))
+        sample_saccades_plots.append(Plot(name, sample_var_time_correlation, args, desc))
+                
+
 for var in variables:
     group_plots.append(Plot('hist_%s' % var.id, group_var_hist, {'variable': var},
                             desc="Histograms of %s" % var.name))
@@ -59,10 +86,11 @@ for var in variables:
         group_plots.append(Plot('percentiles_%s' % var.id,
                         group_var_percentiles, {'variable': var},
                         desc="Percentile plots of %s" % var.name))
+        
         group_plots.append(Plot('xcorr_%s' % var.id, group_var_xcorr,
                                 {'variable': var},
                                 desc="Autocorrelation of %s" % var.name))
-    
+        
 for i, var1 in enumerate(variables):
     for j, var2 in enumerate(variables):
         if i < j and var1.percentiles and var2.percentiles:
@@ -78,25 +106,28 @@ for i, var1 in enumerate(variables):
                         desc="Joint distribution of %s and %s." % 
                             (var1.name, var2.name)))
 
-for i, var1 in enumerate(variables):
-    for j, var2 in enumerate(variables):
-        if  var1.percentiles and var2.percentiles:
-            group_plots.append(Plot('joint_%s_%s_delayed' % (var1.id, var2.id),
-                        group_var_joint, {'var1': var1, 'var2': var2,
-                                          'delay1': 0, 'delay2': 1},
-                        desc="Joint distribution of %s at time k and %s at k-1." % 
-                        (var1.name, var2.name)))
+for var1, var2 in itertools.product(variables, variables):
+    if  not var1.percentiles or not var2.percentiles:
+        continue
+    
+    name = 'joint_%s_%s_delayed' % (var1.id, var2.id)
+    vars = {'var1': var1, 'var2': var2, 'delay1': 0, 'delay2': 1}
+    desc = "Joint distribution of %s at time k " \
+           "and %s at k-1." % (var1.name, var2.name)
+    group_plots.append(Plot(name, group_var_joint, vars, desc))
+    
+    name = 'joint_%s_%s_delayed' % (var1.id, var2.id)
+    vars = {'var1': var1, 'var2': var2, 'delay1': 0, 'delay2': 1}
+    desc = "Joint distribution of %s at time k and %s at k-1." % \
+            (var1.name, var2.name)
             
-            sample_saccades_plots.append(
-                    Plot('joint_%s_%s_delayed' % (var1.id, var2.id),
-                        sample_var_joint, {'var1': var1, 'var2': var2,
-                                          'delay1': 0, 'delay2': 1},
-                        desc="Joint distribution of %s at time k and %s at k-1." % 
-                            (var1.name, var2.name)))
-            
-            
+    sample_saccades_plots.append(Plot(name, group_var_joint, vars, desc))
+        
+        
 sample_expdata_plots = [
-    Plot('raw_theta_hist', raw_theta_hist, desc="Histogram of raw orientation"),
+    Plot('raw_theta_hist', raw_theta_hist,
+         desc="Histogram of raw orientation"),
+         
     Plot('raw_trajectories', plot_raw_trajectories,
          desc="Plot of simulated trajectories (from raw orientation data)"),
 ]

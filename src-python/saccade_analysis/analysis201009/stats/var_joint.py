@@ -9,7 +9,6 @@ of {var1.name} {var1delay} and {var2.name} {var2delay}. The data is plotted
 both on a normal and on a log-log scale.
 """ 
 
-
 # markersize
 MS = 3
     
@@ -36,14 +35,15 @@ def get_delay_desc_string(d):
     else:
         return "(delayed by %d)" % d
 
-def group_var_joint(group, configuration, saccades, var1, delay1, var2, delay2):    
+def group_var_joint(group, configuration, saccades,
+                    var1, delay1, var2, delay2):    
     
     var1delay = get_delay_desc_string(delay1)
     var2delay = get_delay_desc_string(delay2)
     
     r = Report()
     attach_description(r, description.format(var1=var1, var2=var2,
-                                             var1delay=var1delay, var2delay=var2delay))
+                            var1delay=var1delay, var2delay=var2delay))
     
     node_id = 'joint_%s%d_%s%d' % (var1.id, delay1, var2.id, delay2)
     with r.data_pylab(node_id) as pylab:
