@@ -23,8 +23,7 @@ def plot_raw_trajectories(sample, exp_data):
         yp = y[-1] + numpy.sin(theta) * dt * v
         
         x.append(xp)
-        y.append(yp)
-        
+        y.append(yp)        
         
     r = Report()
     attach_description(r, description)
@@ -35,5 +34,4 @@ def plot_raw_trajectories(sample, exp_data):
         pylab.axis('equal')
 
     return r
-    
     

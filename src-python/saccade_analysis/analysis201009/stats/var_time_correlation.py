@@ -1,11 +1,14 @@
 import numpy
 import scipy.stats
-import itertools
+from itertools import product as prod
+
 from reprep import Report
-from saccade_analysis.analysis201009.stats.turnograms import zoom_rgb
 from reprep.graphics.posneg import posneg
 from reprep.graphics.scale import scale
+
 from saccade_analysis.analysis201009.stats.utils import attach_description
+from saccade_analysis.analysis201009.stats.turnograms import zoom_rgb
+from saccade_analysis.analysis201009.stats.fast_kendall_tau import fast_kendall_tau
 
 def get_correlation_matrix(saccades, vars, delays, type):
     ''' Returns Correlation, p-value, labels.
@@ -48,7 +51,8 @@ def get_correlation_matrix(saccades, vars, delays, type):
     R = numpy.ndarray((N, N), dtype='float64')
     P = numpy.ndarray((N, N), dtype='float64')
     
-    types = {'kendall': scipy.stats.kendalltau,
+    types = {# 'kendall': scipy.stats.kendalltau,
+             'kendall': fast_kendall_tau,
              'pearson': scipy.stats.pearsonr,
              'spearman': scipy.stats.spearmanr}
     if not type in types:
@@ -56,7 +60,7 @@ def get_correlation_matrix(saccades, vars, delays, type):
                          (type, types.keys()))
     function = types[type]
 
-    for i, j in itertools.product(range(N), range(N)):
+    for i, j in prod(range(N), range(N)):
         r, p = function(xs[i], xs[j])
         R[i, j] = r
         P[i, j] = p

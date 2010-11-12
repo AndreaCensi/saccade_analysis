@@ -18,7 +18,9 @@ from saccade_analysis.analysis201009.stats import \
     group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
     group_saccade_count, group_saccade_density, group_turnogram, \
     group_var_time_correlation, sample_var_time_correlation
+
 import itertools
+prod = itertools.product
 
 
 class Plot:
@@ -67,19 +69,19 @@ sample_saccades_plots = [
     
 var_group = [v for v in variables if v.percentiles]
 
-for delays in [[0, 1], [0, 2]]:
-    for type in ['pearson', 'spearman']:
-        # kendall is very slow and not that important 
-        #, 'kendall']:
-        
-        name = 'timecorr%d%d%s' % (delays[0], delays[1], type)
-        desc = 'Correlation analysis (%s, delay: %d)' % (type, delays[-1])
-        args = {'variables': var_group, 'delays': delays,
-                'type': type}
-        
-        group_plots.append(Plot(name, group_var_time_correlation, args, desc))
-        sample_saccades_plots.append(Plot(name, sample_var_time_correlation, args, desc))
-                
+for delays, type in prod([[0, 1], [0, 2]],
+                         ['pearson', 'spearman', 'kendall']):
+    # kendall is very slow and not that important 
+    #, 'kendall']:
+    
+    name = 'timecorr%d%d%s' % (delays[0], delays[1], type)
+    desc = 'Correlation analysis (%s, delay: %d)' % (type, delays[-1])
+    args = {'variables': var_group, 'delays': delays,
+            'type': type}
+    
+    group_plots.append(Plot(name, group_var_time_correlation, args, desc))
+    sample_saccades_plots.append(Plot(name, sample_var_time_correlation, args, desc))
+            
 
 for var in variables:
     group_plots.append(Plot('hist_%s' % var.id, group_var_hist, {'variable': var},
@@ -108,7 +110,7 @@ for i, var1 in enumerate(variables):
                         desc="Joint distribution of %s and %s." % 
                             (var1.name, var2.name)))
 
-for var1, var2 in itertools.product(variables, variables):
+for var1, var2 in prod(variables, variables):
     if  not var1.percentiles or not var2.percentiles:
         continue
     
@@ -256,41 +258,37 @@ def main():
                          configuration, plot.command, plot.args,
                          job_id=job_id)    
 
-            for sample in db.list_samples(group):
-                for plot  in sample_saccades_plots:
-                    job_id = '%s-%s-%s' % (sample, configuration, plot.id)
-                    index_sample_saccades_plots[(sample, configuration, plot.id)] = \
-                        comp(wrap_sample_saccades_plot, options.data,
-                             sample, configuration, plot.command, plot.args,
-                             job_id=job_id)    
+            for sample, plot in prod(db.list_samples(group), sample_saccades_plots):
+                job_id = '%s-%s-%s' % (sample, configuration, plot.id)
+                index_sample_saccades_plots[(sample, configuration, plot.id)] = \
+                    comp(wrap_sample_saccades_plot, options.data,
+                         sample, configuration, plot.command, plot.args,
+                         job_id=job_id)    
 
         if db.group_has_experimental_data(group):
-            for sample in db.list_samples(group):
-                for plot  in sample_expdata_plots:
-                    job_id = '%s-%s' % (sample, plot.id)
-                    index_sample_expdata_plots[(sample, plot.id)] = \
-                        comp(wrap_sample_expdata_plot, options.data,
-                             sample, plot.command, plot.args, job_id=job_id)    
+            for sample, plot in prod(db.list_samples(group), sample_expdata_plots):
+                job_id = '%s-%s' % (sample, plot.id)
+                index_sample_expdata_plots[(sample, plot.id)] = \
+                    comp(wrap_sample_expdata_plot, options.data,
+                         sample, plot.command, plot.args, job_id=job_id)    
 
     # now we create the indices 
     # fix configuration, function; iterate groups
-    for configuration in configurations:
-        for plot in group_plots:
+    for configuration, plot in itertools.product(configurations, group_plots):
+        subs = []; descs = [];
+    
+        page_id = "%s.%s" % (configuration, plot.id)
         
-            subs = []; descs = [];
-        
-            page_id = "%s.%s" % (configuration, plot.id)
+        for group, group_desc in order_groups(groups):
+            if not configuration in configurations_for_group[group]:
+                continue
             
-            for group, group_desc in order_groups(groups):
-                if not configuration in configurations_for_group[group]:
-                    continue
-                
-                descs.append(group_desc)
-                subs.append(index_group_plots[(group, configuration, plot.id)])
-        
-            job_id = page_id
-            comp(combine_reports, subs, descs, page_id, output_dir,
-                 job_id=job_id) 
+            descs.append(group_desc)
+            subs.append(index_group_plots[(group, configuration, plot.id)])
+    
+        job_id = page_id
+        comp(combine_reports, subs, descs, page_id, output_dir,
+             job_id=job_id) 
     
     comp(create_gui,
          filename=os.path.join(output_dir, 'group_plots.html'),
