@@ -68,7 +68,9 @@ sample_saccades_plots = [
 var_group = [v for v in variables if v.percentiles]
 
 for delays in [[0, 1], [0, 2]]:
-    for type in ['pearson', 'spearman', 'kendall']:
+    for type in ['pearson', 'spearman']:
+        # kendall is very slow and not that important 
+        #, 'kendall']:
         
         name = 'timecorr%d%d%s' % (delays[0], delays[1], type)
         desc = 'Correlation analysis (%s, delay: %d)' % (type, delays[-1])
