@@ -58,13 +58,13 @@ def create_report(subsets):
 
 def create_report_subset(id, desc, saccades):
     report = Report(id)
-    description = '''
+    report.text('description', '''
 
 Subset: %s
 
 It contains %d saccades.
 
-''' % (desc, len(saccades)) 
+''' % (desc, len(saccades)) )
  
     saccade_angle = saccades['saccade_angle']
     approach_angle = saccades['approach_angle']
