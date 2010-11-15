@@ -296,8 +296,8 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
     info = numpy.zeros(dtype=info_dtype, shape=(len(saccades),))
     
     for i, saccade in enumerate(saccades):
-        x = saccade['x']
-        y = saccade['y']
+        x = saccade['position'][0]
+        y = saccade['position'][1]
         ax = x - arena_center[0]
         ay = y - arena_center[1]
         

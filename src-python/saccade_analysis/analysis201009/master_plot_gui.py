@@ -33,6 +33,7 @@ div.box {
 #topbar {margin:0;  height: 9%; padding: 1em; display: block; }
 #window {padding: 2px; margin:0;  width: 100%; height: 90%; border: 0;}
 
+select { font-size: 120%; }
 
 
 """
@@ -114,6 +115,7 @@ No iframes supported.
 </html>
 """
 
+
 def create_gui(filename, menus): 
 
     f = open(filename, 'w')
@@ -155,7 +157,43 @@ function get_data_id() {
                                         topbar=topbar.getvalue()))
     
     
-     
+
+def create_gui_new(filename, menus): 
+
+    f = open(filename, 'w')
+   
+    script = StringIO()
+    
+    topbar = StringIO()
+
+    script.write("""
+function get_data_id() {
+        var s = "";
+    """)    
+    for i, menu in enumerate(menus):
+        
+        name, label, choices = menu
+         
+        write_select_box(topbar, label, name, choices)
+        
+        if i != 0:
+            script.write("""
+        s = s + ".";
+            """)
+        script.write("""
+        %s = $('#%s').val();
+        s = s + %s;
+        """ % (name,name,name) )
+        
+    script.write("""
+    return s;
+}
+    """)     
+    
+    f.write(Template(page).substitute(css=css, script=script.getvalue(),
+                                      scriptb=scriptb, 
+                                        topbar=topbar.getvalue()))
+    
 
 def write_select(f, name, choices, onchange=""):
     '''Writes the <select> element to f. choices is a tuple of (value, desc).''' 
