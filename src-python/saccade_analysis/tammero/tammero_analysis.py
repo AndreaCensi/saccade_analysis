@@ -34,7 +34,8 @@ def main():
         
     
 def divide_into_subsets(saccades):
-    close_threshold = 0.65
+#    close_threshold = 0.65
+    close_threshold = 0.5
     subsets = [
      ('all', 'All saccades', lambda x: True),
      ('close_to_center', 'Close to center', lambda x: x['distance_from_center'] < close_threshold),
@@ -44,7 +45,7 @@ def divide_into_subsets(saccades):
     for id, desc, test in subsets:
         include = map(test, saccades)
         select = saccades[numpy.array(include)]
-        print len(select)
+        print desc, len(select)
         yield id, desc, select
     
 
@@ -52,12 +53,12 @@ def create_report(subsets):
     report = Report('tammero_analysis')
     for id, desc, saccades in subsets:
         # XXX temporary
-        # report.add_child(create_report_subset(id, desc, saccades))
+        report.add_child(create_report_subset(id, desc, saccades))
         report.add_child(create_report_randomness(id, desc, saccades))
     return report
 
 def create_report_subset(id, desc, saccades):
-    report = Report(id)
+    report = Report('subset_'+id)
     report.text('description', '''
 
 Subset: %s
@@ -163,7 +164,7 @@ It contains %d saccades.
             axes = pylab.axes(rect)
             label = '%d' % bin_centers[k]
             pylab.plot(saccade_bin_centers, distributions[k], '-', label=label)
-            pylab.axis([-180, 180, 0, max_density])
+            # pylab.axis([-180, 180, 0, max_density])
         #a = pylab.axis()
             pylab.legend()
         pylab.xlabel('saccade angle')
@@ -178,6 +179,7 @@ It contains %d saccades.
     f.sub('turning_probability', caption='Probability of turning')
     f.sub('distribution_vs_approach', caption='Saccade distribution vs approach angle')
     
+    return report
     
 def create_report_randomness(id, desc, saccades):
     report = Report(id)
