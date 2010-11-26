@@ -28,7 +28,7 @@ def main():
         print "Group: %s" % group
         print "  Configurations: %s. " %  db.list_configurations(group)
         print "  Samples: %s" % db.list_samples(group)
-        print "  Has exp data: %s" % db.has_experimental_data(group)
+        print "  Has exp data: %s" % db.group_has_experimental_data(group)
         
     
     for group in groups:
