@@ -6,6 +6,7 @@ from geometric_saccade_detector.io import saccades_read_mat
 from expdb.natsort import natsorted
 import shelve
 import pickle
+from flydra_db.db import FlydraDB
 
 class Group:
     def __init__(self):
@@ -22,11 +23,19 @@ class SamplesDB:
         if not os.path.exists(data) or not os.path.isdir(data):
             raise Exception('Could not open directory %s' % data)
         
-        self.use_cache = True
-        
         self.data = data
         
-        self.open_shelve()
+        # self.use_cache = True
+        self.use_cache = False
+        self.use_flydra_db = True
+         
+        
+        if self.use_cache:
+            self.open_shelve()
+        
+        if self.use_flydra_db:
+            self.open_flydra_db()
+            
         
         self.groups = {}
         
@@ -98,6 +107,9 @@ class SamplesDB:
     def open_shelve(self):
         shelve_fname = os.path.join(self.data, 'shelve')
         self.shelve = shelve.open(shelve_fname, protocol=pickle.HIGHEST_PROTOCOL)
+    
+    def open_flydra_db(self):
+        self.flydra_db = FlydraDB(os.path.join(self.data, 'sac_flydra_db'))
         
     def list_groups(self):
         """ Returns a list of the groups. """
@@ -127,6 +139,16 @@ class SamplesDB:
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
+        if self.use_flydra_db:
+            table = 'groupsaccades_%s' % configuration
+            if self.flydra_db.has_sample(group) and \
+               self.flydra_db.has_table(group, table):
+                t = self.flydra_db.get_table(group, table)
+                #value = t.copy()
+                value = t
+                #self.flydra_db.release_table(t)
+                return value 
+            
         if self.use_cache:
             key = str(('get_saccades_for_group', group, configuration))
             if key in self.shelve:
@@ -136,6 +158,11 @@ class SamplesDB:
         saccades = saccades_read_mat(filename)
         
         
+        if self.use_flydra_db:
+            if not self.flydra_db.has_sample(group):
+                self.flydra_db.add_sample(group)
+            self.flydra_db.set_table(group, table, saccades)
+            
         if self.use_cache:
             self.shelve[key] = saccades
             
@@ -154,6 +181,16 @@ class SamplesDB:
         """ Returns the saccades for the given group and configuration. 
             If configuration is not passed, we use the default.
         """
+        if self.use_flydra_db:
+            table = 'saccades_%s' % configuration
+            if self.flydra_db.has_sample(sample) and \
+               self.flydra_db.has_table(sample, table):
+                t = self.flydra_db.get_table(sample, table)
+                #value =  t.copy()
+                value = t
+                #self.flydra_db.release_table(t)
+                return value 
+            
         if self.use_cache:
             key = str(('get_saccades_for_sample', sample, configuration))
             if key in self.shelve:
@@ -161,8 +198,11 @@ class SamplesDB:
     
         group = self.get_group_for_sample(sample)
         group_saccades  = self.get_saccades_for_group(group, configuration) 
-        
-        mine = group_saccades['sample'] == sample
+
+        print group_saccades[0].dtype
+#        with open('tmp.pickle','w') as f:
+#            pickle.dump(f, group_saccades)        
+        mine = group_saccades[:]['sample'] == sample
         
         saccades = group_saccades[mine]
         
@@ -170,12 +210,28 @@ class SamplesDB:
             raise Exception('No saccades found for %s' % sample)
         
         
+        if self.use_flydra_db:
+            if not self.flydra_db.has_sample(sample):
+                self.flydra_db.add_sample(sample)
+
+            self.flydra_db.set_table(sample, table, saccades)
+            
         if self.use_cache:
             self.shelve[key] = saccades
         
         return saccades
         
     def get_experimental_data(self, sample):
+#        if self.use_flydra_db:
+#            table = 'tethered_data'
+#            if self.flydra_db.has_sample(sample) and \
+#               self.flydra_db.has_table(sample, table):
+#                t = self.flydra_db.get_table(sample, table)
+#                #value =  t.copy()
+#                value = t
+#                #self.flydra_db.release_table(t)
+#                return value 
+#        
         if self.use_cache:
             if sample in self.shelve:
                 return self.shelve[sample]
@@ -206,6 +262,12 @@ class SamplesDB:
         else:
             raise Exception('no data for sample %s found' % sample)
         
+#        if self.use_flydra_db:
+#            if not self.flydra_db.has_sample(sample):
+#                self.flydra_db.add_sample(sample)
+#
+#            self.flydra_db.set_table(sample, table, data)
+            
         if self.use_cache:
             self.shelve[sample] = data
         
@@ -215,15 +277,19 @@ class SamplesDB:
         # do not pickle the shelve
         all = dict(self.__dict__)
         all['shelve'] = None
+        all['flydra_db'] = None
         return all
         
-def read_samples_db(data, verbose=False):
+def read_samples_db(data, verbose=False, rescan=False):
     cache = os.path.join(data, 'index.pickle')
-    if os.path.exists(cache):
+    if os.path.exists(cache) and not rescan:
         # print "Using cache %s" % cache
         db = cPickle.load(open(cache))
-        # reopen shelve
-        db.open_shelve()
+        # reopen shelve if it was used
+        if db.use_cache:
+            db.open_shelve()
+        if db.use_flydra_db:
+            db.open_flydra_db()
         return db
     else:
         db = SamplesDB(data, verbose)

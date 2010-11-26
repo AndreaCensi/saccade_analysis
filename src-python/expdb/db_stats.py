@@ -10,12 +10,14 @@ This script shows the content of the db.
 
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--data", help="Main data directory", default='.')
+    parser.add_option("--data", help="Main data directory", 
+                      default='saccade_data')
+    parser.add_option("--rescan", help="Rescan the data directory for new files.")
         
     (options, args) = parser.parse_args() #@UnusedVariable
     
     start = time.time()
-    db = read_samples_db(options.data, verbose=True)
+    db = read_samples_db(options.data, verbose=True, rescan=options.rescan)
     print "DB indexed in %.2f seconds." % (time.time()-start)
     
     groups = db.list_groups()
