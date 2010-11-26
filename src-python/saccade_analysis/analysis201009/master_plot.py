@@ -71,8 +71,6 @@ var_group = [v for v in variables if v.percentiles]
 
 for delays, type in prod([[0, 1], [0, 2]],
                          ['pearson', 'spearman', 'kendall']):
-    # kendall is very slow and not that important 
-    #, 'kendall']:
     
     name = 'timecorr%d%d%s' % (delays[0], delays[1], type)
     desc = 'Correlation analysis (%s, delay: %d)' % (type, delays[-1])

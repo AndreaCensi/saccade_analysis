@@ -1,0 +1,108 @@
+function [filt_rate] = define_challis_filter(sample)
+
+% Defines challis butterworth filter
+% RWS NOTE: Calculated optimal cut-off freq for butterworth filter using
+% Challis method separately in Linux machine with Andrew Straw's PYTHON code 'est1.py'
+% & auto_filter_cutoff.py, it was faster to run it on linux :/
+
+% RWS 09/24/09
+
+switch sample
+        
+    case 'data_Dmelanogaster-20080410-174953'; filter =  0.64375; % high
+    case 'data_Dmelanogaster-20080626-151946'; filter =  0.18671875;
+    case 'data_Dmelanogaster-20080626-174721'; filter =  0.3984375; % high
+    case 'data_Dmelanogaster-20080627-154223'; filter =  0.33203125; % ?
+    case 'data_Dmelanogaster-20080627-162448'; filter =  0.3125; % ?
+    case 'data_Dmelanogaster-20080627-172709'; filter =  0.6453125; % high
+    case 'data_Dmelanogaster-20080702-151655'; filter =  0.1640625;
+    case 'data_Dmelanogaster-20080702-175038'; filter =  0.23828125;
+    case 'data_Dmelanogaster-20080703-165245'; filter =  0.31796875;
+    case 'data_Dmelanogaster-20080703-175708'; filter =  0.25390625;
+    case 'data_Dmelanogaster-20080704-154647'; filter =  0.28984375;
+    case 'data_Dmelanogaster-20080704-165040'; filter =  0.29296875;
+    case 'data_Dmelanogaster-20080708-154007'; filter =  0.35859375; % ?
+    case 'data_Dmelanogaster-20080708-163736'; filter =  0.2625;
+    case 'data_Dmelanogaster-20080708-171906'; filter =  0.38359375; % high
+
+    case 'calib_Dmelanogaster-20080410-174953'; filter =  0.36171875; % error 0.915260
+    case 'calib_Dmelanogaster-20080626-151946'; filter =  0.19375; % error 0.564251
+    case 'calib_Dmelanogaster-20080626-174721'; filter =  0.13671875; % error 0.607545
+    case 'calib_Dmelanogaster-20080627-154223'; filter =  0.2234375; % error 0.747727
+    case 'calib_Dmelanogaster-20080627-162448'; filter =  0.25859375; % error 0.774355
+    case 'calib_Dmelanogaster-20080627-172709'; filter =  0.309375; % error 0.828569
+    case 'calib_Dmelanogaster-20080702-151655'; filter =  0.25625; % error 0.779307
+    case 'calib_Dmelanogaster-20080702-175038'; filter =  0.246875; % error 0.697289
+    case 'calib_Dmelanogaster-20080703-165245'; filter =  0.225; % error 0.725027
+    case 'calib_Dmelanogaster-20080703-175708'; filter =  0.19375; % error 0.633129
+    case 'calib_Dmelanogaster-20080704-154647'; filter =  0.27421875; % error 0.27421875
+    case 'calib_Dmelanogaster-20080704-165040'; filter =  0.17734375; % error 0.771081
+    case 'calib_Dmelanogaster-20080708-154007'; filter =  0.21484375; % error 0.719904
+    case 'calib_Dmelanogaster-20080708-163736'; filter =  0.15390625; % error 0.648170
+    case 'calib_Dmelanogaster-20080708-171906'; filter =  0.15078125; % error 0.720605
+
+    case 'data_Dananassae-20080520-163311'; filter = 0; % error
+    case 'data_Dananassae-20080714-160112'; filter = 0; % error
+    case 'data_Dananassae-20080714-173605'; filter = 0.2384375; % error 1.263449
+    case 'data_Dananassae-20080715-151141'; filter = 0; % error
+    case 'data_Dananassae-20080715-160405'; filter = 0.302421875; % error 1.147337
+    case 'data_Dananassae-20080716-173643'; filter = 0; % error
+    case 'data_Dananassae-20080717-162351'; filter = 0; % error
+    case 'data_Dananassae-20080718-154844'; filter = 0.203984375; % error 1.529037
+    case 'data_Dananassae-20080718-173934'; filter = 0.3259375; % error 1.145587
+    case 'data_Dananassae-20080721-155946'; filter = 0.267421875; % error 1.146585
+    case 'data_Dananassae-20080722-151948'; filter = 0; % error
+    case 'data_Dananassae-20080723-165849'; filter = 0.35875; % error 1.457656
+    case 'data_Dananassae-20080723-180506'; filter = 0.21328125; % error 1.242945
+    case 'data_Dananassae-20080724-175131'; filter = 0; % error
+    case 'data_Dananassae-20080725-155649'; filter = 0.349453125; % error 1.214257
+
+    case 'data_Darizonae-20080409-173446'; filter = 0.56328125; % error 1.483998
+    case 'data_Darizonae-20080414-171002'; filter =  0.67109375; % error 2.146096
+    case 'data_Darizonae-20080414-192946'; filter = 0; % error
+    case 'data_Darizonae-20080729-155542'; filter = 0.44375; % error 1.172421
+    case 'data_Darizonae-20080730-153824'; filter = 0.34375; % error 1.299676
+    case 'data_Darizonae-20080801-172913'; filter = 0.26640625; % error 0.850465
+    case 'data_Darizonae-20080804-163617'; filter = 0.52578125; % error 1.578478
+    case 'data_Darizonae-20080806-153237'; filter = 0.58671875; % error 1.592077
+    case 'data_Darizonae-20080806-171120'; filter = 0; % error
+    case 'data_Darizonae-20080807-170941'; filter = 0.54375; % error 1.293416
+
+    case 'data_Dhydei-20080411-183739'; filter = 0.22421875; % error 0.807984
+    case 'data_Dhydei-20080411-193641'; filter = 0.74140625; % error 2.646600
+    case 'data_Dhydei-20080923-154552'; filter = 0.19609375; % error 1.022851
+    case 'data_Dhydei-20080924-151012'; filter = 0.303125; % error 0.871600
+    case 'data_Dhydei-20080925-153954'; filter = 0; % error
+    case 'data_Dhydei-20080925-183525'; filter = 0.53984375; % error 1.403108
+    case 'data_Dhydei-20081001-175905'; filter = 0.31640625; % error 1.090943
+    case 'data_Dhydei-20081001-190635'; filter = 0.3671875; % error 0.956714
+    case 'data_Dhydei-20081020-154620'; filter = 0.3953125; % error 1.196599
+    case 'data_Dhydei-20081020-165222'; filter = 0.346875; % error 1.202831
+    case 'data_Dhydei-20081020-173151'; filter = 0.33515625; % error 1.099832
+    case 'data_Dhydei-20081020-182244'; filter = 0.534375; % error 1.256067
+    case 'data_Dhydei-20081021-151348'; filter = 0.56328125; % error 1.383730
+    case 'data_Dhydei-20081021-161732'; filter = 0; % error
+
+    case 'data_Dmojavensis-20080616-162754'; filter = 0; % error
+    case 'data_Dmojavensis-20080617-162725'; filter = 0.24140625; % error 0.911415
+    case 'data_Dmojavensis-20080619-153037'; filter = 0.18203125; % error 0.820719
+    case 'data_Dmojavensis-20080619-175759'; filter = 0; % error
+    case 'data_Dmojavensis-20080620-150615'; filter = 0; % error
+    case 'data_Dmojavensis-20080620-153821'; filter = 0.63046875; % error 1.819229
+    case 'data_Dmojavensis-20080623-145945'; filter = 0; % error
+    case 'data_Dmojavensis-20080728-171617'; filter = 0; % error
+    case 'data_Dmojavensis-20080731-163626'; filter = 0.6140625; % error 1.379616
+    case 'data_Dmojavensis-20081002-153832'; filter = 0; % error
+
+    case 'data_Dpseudoobscura-20080413-190700'; filter = 0.35234375; % error 1.264429
+    case 'data_Dpseudoobscura-20080429-164759'; filter = 0.363671875; % error 0.927467
+    case 'data_Dpseudoobscura-20080710-160949'; filter = 0.28203125; % error 0.892441
+    case 'data_Dpseudoobscura-20080711-151244'; filter = 0.10609375; % error 1.119884
+    case 'data_Dpseudoobscura-20080812-173146'; filter = 0.40625; % error 1.085548
+    case 'data_Dpseudoobscura-20080929-163210'; filter = 0.38984375; % error 0.953083
+    case 'data_Dpseudoobscura-20080929-172136'; filter = 0.353125; % error 0.906787
+    case 'data_Dpseudoobscura-20080930-153336'; filter = 0.32046875; % error 1.088685
+    case 'data_Dpseudoobscura-20080930-162613'; filter = 0.4265625; % error 0.957170
+    case 'data_Dpseudoobscura-20080930-165131'; filter = 0.28359375; % error 0.857780
+        
+end

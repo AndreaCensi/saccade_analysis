@@ -1,22 +1,25 @@
 function res = detect_saccades_linear(timestamp, orientation, configuration) 
-	% Parameters we look for in configuration, along with 
-	% "reasonable" parameters:
+	% Parameters we look for in configuration
+	%
 	%  configuration.robust_amplitude_delta  (0.1 seconds)
 	%  configuration.smooth_steps
 	%  configuration.filtered_velocity_significant_threshold
 	%  configuration.filtered_velocity_zero_threshold
 	%  configuration.min_significant_amplitude 
 	%  configuration.debug   print figures and pause
+	%
 	% Returns res.saccades
+	%
 	% Output:
 	% 
-	%    res  contains all fields of params
-	% res.timestamp
-	% res.orientation
-	% res.sac_detect 
-	% res.sac_signs 
-	% res.saccades_moments
-	% res.saccades_intervals
+	%    res.*         contains all the fields in configuration
+	%    res.saccades   list of saccades
+	%    res.timestamp
+	%    res.orientation
+	%    res.sac_detect 
+	%    res.sac_signs 
+	%    res.saccades_moments
+	%    res.saccades_intervals
 	
 	assert(numel(orientation) == numel(timestamp)) 
 	
@@ -165,20 +168,17 @@ function res = detect_saccades_linear(timestamp, orientation, configuration)
 		res.saccades(ns).top_velocity = max( abs(res.velocity(start:stop)) );
 		res.saccades(ns).top_filtered_velocity = max( abs(res.filtered_velocity(start:stop)) );
 		res.saccades(ns).amplitude = amplitude;
-%		res.saccades(ns).duration  = res.saccades(ns).amplitude/ res.saccades(ns).top_velocity;
 		res.saccades(ns).duration = duration; 
 		ns = ns + 1;
     end
 	
     % no saccades detected
-    if ns == 1
-        res.saccades = [];
-%    else
-        % remove first saccade
-        % because we cannot compute the intra-saccade statistics
- %       res.saccades(1) = [];
+    if ns <= 2
+        res.saccades = []; 
+    else
+        % Get rid of the first, cannot compute time_passed
+        res.saccades = res.saccades(2:end);
     end
-
 
 	% if debug is active plot 
 	if configuration.debug

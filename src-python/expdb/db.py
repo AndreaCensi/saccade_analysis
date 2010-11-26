@@ -20,7 +20,7 @@ class SamplesDB:
         ''' data: base directory '''
         
         if not os.path.exists(data) or not os.path.isdir(data):
-            raise Exception()
+            raise Exception('Could not open directory %s' % data)
         
         self.use_cache = True
         

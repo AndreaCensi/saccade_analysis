@@ -27,8 +27,8 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
 
     # oopsi, we start from 0 in the saccades
     # FIXME: detect this
-    saccades['time_start'] += T[0]
-    saccades['time_stop'] += T[0]
+    # saccades['time_start'] += T[0]
+    # saccades['time_stop'] += T[0]
 
     for i in range(num_chunks):
         start = i * chunk_size

@@ -6,7 +6,7 @@ function process_species(directory, configuration)
 	%     configuration.id        name of the configuration
 	%
 	%  The output of the procedure is in a series of files in the directory
-	%         <directory>/processed/<configuration.id>/*.mat
+	%         <directory>/processed/<configuration.id>/processed_*.mat
 	%  
 	%  If the configuration parameter is not given, we create a default configuration with id = 'default', lambda = 24
 	
@@ -27,18 +27,26 @@ function process_species(directory, configuration)
 		out_filename = sprintf('%s/processed_%s', out_dir, d(i).name);
 		
 		if exist(out_filename, 'file') & use_cached_results
-			fprintf('Using cached results for %s \n', out_filename)
+			fprintf('Using cached results for %s \n', out_filename);
 		else
+		    fprintf('Processing %s \n', filename);
 			res = process_sample(filename, configuration);
 			save(out_filename,'res');
 		end
 		 
 	end
 
+    configuration.info = get_configuration_info();
 	save(sprintf('%s/configuration.mat', out_dir), 'configuration');
-	saccades = gather_all_data(out_dir);
-
-	save(sprintf('%s/saccades.mat', out_dir), 'saccades');
+	
+	
+	out_filename = sprintf('%s/saccades.mat', out_dir);
+	if exist(out_filename, 'file') & use_cached_results
+		fprintf('Using cached results for %s \n', out_filename);
+	else
+	    saccades = gather_all_data(out_dir);
+	    save(out_filename, 'saccades');
+	end
 	
 
 function saccades = gather_all_data(directory)

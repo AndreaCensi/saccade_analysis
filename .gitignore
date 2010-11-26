@@ -5,7 +5,6 @@ data/mamaramanoposts
 data/mamaramaposts
 data/D*/data_*mat
 *pyc
-report
 processed
 sac_sequence_analysis_output
 src-python/saccade_analysis.egg-info/
