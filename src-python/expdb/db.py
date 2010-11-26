@@ -49,7 +49,6 @@ class SamplesDB:
             
             # print "Reading group %s" % group
             group_record = Group()
-             
             
             for file in [file for file in os.listdir(group_dir) 
                 if file.startswith('data_') and file.endswith('.mat')]:
@@ -57,6 +56,7 @@ class SamplesDB:
                 group_record.samples.add(id)
                 self.sample2expmat[id] =  os.path.join(group_dir,file)
                 self.sample2group[id] = group
+                
                 
             for file in [file for file in os.listdir(group_dir) 
                 if file.startswith('data_') and file.endswith('.pickle')]: 
@@ -92,7 +92,9 @@ class SamplesDB:
 
             if len(group_record.samples)> 0:
                 self.groups[group] = group_record
-        
+                    
+                print "has it", group, group_record.has_experimental_data
+            
     def open_shelve(self):
         shelve_fname = os.path.join(self.data, 'shelve')
         self.shelve = shelve.open(shelve_fname, protocol=pickle.HIGHEST_PROTOCOL)
