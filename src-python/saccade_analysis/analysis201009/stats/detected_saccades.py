@@ -9,8 +9,8 @@ represented by two vertical lines: blue for start and green for the end.
 """
 
 def plot_detected_saccades(sample, exp_data, configuration, saccades):
-    thetas = exp_data['exp_orientation']
-    T = exp_data['exp_timestamps']
+    thetas = exp_data[:]['orientation']
+    T = exp_data[:]['timestamp']
     
     r = Report()
     attach_description(r, description)
@@ -67,8 +67,8 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
     
     
     
-            in_range = numpy.logical_and(saccades['time_start'] >= T_i[0],
-                                         saccades['time_start'] <= T_i[-1])
+            in_range = numpy.logical_and(saccades[:]['time_start'] >= T_i[0],
+                                         saccades[:]['time_start'] <= T_i[-1])
             
             for saccade in saccades[in_range]: 
                 tstart = saccade['time_start'] - T[0]

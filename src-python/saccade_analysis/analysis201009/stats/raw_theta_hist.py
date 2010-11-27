@@ -5,7 +5,7 @@ from saccade_analysis.analysis201009.stats.utils import attach_description
 description = """This figure shows an histogram of the raw orientation values. """
 
 def raw_theta_hist(sample, exp_data):
-    thetas = numpy.fmod(exp_data['exp_orientation'] + 360, 360)    
+    thetas = numpy.fmod(exp_data[:]['orientation'] + 360, 360)    
         
     r = Report()
     attach_description(r, description)

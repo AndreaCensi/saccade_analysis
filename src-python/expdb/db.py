@@ -6,7 +6,7 @@ from geometric_saccade_detector.io import saccades_read_mat
 from expdb.natsort import natsorted
 import shelve
 import pickle
-from flydra_db.db import FlydraDB
+from flydra_db  import FlydraDB
 
 class Group:
     def __init__(self):
@@ -90,6 +90,12 @@ class SamplesDB:
                         group_record.configurations[conf] = saccades
                         # add to general list
                         self.configurations.add(conf)
+#                    else:
+#                        conf_dir = os.path.join(processed_dir, conf)
+#                        for file in [file for file in os.listdir(conf_dir) 
+#                            if file.startswith('processed_data_') and file.endswith('.mat')]: 
+#                                  id = file[5:-7]
+
                 # if we don't have exp data, get list of samples from
                 # processed data
                 if group_record.configurations and \

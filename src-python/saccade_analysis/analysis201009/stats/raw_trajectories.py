@@ -10,8 +10,8 @@ trajectories assuming that the fly flies at constant velocity (v= %.2f m/s).
 """ % v
 
 def plot_raw_trajectories(sample, exp_data):
-    thetas = numpy.radians(exp_data['exp_orientation'])
-    T = exp_data['exp_timestamps']
+    thetas = numpy.radians(exp_data[:]['orientation'])
+    T = exp_data[:]['timestamp']
     
     x = [0]
     y = [0]

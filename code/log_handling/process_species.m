@@ -11,11 +11,7 @@ function process_species(directory, configuration)
 	%  If the configuration parameter is not given, we create a default configuration with id = 'default', lambda = 24
 	
 	use_cached_results = true;
-	
-	if nargin == 1
-		configuration = default_configuration()
-	end
-	
+	 
 	out_dir = sprintf('%s/processed/%s', directory, configuration.id);
 	my_mkdir(out_dir)
     
