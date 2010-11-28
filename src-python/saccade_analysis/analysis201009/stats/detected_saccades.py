@@ -15,8 +15,7 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
     r = Report()
     attach_description(r, description)
     
-    f = r.figure(shape=(100, 2), caption='Detected saccades')
-    
+    f = r.figure(cols=2, caption='Detected saccades')
     
     dt = T[1] - T[0]
     chunk_length = 15 # seconds
