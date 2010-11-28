@@ -6,18 +6,10 @@ import numpy
 import scipy.io
 from geometric_saccade_detector.structures import saccade_dtype
 from flydra_render.main_filter_meat import straighten_up_theta
+from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
 
-description = "Imports the saccade data from Matlab files to FlydraDB."
-
-class Group:
-    def __init__(self):
-        self.samples = set()
-        # configuration -> saccades.mat file
-        self.configurations = {}
-        self.has_experimental_data = False
-
-EXP_DATA_TABLE = 'tethered'
-SACCADES_TABLE = 'saccades'
+description = "Imports the saccade data from Ros' Matlab files to FlydraDB."
+ 
 
 def main():
     parser = OptionParser(usage=description)
@@ -42,7 +34,7 @@ def main():
             print("Opening {0}".format(group))
         
         for file in [file for file in os.listdir(group_dir) 
-            if (file.startswith('data_') or file.startswith('magno_')) \
+            if (file.startswith('magno_')) \
                and file.endswith('.mat')]:
             
             sample = file[file.index('_')+1:file.index('.')]
@@ -130,7 +122,6 @@ def read_raw_data(filename):
     timestamp = as1d(data.pop('exp_timestamps'))
     assert len(orientation) == len(timestamp)
     n = len(orientation)
-    # TODO: unwrap?
     #dtype = [(('timestamp', 'Timestamp (seconds since the epoch)'), 'float64'),
     #         (('orientation', 'Fly orientation (degrees)'), 'float64')]
     dtype = [('timestamp', 'float64'),

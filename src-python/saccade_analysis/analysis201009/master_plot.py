@@ -21,11 +21,9 @@ from saccade_analysis.analysis201009.stats import \
 import itertools
 from flydra_db.db import FlydraDB, safe_flydra_db_open
 import numpy
+from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
+from flydra_db.natsort import natsorted
 prod = itertools.product
-
-
-EXP_DATA_TABLE = 'tethered'
-SACCADES_TABLE = 'saccades'
 
 
 class Plot:
@@ -195,7 +193,11 @@ def order_groups(groups):
         yield group, group2desc[group]
  
 description = """ Main script to plot everything. """
- 
+# 
+#def main():
+#    import cProfile
+#    cProfile.run('main2()', 'profiling')
+
 def main():
     parser = OptionParser(usage=description)
     parser.add_option("--flydra_db", help="Main data directory",
@@ -209,26 +211,55 @@ def main():
                       default=None)
     parser.add_option("--configurations", help="Which configurations to consider",
                       default=None)
+    parser.add_option("--combid", help="How to name this combination of groups/configs.",
+                      default=None)
         
     (options, args) = parser.parse_args() #@UnusedVariable
+    if args:
+        raise Exception('Spurious arguments %r.' % args)
     
     db = FlydraDB(options.flydra_db)
     
-    if options.groups:
-        groups = options.groups.split(', ')
+    robust_split = lambda s: filter(lambda x:x, s.split(','))
+    
+    if not options.groups  in [None, 'all']:
+        groups = robust_split(options.groups)
+        if not groups:
+            raise Exception('No groups specified.')
         groupset = "_".join(groups)
     else:
         groups = db.list_groups()
         groupset = 'all' 
+        if not groups:
+            raise Exception('No groups found.')
         
-    if options.configurations:
-        configurations = options.configurations.split(',')
+    if not options.configurations in [None, 'all']:
+        configurations = robust_split(options.configurations)
+        if not configurations:
+            raise Exception('No configuration specified')
         confset = "_".join(configurations)
     else:
         configurations = db.list_all_versions_for_table(SACCADES_TABLE)
         confset = "all"
         
-    combination = '%s_%s' % (groupset, confset)
+        configurations = set()
+        for group in groups:
+            configurations.update(
+                db.list_versions_for_table_in_group(group, SACCADES_TABLE))
+        configurations = natsorted(configurations)
+            
+        if not configurations:
+            raise Exception('No valid versions of table %r found.' % 
+                            SACCADES_TABLE)
+        
+    print("I will consider the configurations: %r" % configurations)
+        
+    if options.combid is None:
+        combination = '%s_%s' % (groupset, confset)
+    else:
+        combination = options.combid
+    print('I call this combination %r.' % combination)
+    
     output_dir = os.path.join(options.report, combination)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -244,14 +275,21 @@ def main():
     # key = (sample, configuration, plot)
     index_sample_saccades_plots = {}
     
+    # First we index the DB
+    print('Looking for data in database...')
+    all_samples = set()
+    group2samples = {}
     configurations_for_group = {}
-    
-    print 'Preparing for groups: %r.' % groups
-    # TODO: iterate by sample, not by group
-    for group in groups:     
+    group_has_exp_data = {}
+    for group in groups:
+        group2samples[group] = db.list_samples_for_group(group) 
+        all_samples.update(group2samples)
+        
+        if not group2samples[group]:
+            raise Exception('Empty group %r.' % group)
         
         available = db.list_versions_for_table_in_group(group=group, 
-                                                        table='saccades')
+                                                        table=SACCADES_TABLE)
         configurations_for_group[group] = \
             set(configurations).intersection(available)
         
@@ -259,10 +297,22 @@ def main():
             print('No configurations found for %r; available %r'%
                             (group, available))
             
-            
-        group_samples = db.list_samples_for_group(group)
-        if not group_samples:
-            raise Exception('Empty group %r.' % group)
+        group_has_exp_data[group] = db.group_has_table(group, EXP_DATA_TABLE)
+    all_samples = natsorted(all_samples)
+    
+    # print info
+    print('Summary:')
+    for group in groups:
+        msg = "  group {group:>20}  samples: {nsamples:3}  configurations: {nconf:3}" \
+              " raw data? {data}".format(
+                            group=group,
+                            nsamples=len(group2samples[group]),
+                            nconf=len(configurations_for_group[group]),
+                            data=  group_has_exp_data[group])
+        print(msg)
+    
+    # TODO: iterate by sample, not by group
+    for group in groups:     
         
         for configuration in configurations_for_group[group]:
             
@@ -274,7 +324,7 @@ def main():
                          configuration, plot.command, plot.args,
                          job_id=job_id)    
 
-            for sample, plot in prod(group_samples, sample_saccades_plots):
+            for sample, plot in prod(group2samples[group], sample_saccades_plots):
                 job_id = '%s-%s-%s' % (sample, configuration, plot.id)
                 key = (sample, configuration, plot.id)
                 if key in index_sample_saccades_plots:
@@ -285,8 +335,8 @@ def main():
                          sample, configuration, plot.command, plot.args,
                          job_id=job_id)    
 
-        if db.group_has_table(group, EXP_DATA_TABLE): 
-            for sample, plot in prod(group_samples, sample_expdata_plots):
+        if group_has_exp_data[group] : 
+            for sample, plot in prod(group2samples[group], sample_expdata_plots):
                 job_id = '%s-%s' % (sample, plot.id)
                 key = (sample, plot.id)
                 if key in index_sample_expdata_plots:
@@ -323,17 +373,17 @@ def main():
                   ('Detector', configurations, configurations),
                   ('Plot/table', map(lambda x:x.id, group_plots),
                     map(lambda x:x.description, group_plots))
-        ])
+        ], job_id='gui-group_plots')
     
     
     # fix group, function; iterate samples
     for group in groups:
-        if not db.group_has_table(group, EXP_DATA_TABLE):
+        if not group_has_exp_data[group]:
             continue    
-        group_samples = db.list_samples_for_group(group)
+        
         for plot in sample_expdata_plots:
             subs = []; descs = [];
-            for sample in group_samples:
+            for sample in group2samples[group]:
                 descs.append(sample)
                 subs.append(index_sample_expdata_plots[(sample, plot.id)])
                 
@@ -353,32 +403,35 @@ def main():
                   ('Group', ordered_groups, ordered_groups_desc),
                   ('Plot/table', map(lambda x:x.id, sample_expdata_plots),
                         map(lambda x:x.description, sample_expdata_plots))
-        ])
+        ], job_id='gui-expdata_plots')
     
     # fix configuration, group, function; iterate samples
-    for configuration, group in prod(configurations, groups):
-        if not configuration in configurations_for_group[group]:
-            for plot in sample_saccades_plots:
-                page_id = "%s.%s.%s" % (configuration, group, plot.id)
-                comp(write_empty, page_id, output_dir,
-                     'Group %s has not been processed with algorithm "%s".' % 
-                     (group, configuration),
-                     job_id=page_id)
-            continue
-            
-        for plot in sample_saccades_plots:
-            
-            subs = []; descs = [];
-            for sample in db.list_samples_for_group(group):
-                descs.append(sample)
-                r = index_sample_saccades_plots[(sample, configuration, plot.id)]
-                subs.append(r)
+    for group in groups:
+        
+        for configuration in configurations:
+        
+            if not configuration in configurations_for_group[group]:
+                for plot in sample_saccades_plots:
+                    page_id = "%s.%s.%s" % (configuration, group, plot.id)
+                    comp(write_empty, page_id, output_dir,
+                         'Group %s has not been processed with algorithm "%s".' % 
+                         (group, configuration),
+                         job_id=page_id)
+                continue
                 
-            page_id = "%s.%s.%s" % (configuration, group, plot.id)
-            
-            job_id = page_id
-            comp(combine_reports, subs, descs, page_id, output_dir,
-                 job_id=job_id) 
+            for plot in sample_saccades_plots:
+                
+                subs = []; descs = [];
+                for sample in group2samples[group]:
+                    descs.append(sample)
+                    r = index_sample_saccades_plots[(sample, configuration, plot.id)]
+                    subs.append(r)
+                    
+                page_id = "%s.%s.%s" % (configuration, group, plot.id)
+                
+                job_id = page_id
+                comp(combine_reports, subs, descs, page_id, output_dir,
+                     job_id=job_id) 
 
     comp(create_gui,
          filename=os.path.join(output_dir, 'saccade_plots.html'),
@@ -387,47 +440,50 @@ def main():
                   ('Group', ordered_groups, ordered_groups_desc),
                   ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
                                  map(lambda x:x.description, sample_saccades_plots))
-        ])
+        ], job_id='gui-saccade_plots')
     
     # fix configuration, sample; plot fullsscreen
     
-    all_samples = db.list_samples()
     
-    for configuration, group in prod(configurations, groups):
-        for sample in db.list_samples_for_group(group):
-        
-            # XXX make it clenaer
-            if not configuration in configurations_for_group[group]:
-                for plot in  sample_fullscreen_plots:
-                    page_id = '%s.%s.%s' % (sample, configuration, plot.id)
-                    comp(write_empty, page_id, output_dir,
-                         'Group %s has not been processed with algorithm "%s".' % 
-                         (group, configuration),
-                         job_id=page_id)
-                #print "skipping sample %s group %s config %s" %\
-                #     (sample,group, configuration)
-                continue
+    
+    for group in groups:
+        for configuration in configurations:
             
-            if not db.group_has_table(group, EXP_DATA_TABLE):
-                for plot in  sample_fullscreen_plots:
-                    page_id = '%s.%s.%s' % (sample, configuration, plot.id)
-                    comp(write_empty, page_id, output_dir,
-                         'Group %s does not have raw experimental data.' % 
-                         (group),
-                         job_id=page_id)
-                continue    
-
-            for plot  in  sample_fullscreen_plots:
-  
-                job_id = '%s-%s-%s' % (sample, configuration, plot.id)
+            for sample in group2samples[group]:
+            
+                # XXX make it clenaer
+                if not configuration in configurations_for_group[group]:
+                    for plot in  sample_fullscreen_plots:
+                        page_id = '%s.%s.%s' % (sample, configuration, plot.id)
+                        comp(write_empty, page_id, output_dir,
+                             'Group %s has not been processed with algorithm "%s".' % 
+                             (group, configuration),
+                             job_id=page_id)
+                    #print "skipping sample %s group %s config %s" %\
+                    #     (sample,group, configuration)
+                    continue
                 
-                job = comp(wrap_sample_saccades_plot, options.flydra_db,
-                         sample, configuration, plot.command, plot.args,
-                         job_id=job_id)    
-                    
-                page_id = '%s.%s.%s' % (sample, configuration, plot.id)
-                comp(write_report, job, output_dir, page_id,
-                     job_id=job_id + '-write_report')
+                if not group_has_exp_data[group]:
+                    for plot in  sample_fullscreen_plots:
+                        page_id = '%s.%s.%s' % (sample, configuration, plot.id)
+                        comp(write_empty, page_id, output_dir,
+                             'Group %s does not have raw experimental data.' % 
+                             (group),
+                             job_id=page_id)
+                    continue    
+    
+                for plot  in  sample_fullscreen_plots:
+      
+                    job_id = '%s-%s-%s' % (sample, configuration, plot.id)
+
+                    # FIXME: error if sample in 2 groups                    
+                    job = comp(wrap_sample_saccades_plot, options.flydra_db,
+                             sample, configuration, plot.command, plot.args,
+                             job_id=job_id)    
+                        
+                    page_id = '%s.%s.%s' % (sample, configuration, plot.id)
+                    comp(write_report, job, output_dir, page_id,
+                         job_id=job_id + '-write_report')
 
     
     comp(create_gui,
@@ -437,7 +493,7 @@ def main():
             ('Detector', configurations, configurations),
             ('Plot/table', map(lambda x:x.id, sample_fullscreen_plots),
                            map(lambda x:x.description, sample_fullscreen_plots))
-        ])
+        ], job_id='gui-sample_fullscreen_plots')
     
     tabs = [
         
@@ -465,7 +521,8 @@ def main():
     ]
     
     
-    comp(create_main_gui, tabs, filename=os.path.join(output_dir, 'main.html'))
+    comp(create_main_gui, tabs, filename=os.path.join(output_dir, 'main.html'),
+         job_id='gui-main')
      
     if options.interactive:
         # start interactive session
@@ -579,6 +636,8 @@ def wrap_sample_saccades_plot(data_dir, sample, configuration,
         saccades = numpy.array(table, dtype=table.dtype)
         result =  plot_func(sample, exp_data, configuration, saccades, **function_args)
         db.release_table(table)
+        if exp_data:
+            db.release_table(exp_data)
         return result
 
 def wrap_sample_expdata_plot(data_dir, sample, plot_func, function_args):
