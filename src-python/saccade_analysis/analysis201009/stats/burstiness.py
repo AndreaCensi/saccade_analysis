@@ -10,9 +10,8 @@ def interval_histogram(group, configuration, saccades):
     interval = saccades[:]['time_passed']
 
     edges = (2.0 ** numpy.array(range(1,21))) / 1000
-    centers = (edges[1:]+edges[:-1])/2
+    # centers = (edges[1:]+edges[:-1])/2
     h, edges_ = numpy.histogram(interval, bins=edges, normed=True)
-    
     
     bin_width = numpy.diff(edges);
     hn = h / bin_width;

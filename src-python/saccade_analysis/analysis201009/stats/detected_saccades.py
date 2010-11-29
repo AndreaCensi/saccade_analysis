@@ -26,8 +26,12 @@ def plot_detected_saccades(sample, exp_data, configuration, saccades):
 
     # oopsi, we start from 0 in the saccades
     # FIXME: detect this
-    # saccades['time_start'] += T[0]
-    # saccades['time_stop'] += T[0]
+    if len(saccades) and saccades[0]['time_start'] < 100000:
+        print "Fixing saccades timestamp for sample %r, configuration %r" % (sample, configuration)
+        saccades = numpy.array(saccades, dtype=saccades.dtype)
+        for i in range(len(saccades)):
+            saccades[i]['time_start'] += T[0]
+            saccades[i]['time_stop'] += T[0]
 
     for i in range(num_chunks):
         start = i * chunk_size

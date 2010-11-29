@@ -287,7 +287,7 @@ def main():
     group_has_exp_data = {}
     for group in groups:
         group2samples[group] = db.list_samples_for_group(group) 
-        all_samples.update(group2samples)
+        all_samples.update(group2samples[group])
         
         if not group2samples[group]:
             raise Exception('Empty group %r.' % group)
