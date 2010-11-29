@@ -41,7 +41,7 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
             annotations(i).sample = annotations(i).sample(5:end-4);
         end    
     end
-%	fprintf('Found %d annotations.\n', numel(annotations))
+%	fprintf('Found %d annotations.\n', numel(annotations));
 %	a = load(sprintf('%s/saccades.mat', directory));
 %	saccades = a.saccades;
 
@@ -54,30 +54,34 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 
 	for i=1:numel(annotated_samples)
 		sample = annotated_samples{i}; 
+		original = load(sprintf('%s/data_%s.mat', directory, sample));
+		timestamp =  original.data.exp_timestamps;
+		orientation = original.data.exp_orientation;
+%		fprintf('Timestamp %f - %f\n' , timestamp(1), timestamp(end));
+		
 	
 		annotations_for_sample = select_specific_sample(annotations, sample);
 		saccades_for_sample = select_specific_sample(saccades, sample);
 		
-	%	fprintf('Sample %s: %d annotations, %d detected.\n', sample, numel(annotations_for_sample), numel(saccades_for_sample))
+		saccades_for_sample = fix_saccades_timestamp(timestamp, saccades_for_sample);
+			
+%		fprintf('Sample %s: %d annotations, %d detected.\n', sample, numel(annotations_for_sample), numel(saccades_for_sample))
 		
-		% read the processed data
-		processed = load(sprintf('%s/processed/%s/processed_data_%s.mat', directory, configuration_id, sample));
-		log = processed.res;
 		
 		% We keep two arrays that we use to detect hit & misses
-		K = numel(log.timestamp);
+        K = numel(timestamp);
 		% This is initially 0 and it gets marked for each annotated saccade
 		marked_saccade = zeros(K,1);
 		
 		% This is normally 0 and it gets marked for each saccade detected
 		detected_saccade =  zeros(K,1);
-		detected_saccade = mark_saccades(saccades_for_sample, log.timestamp, detected_saccade);
+		detected_saccade = mark_saccades(saccades_for_sample, timestamp, detected_saccade);
 		
 		% mark excluded
 		for a=1:numel(annotations_for_sample)
 			% It's hard to mark the saccades at beginning and end of the screen
-			from = timestamp2index(log.timestamp, annotations_for_sample(a).from_ts + marking_safety);
-			to = timestamp2index(log.timestamp, annotations_for_sample(a).to_ts-marking_safety);
+			from = timestamp2index(timestamp, annotations_for_sample(a).from_ts + marking_safety);
+			to = timestamp2index(timestamp, annotations_for_sample(a).to_ts-marking_safety);
 			
 			previous = max(marked_saccade(from:to));
 			if previous > 0
@@ -93,7 +97,9 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 			if annotations_for_sample(a).ignore
 				continue
 			end
-			marked_saccade = mark_saccades(annotations_for_sample(a).saccades, log.timestamp, marked_saccade);
+			annotations_for_sample(a).saccades = fix_saccades_timestamp(timestamp, ...
+			    annotations_for_sample(a).saccades);
+			marked_saccade = mark_saccades(annotations_for_sample(a).saccades, timestamp, marked_saccade);
 		end
 
 		already_counted = zeros(numel(saccades_for_sample),1);
@@ -110,11 +116,11 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 			for s=1:numel(annotations_for_sample(a).saccades)
 				ann_saccade = annotations_for_sample(a).saccades(s);
 				middle_time = mean([ann_saccade.time_start ann_saccade.time_stop]);
-				middle_index = timestamp2index(log.timestamp, middle_time);
-				index_start = timestamp2index(log.timestamp, ann_saccade.time_start );
-				index_stop = timestamp2index(log.timestamp, ann_saccade.time_stop );
+				middle_index = timestamp2index(timestamp, middle_time);
+				index_start = timestamp2index(timestamp, ann_saccade.time_start );
+				index_stop = timestamp2index(timestamp, ann_saccade.time_stop );
 				
-				amplitude = abs(log.orientation(index_start)-log.orientation(index_stop));
+				amplitude = abs(orientation(index_start)-orientation(index_stop));
 				% ignore annotated saccades less that the significant amplitude
 				if amplitude < minimum_significant_amplitude
 					continue
@@ -151,7 +157,7 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 				end
 
 				if display_misses & missed
-					display_situation(log, saccades_for_sample, annotations_for_sample, middle_time, delta)
+					display_situation(timestamp, orientation, saccades_for_sample, annotations_for_sample, middle_time, delta)
 				end
 			end
 		end % count the number of saccades we missed
@@ -168,8 +174,8 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 		sample_res.num_detected_where_annotated = 0;
 		for a=1:numel(saccades_for_sample)
 			s = saccades_for_sample(a);
-			start_index = timestamp2index(log.timestamp,s.time_start);
-			stop_index  = timestamp2index(log.timestamp,s.time_stop);
+			start_index = timestamp2index(timestamp,s.time_start);
+			stop_index  = timestamp2index(timestamp,s.time_stop);
 			
 			user_looked_here = any(not(marked_saccade(start_index:stop_index)==0));
 			user_marked_something = any(marked_saccade(start_index:stop_index)> 0);
@@ -178,9 +184,8 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 				
 				if display_extra
 					fprintf('\tExtra saccade #%d detected.\n', a)
-					s
 					middle_time = mean([s.time_start s.time_stop]);
-					display_situation(log, saccades_for_sample,   annotations_for_sample, middle_time, delta)
+					display_situation(timestamp, orientation, saccades_for_sample,   annotations_for_sample, middle_time, delta)
 				end
 			end
 			
@@ -210,13 +215,25 @@ function species_res = roc_analysis_species_conf(directory, configuration_id, di
 function index = timestamp2index(timestamps, time)
 	% given array timestamps, find the index corresponding to time
 	K = numel(timestamps);
-	index = max(1, min(K, round( 1 + (time-timestamps(1))*(K-1)/(timestamps(end)-timestamps(1))   ) ));
+	
+	index = round( 1 + (time-timestamps(1))*(K-1)/(timestamps(end)-timestamps(1))   ); 
+	index = max(1, min(K, index ));
 	
 function marked = mark_saccades(saccades, timestamp, marked)
 	% marks the saccades in the array marked
 	for i=1:numel(saccades)
-		from = timestamp2index(timestamp, saccades(i).time_start);
-		to = timestamp2index(timestamp, saccades(i).time_stop);
+	    time_start = saccades(i).time_start;
+	    time_stop = saccades(i).time_stop;
+	    if (time_start < timestamp(1)) | (time_start > timestamp(end))
+	       msg = sprintf('Error in timestamp data: [%f %f] saccade: [%f %f].\n',...
+	        timestamp(1),timestamp(end),time_start,time_stop);
+	        error(msg)
+        end
+		from = timestamp2index(timestamp, time_start);
+		to = timestamp2index(timestamp, time_stop);
+        % fprintf('Marking %d %f %f [%d, %d] / %d\n', ...
+        %     i, saccades(i).time_start, saccades(i).time_stop,...
+        %     from, to, numel(timestamp));
 		marked(from:to) = i;
 	end
 	
@@ -249,15 +266,15 @@ function annotations = load_all_qa_data(directory)
 		annotations = [];
 	end 
 
-function display_situation(log, saccades, annotations, time, delta)
+function display_situation(timestamp, orientation, saccades, annotations, time, delta)
 	f = figure(45);
 	subplot(2,1,1); hold off
 	time_from = time-delta;
 	time_to = time+delta;
-	from = timestamp2index(log.timestamp, time_from);
-	to = timestamp2index(log.timestamp, time_to);
+	from = timestamp2index(timestamp, time_from);
+	to = timestamp2index(timestamp, time_to);
 	
-	plot( log.timestamp(from:to), log.orientation(from:to), 'r.');
+	plot( timestamp(from:to), orientation(from:to), 'r.');
 	hold on
 	
 	plot_90deg_lines();
@@ -280,14 +297,14 @@ function display_situation(log, saccades, annotations, time, delta)
 	a = axis;
 
 	subplot(2,1,2); hold off
-	plot( log.timestamp(from:to), log.orientation(from:to), 'r.');
+	plot( timestamp(from:to), orientation(from:to), 'r.');
 	hold on
 	
 	plot_90deg_lines();
 
 	plot([ time time], [a(3) a(4)], 'k--')
 	
-	min_orientation = min(log.orientation(from:to));
+	min_orientation = min(orientation(from:to));
 	
 	for an=1:numel(annotations)
 		for i=1:numel(annotations(an).saccades)
@@ -320,3 +337,15 @@ function plot_saccade_delimiters(saccade, ybarsize)
 		plot( [x1 x2], [y1-ybarsize y2-ybarsize] , 'r-')
 
 
+function saccades = fix_saccades_timestamp(timestamp, saccades)
+    warned = false;
+    for i=1:numel(saccades)
+        if saccades(i).time_start < 100000
+            saccades(i).time_start = saccades(i).time_start + timestamp(1);
+            saccades(i).time_stop = saccades(i).time_stop + timestamp(1);
+            if not(warned)
+              %  fprintf('Fixing saccade timestamp, now %f.\n', saccades(i).time_start);
+%                warned = true;
+            end
+        end
+    end

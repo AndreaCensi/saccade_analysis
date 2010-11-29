@@ -189,7 +189,7 @@ def convert_saccades_from_ros_format(sample, exp_data, d):
         saccades[k]['time_start'] = timestamp[index_start]
         saccades[k]['time_stop'] = timestamp[index_stop]
         saccades[k]['duration'] = sac_dur[i] / 1000
-        saccades[k]['time_passed'] = int_sac_dur[i-1]
+        saccades[k]['time_passed'] = int_sac_dur[i-1] / 1000
         saccades[k]['orientation_start'] = orientation[index_start]
         saccades[k]['orientation_stop'] = orientation[index_stop]
         saccades[k]['top_velocity'] = sac_peak_vel[i]

@@ -1,53 +1,44 @@
 from reprep import Report
+import numpy
+from saccade_analysis.analysis201009.stats.utils import attach_description
 
+description = "Histogram of intervals over geometric bins"
 
-def group_var_joint(group, configuration, saccades,
-                    var1, delay1, var2, delay2):    
-    
+print description
+
+def interval_histogram(group, configuration, saccades):    
     interval = saccades[:]['time_passed']
 
+    edges = (2.0 ** numpy.array(range(1,21))) / 1000
+    centers = (edges[1:]+edges[:-1])/2
+    h, edges_ = numpy.histogram(interval, bins=edges, normed=True)
+    
+    
+    bin_width = numpy.diff(edges);
+    hn = h / bin_width;
+    
+    print 'h', h
+    print 'hn', hn
+    print 'edges', edges
+    print 'width', bin_width
+                                
     r = Report()
-    attach_description(r, description.format(var1=var1, var2=var2,
-                            var1delay=var1delay, var2delay=var2delay))
+    attach_description(r, description)
     
-    node_id = 'joint_%s%d_%s%d' % (var1.id, delay1, var2.id, delay2)
+    node_id = 'inthist'
     with r.data_pylab(node_id) as pylab:
-    
-        colors = ['r', 'g', 'b', 'm', 'k'] * 50        
-        for sample, saccades_for_sample in iterate_over_samples(saccades): #@UnusedVariable
-            x = saccades_for_sample[var1.field]
-            y = saccades_for_sample[var2.field]
-            x, y = get_delayed(x, delay1, y, delay2)
-            
-            color = colors.pop()            
-            pylab.plot(x, y, "%s." % color, markersize=MS)
-            
-        pylab.axis([var1.interesting[0], var1.interesting[1],
-                    var2.interesting[0], var2.interesting[1]]
-                    )
-         
-        pylab.xlabel('%s (%s)' % (var1.name, var1.unit))
-        pylab.ylabel('%s (%s)' % (var2.name, var2.unit))
+        pylab.loglog(bin_width, h, 'x-')
+        pylab.title('not normalized')
+        pylab.xlabel('interval bin width (s)')
+        pylab.ylabel('density (s)')
         
-    node_id += "_log"
+    node_id = 'inthistn'
     with r.data_pylab(node_id) as pylab:
-    
-        colors = ['r', 'g', 'b', 'm', 'k'] * 50        
-        for sample, saccades_for_sample in iterate_over_samples(saccades): #@UnusedVariable
-            x = saccades_for_sample[var1.field]
-            y = saccades_for_sample[var2.field]
-            x, y = get_delayed(x, delay1, y, delay2)
-            
-            color = colors.pop()            
-            pylab.loglog(x, y, "%s." % color, markersize=MS)
-            
-        pylab.axis([var1.interesting[0], var1.interesting[1],
-                    var2.interesting[0], var2.interesting[1]]
-                    )
-         
-        pylab.xlabel('%s (%s)' % (var1.name, var1.unit))
-        pylab.ylabel('%s (%s)' % (var2.name, var2.unit))
+        pylab.loglog(bin_width, hn, 'x-')
+        pylab.title('normalized by bin width')
+        pylab.xlabel('interval bin width (s)')
+        pylab.ylabel('density (s)')
         
-    
+        
     return r
 

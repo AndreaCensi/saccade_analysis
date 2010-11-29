@@ -23,6 +23,7 @@ from flydra_db.db import FlydraDB, safe_flydra_db_open
 import numpy
 from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
 from flydra_db.natsort import natsorted
+from saccade_analysis.analysis201009.stats.burstiness import interval_histogram
 prod = itertools.product
 
 
@@ -61,7 +62,10 @@ group_plots = [
          desc="Statistical tests for independence of successive turns"),
          
     Plot('levy_vs_exp', levy_exp,
-         desc="Levy and exponential fits for saccade interval")
+         desc="Levy and exponential fits for saccade interval"),
+    
+    Plot('interval_histogram', interval_histogram,
+         desc="Normalized bin histogram for interval")
 ]
 
 sample_saccades_plots = [
@@ -578,7 +582,7 @@ def combine_reports(subs, descs, page_id, output_dir):
             
         else: # images -> use figures
             
-            f = r.figure(example_node.id, shape=(5, 4))
+            f = r.figure(example_node.id, cols=4)
             for i, sub in enumerate(subs):
                 node = sub.childid2node[plot_id]
                 node.id = None
