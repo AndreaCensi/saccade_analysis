@@ -1,6 +1,6 @@
 from reprep import Report
 
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
+from  .utils import iterate_over_samples, \
     create_letter_sequence, attach_description
 from saccade_analysis.markov.first_order import first_order_analysis
 

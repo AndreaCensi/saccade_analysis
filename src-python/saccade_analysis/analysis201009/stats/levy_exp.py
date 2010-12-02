@@ -1,9 +1,9 @@
 import numpy
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
+from numpy import log
+
 from reprep import Report
 
-from numpy import log
+from  .utils import iterate_over_samples, attach_description
     
 
 def levy_exp(groups, configuration, saccades):

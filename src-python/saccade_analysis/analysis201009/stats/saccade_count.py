@@ -1,6 +1,5 @@
 from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
+from  .utils import iterate_over_samples, attach_description
 
 description = """
 This figure displays the average number of saccades per second

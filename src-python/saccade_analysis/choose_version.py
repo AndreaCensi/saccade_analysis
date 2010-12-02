@@ -2,7 +2,7 @@ import numpy
 from optparse import OptionParser
 
 from flydra_db import FlydraDB
-from saccade_analysis.constants import SACCADES_TABLE
+from .constants import SACCADES_TABLE
 
 
 def main():

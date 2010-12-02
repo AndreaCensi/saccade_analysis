@@ -1,14 +1,12 @@
-import os
-import numpy
+import os, numpy, cPickle as pickle, datetime
 from numpy import degrees, radians
-import cPickle as pickle
 from optparse import OptionParser
-import datetime
+
 
 from flydra_render.main_filter_meat import straighten_up_theta
-from flydra_db.db import  safe_flydra_db_open
+from flydra_db import  safe_flydra_db_open
 
-from saccade_analysis.constants import EXP_DATA_TABLE
+from .constants import EXP_DATA_TABLE
 
 description = """
 

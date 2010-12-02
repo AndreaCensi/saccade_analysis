@@ -1,6 +1,7 @@
 import numpy
 from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import attach_description
+
+from .utils import attach_description
 
 description = """This figure shows an histogram of the raw orientation values. """
 

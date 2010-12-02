@@ -19,3 +19,4 @@ from saccade_count import *
 
 from turnograms import *
 from var_time_correlation import *
+from burstiness import *

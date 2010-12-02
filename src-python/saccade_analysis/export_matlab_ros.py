@@ -1,12 +1,11 @@
+import os, numpy, scipy.io
 from optparse import OptionParser
-import os
-import numpy
-import scipy.io
 
 from flydra_db import FlydraDB
 from geometric_saccade_detector.structures import saccade_dtype
 from flydra_render.main_filter_meat import straighten_up_theta
-from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
+
+from .constants import EXP_DATA_TABLE, SACCADES_TABLE
 
 description = "Exports the saccade data to Ros' format"
 

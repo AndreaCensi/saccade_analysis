@@ -1,30 +1,26 @@
-import sys, os 
+import sys, os, itertools, numpy
 from optparse import OptionParser
+from itertools import product as prod
 
-from reprep import Report
-from reprep.table import Table
-from compmake  import set_namespace, comp, compmake_console, batch_command
-from compmake.jobs.syntax.parsing import parse_job_list
+from reprep import Report, Table
+from compmake  import set_namespace, comp, compmake_console, \
+                      batch_command, parse_job_list
+from flydra_db import FlydraDB, safe_flydra_db_open
+from flydra_db.natsort import natsorted
 
 # The various plots
-from saccade_analysis.analysis201009.master_plot_gui import create_gui, \
-    create_main_gui
-from saccade_analysis.analysis201009.master_plot_vars import variables
-from saccade_analysis.analysis201009.stats import \
+from .master_plot_gui import create_gui, create_main_gui
+from .master_plot_vars import variables
+from stats import \
     fairness, independence, levy_exp, plot_raw_trajectories, \
     plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
     plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist, \
     group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
     group_saccade_count, group_saccade_density, group_turnogram, \
-    group_var_time_correlation, sample_var_time_correlation
+    group_var_time_correlation, sample_var_time_correlation, interval_histogram
 
-import itertools
-from flydra_db.db import FlydraDB, safe_flydra_db_open
-import numpy
-from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
-from flydra_db.natsort import natsorted
-from saccade_analysis.analysis201009.stats.burstiness import interval_histogram
-prod = itertools.product
+
+from ..constants import EXP_DATA_TABLE, SACCADES_TABLE
 
 
 class Plot:

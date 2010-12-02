@@ -1,7 +1,8 @@
+import numpy
 
 from reprep import Report
+
 from .utils import iterate_over_samples, attach_description
-import numpy
 
 description = """
 These figures show in a compact way the sequence of

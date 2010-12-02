@@ -1,7 +1,6 @@
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
 from reprep import Report
 
+from .utils import iterate_over_samples, attach_description
 
 description = """
 This figure shows the joint distribution of the values 

@@ -1,10 +1,10 @@
+import os, numpy
 from optparse import OptionParser
-import os
 
 from flydra_db import FlydraDB
-import numpy
 from geometric_saccade_detector.io import saccades_read_mat
-from saccade_analysis.constants import SACCADES_TABLE
+
+from .constants import SACCADES_TABLE
 
 description = "Imports the saccade data from Andrea's Matlab files to FlydraDB."
  

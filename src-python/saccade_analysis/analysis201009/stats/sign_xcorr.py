@@ -1,7 +1,7 @@
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
-from saccade_analysis.analysis201009.stats.math_utils import xcorr
 from reprep import Report
+
+from .utils import iterate_over_samples, attach_description
+from .math_utils import xcorr
 
 description = """
 These figures shows the autocorrelation of 

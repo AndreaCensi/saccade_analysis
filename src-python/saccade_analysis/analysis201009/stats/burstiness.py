@@ -1,10 +1,9 @@
 from reprep import Report
 import numpy
-from saccade_analysis.analysis201009.stats.utils import attach_description
 
+from .utils import attach_description
 description = "Histogram of intervals over geometric bins"
 
-print description
 
 def interval_histogram(group, configuration, saccades):    
     interval = saccades[:]['time_passed']

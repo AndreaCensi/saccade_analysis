@@ -1,6 +1,7 @@
-from reprep import Report
 import numpy
-from saccade_analysis.analysis201009.stats.utils import attach_description
+from reprep import Report
+
+from .utils import attach_description
 
 v = 0.3
 
