@@ -1,8 +1,6 @@
 
 from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
-from saccade_analysis.analysis201009.stats.math_utils import xcorr
+from .utils import iterate_over_samples, attach_description
 import numpy
 
 description = """

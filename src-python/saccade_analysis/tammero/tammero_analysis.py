@@ -14,7 +14,7 @@ def main():
     parser.add_option("--saccades", help="Saccades file (.h5 created by geo_sac_compact)")
     parser.add_option("--output", help="Output directory", default='tammero_analysis')
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args() #@UnusedVariable
 
     if options.saccades is None:
         raise Exception('Please specify data with --saccades')
@@ -28,7 +28,7 @@ def main():
     
     if False:
         print "Writing on files"
-        for id, desc, sub_saccades in subsets:
+        for id, desc, sub_saccades in subsets: #@UnusedVariable
             basename = os.path.join(options.output, 'saccades-%s' % id)
             saccades_write_all(basename=basename, saccades=sub_saccades)
         
@@ -141,7 +141,7 @@ It contains %d saccades.
                         approach_angle < angle + bin_size
                     ))
         x = saccade_angle[indices]
-        hist, edges = numpy.histogram(x, bins=saccade_bins, normed=True)
+        hist, edges = numpy.histogram(x, bins=saccade_bins, normed=True) #@UnusedVariable
 
         distributions.append(hist)
  
@@ -157,11 +157,11 @@ It contains %d saccades.
  
     with report.data_pylab('distribution_vs_approach', figsize=(8, 20)) as pylab:
         # get the maximum density
-        max_density = max(map(max, distributions))
+        # max_density = max(map(max, distributions))
         num_plots = len(bin_centers)
         for k in range(num_plots):
             rect = [0.1, k * 1.0 / num_plots, 0.8, 1.0 / num_plots]
-            axes = pylab.axes(rect)
+            pylab.axes(rect)
             label = '%d' % bin_centers[k]
             pylab.plot(saccade_bin_centers, distributions[k], '-', label=label)
             # pylab.axis([-180, 180, 0, max_density])

@@ -5,8 +5,9 @@ setup(
     name='saccade_analysis',
 	version="1.0",
     package_dir={'':'src-python'},
-    py_modules=['saccade_analysis','expdb'],
-    install_requires=['geometric_saccade_detector', 'matplotlib'],
+    packages=['saccade_analysis'],
+    install_requires=['geometric_saccade_detector', 'matplotlib',
+                      'reprep'],
     entry_points={ 'console_scripts': console_scripts},
       
     author="Andrea Censi",

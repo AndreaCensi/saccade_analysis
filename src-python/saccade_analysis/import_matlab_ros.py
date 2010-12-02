@@ -1,9 +1,9 @@
 from optparse import OptionParser
 import os
-
-from flydra_db import FlydraDB
 import numpy
 import scipy.io
+
+from flydra_db import FlydraDB
 from geometric_saccade_detector.structures import saccade_dtype
 from flydra_render.main_filter_meat import straighten_up_theta
 from saccade_analysis.constants import EXP_DATA_TABLE, SACCADES_TABLE
@@ -15,14 +15,14 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--saccade_data", help="Main data directory", 
                       default='saccade_data')
-    parser.add_option("--flydra_db", help='Location of output db.',
+    parser.add_option("--db", help='Location of output Flydra db.',
                       default='saccade_data_flydradb')
         
     (options, args) = parser.parse_args() #@UnusedVariable
     
     verbose = True
     
-    flydra_db = FlydraDB(options.flydra_db, create=True)
+    flydra_db = FlydraDB(options.db, create=True)
     
     matlab_dir = options.saccade_data
     for group in os.listdir(matlab_dir):
@@ -59,40 +59,6 @@ def main():
             flydra_db.add_sample_to_group(sample, 'ros')
             
     flydra_db.close()
-# 
-#        processed_dir = os.path.join(group_dir, 'processed')
-#        if not os.path.exists(processed_dir):
-#            if verbose:
-#                print "No processed data found for %s." % group
-#            pass
-#            
-#        else:
-#            for conf in os.listdir(processed_dir):                
-#                saccades = os.path.join(processed_dir, conf, 'saccades.mat')
-#                if os.path.exists(saccades): 
-#                    group_record.configurations[conf] = saccades
-#                    # add to general list
-#                    self.configurations.add(conf)
-##                    else:
-##                        conf_dir = os.path.join(processed_dir, conf)
-##                        for file in [file for file in os.listdir(conf_dir) 
-##                            if file.startswith('processed_data_') and file.endswith('.mat')]: 
-##                                  id = file[5:-7]
-#
-#            # if we don't have exp data, get list of samples from
-#            # processed data
-#            if group_record.configurations and \
-#                not group_record.has_experimental_data:
-#                saccades = saccades_read_mat(saccades)
-#                group_record.samples = set(numpy.unique(saccades['sample']))
-#                for sample in group_record.samples:
-#                    self.sample2group[sample] = group
-#
-#        if len(group_record.samples)> 0:
-#            self.groups[group] = group_record
-#                
-#            print "has it", group, group_record.has_experimental_data
-#        
 
 def read_raw_data(filename):
     ''' Read .mat file from Ros. Returns table, attributes. '''
@@ -198,3 +164,5 @@ def convert_saccades_from_ros_format(sample, exp_data, d):
 
 if __name__ == '__main__':
     main()
+    
+    

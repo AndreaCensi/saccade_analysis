@@ -1,4 +1,4 @@
-from numpy import *
+from numpy import * #@UnusedWildImport
 from scipy.special import erfc
 
 '''

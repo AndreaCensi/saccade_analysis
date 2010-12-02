@@ -1,5 +1,5 @@
 from optparse import OptionParser
-from expdb.db import SamplesDB, read_samples_db
+from expdb.db import read_samples_db
 import time
 
 description = """
@@ -63,3 +63,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

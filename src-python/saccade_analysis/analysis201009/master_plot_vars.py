@@ -71,21 +71,7 @@ variables.append(Variable(
     density_bins = 100,
     include = True
 ))
-
-
-# 
-#    nv=nv+1;
-#    variables(nv).id = 'sign';
-#    variables(nv).letter = 'S';
-#    variables(nv).interesting = [-1.1 1.1];
-#    variables(nv).name = 'Sign';
-#    variables(nv).values = [saccades.sign];
-#    variables(nv).unit = '';
-#    variables(nv).density_max_y = 1.1;
-#    variables(nv).density_bins = 100;
-#    variables(nv).include_in_bigcorr = false;
-
-
+ 
 variables.append(Variable(
     id='initial_orientation',
     field='orientation_start',
@@ -114,12 +100,4 @@ variables.append(Variable(
     mod=True,
     percentiles=False
 )) 
-# 
-#% 
-#%     nv=nv+1;
-#%     variables(nv).id = 'time_start';
-#%     variables(nv).name = 'Time from log start';
-#% %    variables(nv).interesting = [0 400];
-#%     variables(nv).values = [saccades.time_start];
-#%     variables(nv).unit = 's';
- 
+

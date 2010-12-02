@@ -1,7 +1,7 @@
 from saccade_analysis.markov.first_order import first_order_analysis, \
     count_overlapping
 import unittest
-from scipy.stats.distributions import binom
+
 
 class MarkovTest(unittest.TestCase):
     

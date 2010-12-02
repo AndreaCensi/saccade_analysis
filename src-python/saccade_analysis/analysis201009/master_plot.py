@@ -197,10 +197,7 @@ def order_groups(groups):
         yield group, group2desc[group]
  
 description = """ Main script to plot everything. """
-# 
-#def main():
-#    import cProfile
-#    cProfile.run('main2()', 'profiling')
+
 
 def main():
     parser = OptionParser(usage=description)
