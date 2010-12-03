@@ -1,5 +1,6 @@
 import numpy
 from reprep import Report
+
 from .utils import attach_description
 
 description = """

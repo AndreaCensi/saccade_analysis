@@ -1,13 +1,12 @@
 from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples, \
-    attach_description
-from saccade_analysis.analysis201009.stats.math_utils import xcorr
+from .utils import iterate_over_samples, attach_description
+from .math_utils import xcorr
 
 description = """
 This figure shows the autocorrelation of {var.name}. 
 """
 
-def group_var_xcorr(group, configuration, saccades, variable):
+def group_var_xcorr(group, configuration, saccades, variable): #@UnusedVariable
     r = Report()
     attach_description(r, description.format(var=variable))
 

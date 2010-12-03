@@ -1,5 +1,6 @@
 from StringIO import StringIO
 from string import Template
+
 css = """
 
 body {
@@ -134,7 +135,7 @@ function get_data_id() {
         
         key_desc = []
         for j in range(len(choices)):
-            key_desc.append(( choices[j], descriptions[j]))
+            key_desc.append((choices[j], descriptions[j]))
     
         write_select_box(topbar, label, name, key_desc)
         
@@ -145,7 +146,7 @@ function get_data_id() {
         script.write("""
         var%d = $('#var%d').val();
         s = s + var%d;
-        """ % (i,i,i) )
+        """ % (i, i, i))
         
     script.write("""
     return s;
@@ -153,7 +154,7 @@ function get_data_id() {
     """)     
     
     f.write(Template(page).substitute(css=css, script=script.getvalue(),
-                                      scriptb=scriptb, 
+                                      scriptb=scriptb,
                                         topbar=topbar.getvalue()))
     
     
@@ -183,7 +184,7 @@ function get_data_id() {
         script.write("""
         %s = $('#%s').val();
         s = s + %s;
-        """ % (name,name,name) )
+        """ % (name, name, name))
         
     script.write("""
     return s;
@@ -191,7 +192,7 @@ function get_data_id() {
     """)     
     
     f.write(Template(page).substitute(css=css, script=script.getvalue(),
-                                      scriptb=scriptb, 
+                                      scriptb=scriptb,
                                         topbar=topbar.getvalue()))
     
 

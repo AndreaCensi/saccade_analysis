@@ -1,6 +1,6 @@
 
 scripts = [
-    ('sac_plot_xy', 'saccade_analysis.hollywood.plot_xy_direction'), 
+    ('sac_plot_xy', 'saccade_analysis.hollywood.plot_xy_direction'),
     ('sac_tammero_analysis', 'saccade_analysis.tammero.tammero_analysis'),
     # ('sac_peter2ros', 'expdb.peter2ros'),
     

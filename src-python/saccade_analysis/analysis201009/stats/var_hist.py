@@ -10,7 +10,8 @@ The interval [{lb:.3f}, {ub:.3f}] is divided in {var.density_bins:d}.
 """ 
  
 
-def sample_var_hist(sample, expdata, configuration, saccades, variable):
+def sample_var_hist(sample, expdata, configuration, #@UnusedVariable
+                    saccades, variable):
     lb = variable.interesting[0]
     ub = variable.interesting[1]
     

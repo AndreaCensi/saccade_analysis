@@ -2,6 +2,7 @@ import numpy
 from optparse import OptionParser
 
 from flydra_db import FlydraDB
+
 from .constants import SACCADES_TABLE
 
 
@@ -35,7 +36,7 @@ def main():
             table = db.get_table(sample, SACCADES_TABLE, version=version) 
             
             copy = numpy.array(table, dtype=table.dtype)
-            db.set_table(sample=sample, table=SACCADES_TABLE, 
+            db.set_table(sample=sample, table=SACCADES_TABLE,
                          version=official, data=copy)
             db.release_table(table)
 

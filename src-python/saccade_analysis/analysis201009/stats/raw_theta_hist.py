@@ -5,7 +5,7 @@ from .utils import attach_description
 
 description = """This figure shows an histogram of the raw orientation values. """
 
-def raw_theta_hist(sample, exp_data):
+def raw_theta_hist(sample, exp_data): #@UnusedVariable
     thetas = numpy.fmod(exp_data[:]['orientation'] + 360, 360)    
         
     r = Report()

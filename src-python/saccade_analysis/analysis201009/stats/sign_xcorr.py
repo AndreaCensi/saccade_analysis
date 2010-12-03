@@ -10,7 +10,7 @@ at lag 1 means that if the fly turned left, it is more likely to
 turn right, and vice versa. 
 """
 
-def group_sign_xcorr(group, configuration, saccades):
+def group_sign_xcorr(group, configuration, saccades): #@UnusedVariable
     r = Report()
     attach_description(r, description)
 

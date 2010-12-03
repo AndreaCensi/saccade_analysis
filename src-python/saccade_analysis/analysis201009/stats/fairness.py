@@ -2,13 +2,11 @@ from reprep import Report
 
 from saccade_analysis.markov.first_order import first_order_analysis
 
-from .utils import iterate_over_samples, \
-    create_letter_sequence, attach_description
+from .utils import iterate_over_samples, create_letter_sequence, \
+                   attach_description
     
-   
 
-
-def fairness(group, configuration, saccades):
+def fairness(group, configuration, saccades): #@UnusedVariable
     
     # list, one per sample
     all_results = []

@@ -1,14 +1,11 @@
-import numpy
-import scipy.stats
+import numpy, scipy.stats
 from itertools import product as prod
 
-from reprep import Report
-from reprep.graphics.posneg import posneg
-from reprep.graphics.scale import scale
+from reprep import Report, posneg, scale
 
-from saccade_analysis.analysis201009.stats.utils import attach_description
-from saccade_analysis.analysis201009.stats.turnograms import zoom_rgb
-from saccade_analysis.analysis201009.stats.fast_kendall_tau import fast_kendall_tau
+from .utils import attach_description
+from .turnograms import zoom_rgb
+from .fast_kendall_tau import fast_kendall_tau
 
 def get_correlation_matrix(saccades, vars, delays, type):
     ''' Returns Correlation, p-value, labels.
@@ -68,7 +65,7 @@ def get_correlation_matrix(saccades, vars, delays, type):
         
 
 def group_var_time_correlation(
-        group, configuration, saccades,
+        group, configuration, saccades, #@UnusedVariable
         variables, delays, type='pearson'):
     
     # all together
@@ -114,7 +111,7 @@ def pvalue_format(p):
     return s
 
 def sample_var_time_correlation(
-        sample, expdata, configuration, saccades,
+        sample, expdata, configuration, saccades, #@UnusedVariable
         variables, delays, type='pearson'):
     
     # all together

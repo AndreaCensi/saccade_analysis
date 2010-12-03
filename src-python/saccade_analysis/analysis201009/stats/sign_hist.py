@@ -1,10 +1,11 @@
 from reprep import Report
 import numpy
-from  .utils import iterate_over_samples, attach_description
+
+from .utils import iterate_over_samples, attach_description
 
 description = """This figure shows the proportion of left (blue) vs right (pink) saccades. """
 
-def group_sign_hist(group, configuration, saccades):
+def group_sign_hist(group, configuration, saccades): #@UnusedVariable
     r = Report()
     attach_description(r, description)
 
@@ -26,10 +27,10 @@ def group_sign_hist(group, configuration, saccades):
         right_percentage = -left_percentage + 100
         
         pylab.bar(left=R, height=left_percentage, color='b')
-        pylab.bar(left=R, height=right_percentage, bottom=left_percentage, 
+        pylab.bar(left=R, height=right_percentage, bottom=left_percentage,
                   color='#faacb6')
         
-        pylab.plot([0],[0])
+        pylab.plot([0], [0])
         pylab.ylabel('percentage of left turns')
         pylab.xlabel('sample')
         pylab.axis([0, N, 0, 100])

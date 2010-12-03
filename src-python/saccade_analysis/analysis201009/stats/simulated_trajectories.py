@@ -12,7 +12,8 @@ assuming that the fly flies at constant velocity (v= %.2f m/s),
 and that it flies completely straight between saccades.
 """ % v
 
-def plot_simulated_sample_trajectories(sample, exp_data, configuration, saccades):
+def plot_simulated_sample_trajectories(
+                    sample, exp_data, configuration, saccades): #@UnusedVariable
     x = [0]
     y = [0]
     theta = 0 

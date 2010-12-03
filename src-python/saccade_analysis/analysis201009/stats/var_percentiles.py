@@ -1,7 +1,7 @@
-from reprep import Report
-from saccade_analysis.analysis201009.stats.utils import iterate_over_samples , \
-    attach_description
 import numpy
+from reprep import Report
+
+from .utils import iterate_over_samples, attach_description
 
 
 description = """ 
@@ -12,7 +12,8 @@ The samples are ordered left-to-right by increasing median value.
 """
  
     
-def group_var_percentiles(group, configuration, saccades, variable):
+def group_var_percentiles(group, configuration, #@UnusedVariable
+                          saccades, variable):
      
     
     percentiles = [1, 5, 25, 50, 75, 95, 99]
@@ -39,7 +40,7 @@ def group_var_percentiles(group, configuration, saccades, variable):
     
     
     r = Report()
-    attach_description(r, description.format(var=variable, 
+    attach_description(r, description.format(var=variable,
             percentiles=",".join(map(str, percentiles))))
     with r.data_pylab('%s_percentiles' % variable.id) as pylab:
         #print percentiles

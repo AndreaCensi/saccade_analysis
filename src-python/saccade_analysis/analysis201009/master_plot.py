@@ -285,13 +285,13 @@ def main():
         if not group2samples[group]:
             raise Exception('Empty group %r.' % group)
         
-        available = db.list_versions_for_table_in_group(group=group, 
+        available = db.list_versions_for_table_in_group(group=group,
                                                         table=SACCADES_TABLE)
         configurations_for_group[group] = \
             set(configurations).intersection(available)
         
         if not configurations_for_group[group]:
-            print('No configurations found for %r; available %r'%
+            print('No configurations found for %r; available %r' % 
                             (group, available))
             
         group_has_exp_data[group] = db.group_has_table(group, EXP_DATA_TABLE)
@@ -305,7 +305,7 @@ def main():
                             group=group,
                             nsamples=len(group2samples[group]),
                             nconf=len(configurations_for_group[group]),
-                            data=  group_has_exp_data[group])
+                            data=group_has_exp_data[group])
         print(msg)
     
     # TODO: iterate by sample, not by group
@@ -629,9 +629,9 @@ def wrap_sample_saccades_plot(data_dir, sample, configuration,
             exp_data = db.get_table(sample, EXP_DATA_TABLE)
         else:
             exp_data = None
-        table = db.get_table(sample,table= SACCADES_TABLE, version=configuration)
+        table = db.get_table(sample, table=SACCADES_TABLE, version=configuration)
         saccades = numpy.array(table, dtype=table.dtype)
-        result =  plot_func(sample, exp_data, configuration, saccades, **function_args)
+        result = plot_func(sample, exp_data, configuration, saccades, **function_args)
         db.release_table(table)
         if exp_data:
             db.release_table(exp_data)
@@ -663,7 +663,7 @@ def get_table_for_group(db, group, table, version):
     i = 0
     for vtable in tables:
         k = len(vtable)
-        collated[i:i+k] = vtable[:]
+        collated[i:i + k] = vtable[:]
         i += k
         db.release_table(vtable)
     

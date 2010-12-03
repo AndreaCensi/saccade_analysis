@@ -14,7 +14,7 @@ description = "Imports the saccade data from Ros' Matlab files to FlydraDB."
 
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--saccade_data", help="Main data directory", 
+    parser.add_option("--saccade_data", help="Main data directory",
                       default='saccade_data')
     parser.add_option("--db", help='Location of output Flydra db.',
                       default='saccade_data_flydradb')
@@ -38,7 +38,7 @@ def main():
             if (file.startswith('magno_')) \
                and file.endswith('.mat')]:
             
-            sample = file[file.index('_')+1:file.index('.')]
+            sample = file[file.index('_') + 1:file.index('.')]
             
             if verbose:
                 print("  - Considering sample {0}".format(sample.__repr__()))
@@ -100,7 +100,7 @@ def read_raw_data(filename):
 
 def consider_importing_processed(flydra_db, sample, exp_data, data):
             
-    filters = ['unfiltered', 'filt_butter_default', 
+    filters = ['unfiltered', 'filt_butter_default',
                'filt_butter_challis', 'filt_kalman'];
                
     for f in filters:
@@ -117,10 +117,10 @@ def consider_importing_processed(flydra_db, sample, exp_data, data):
                 continue
             for threshold2 in d1.dtype.fields.keys():
                 d2 = d1[threshold2].item()
-                saccades = convert_saccades_from_ros_format(sample,exp_data, d2)
-                configuration='%s-%s-%s' % (f,threshold1,threshold2)
+                saccades = convert_saccades_from_ros_format(sample, exp_data, d2)
+                configuration = '%s-%s-%s' % (f, threshold1, threshold2)
                 print '    configuration %s' % configuration
-                flydra_db.set_table(sample=sample, table=SACCADES_TABLE, 
+                flydra_db.set_table(sample=sample, table=SACCADES_TABLE,
                                     data=saccades, version=configuration)
 
 
@@ -144,19 +144,19 @@ def convert_saccades_from_ros_format(sample, exp_data, d):
     sac_dur = d['sac_dur'].item()
     int_sac_dur = d['int_sac_dur'].item()
 
-    saccades = numpy.ndarray(dtype=saccade_dtype, shape=(len(sac_amp)-1,))
+    saccades = numpy.ndarray(dtype=saccade_dtype, shape=(len(sac_amp) - 1,))
     for i in range(1, len(sac_amp)):
-        k = i-1
+        k = i - 1
         saccades[k]['sign'] = numpy.sign(sac_amp[i])
         saccades[k]['amplitude'] = numpy.abs(sac_amp[i])
         
-        index_start = sac_index[0,i]-1 # this is matlab
-        index_stop = sac_index[1,i] -1 
+        index_start = sac_index[0, i] - 1 # this is matlab
+        index_stop = sac_index[1, i] - 1 
         
         saccades[k]['time_start'] = timestamp[index_start]
         saccades[k]['time_stop'] = timestamp[index_stop]
         saccades[k]['duration'] = sac_dur[i] / 1000
-        saccades[k]['time_passed'] = int_sac_dur[i-1] / 1000
+        saccades[k]['time_passed'] = int_sac_dur[i - 1] / 1000
         saccades[k]['orientation_start'] = orientation[index_start]
         saccades[k]['orientation_stop'] = orientation[index_stop]
         saccades[k]['top_velocity'] = sac_peak_vel[i]

@@ -9,7 +9,7 @@ description = "Exports the saccade data to Ros' format"
 
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--out", help="Output data directory", 
+    parser.add_option("--out", help="Output data directory",
                       default='flydra2ros')
     parser.add_option("--db", help='Location of input Flydra db.',
                       default='flydra_db')
@@ -70,7 +70,7 @@ def main():
 def guess_group(db, sample):
     groups = db.list_groups_for_sample(sample)
     # choose the smallest
-    key=lambda group: len(db.list_samples_for_group(group))
+    key = lambda group: len(db.list_samples_for_group(group))
     sorted_groups = sorted(groups, key=key)
     group = sorted_groups[0]
     return group
@@ -81,7 +81,7 @@ def convert_saccades_to_ros(saccades, timestamp):
     
     ros = {}
     ros['sac_amp'] = sac_amp = numpy.zeros(n)
-    ros['sac_index'] = sac_index = numpy.zeros(shape=(2,n), dtype='int')
+    ros['sac_index'] = sac_index = numpy.zeros(shape=(2, n), dtype='int')
     ros['sac_peak_vel'] = sac_peak_vel = numpy.zeros(n)
     ros['sac_peak_index'] = sac_peak_index = numpy.zeros(n)
     ros['sac_dur'] = sac_dur = numpy.zeros(n)
@@ -89,8 +89,8 @@ def convert_saccades_to_ros(saccades, timestamp):
         
     for i, saccade in enumerate(saccades):
         sac_amp[i] = saccade['sign'] * saccade['amplitude']
-        sac_index[0,i] = 1 + timestamp2index(timestamp, saccade['time_start'])
-        sac_index[1,i] = 1 + timestamp2index(timestamp, saccade['time_stop'])
+        sac_index[0, i] = 1 + timestamp2index(timestamp, saccade['time_start'])
+        sac_index[1, i] = 1 + timestamp2index(timestamp, saccade['time_stop'])
         middle = 0.5 * (saccade['time_start'] + saccade['time_stop'])
         sac_peak_index[i] = 1 + timestamp2index(timestamp, middle)
         int_sac_dur[i] = saccade['time_passed'] * 1000
@@ -102,13 +102,13 @@ def convert_saccades_to_ros(saccades, timestamp):
 def timestamp2index(timestamp, t):
     ''' Returns -1 if timestamp not available '''
     if timestamp is None:
-        return -1
+        return - 1
     else:
         n = len(timestamp)
-        k = (t - timestamp[0]) / (timestamp[-1]-timestamp[0]) # [0,1]
+        k = (t - timestamp[0]) / (timestamp[-1] - timestamp[0]) # [0,1]
         k = numpy.floor(k * n) # [0,n]
         if k == n:
-            k = n-1
+            k = n - 1
         return k
         
 

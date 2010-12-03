@@ -3,10 +3,10 @@ from numpy import log
 
 from reprep import Report
 
-from  .utils import iterate_over_samples, attach_description
+from .utils import iterate_over_samples, attach_description
     
 
-def levy_exp(groups, configuration, saccades):
+def levy_exp(groups, configuration, saccades): #@UnusedVariable
     
     all_results = []
     

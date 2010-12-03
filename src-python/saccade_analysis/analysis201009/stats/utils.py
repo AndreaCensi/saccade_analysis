@@ -12,7 +12,6 @@ def create_letter_sequence(saccades):
     return "".join(letters)
 
 
-
 def iterate_over_samples(saccades):
     ''' yields  sample_id, saccades_for_sample '''
 

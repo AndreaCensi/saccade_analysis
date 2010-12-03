@@ -1,6 +1,7 @@
 import numpy
 from optparse import OptionParser
 from matplotlib import pylab
+# FIXME
 from geometric_saccade_detector.compact_data import h5_read_saccades
 
 def plot_saccades_xy_directions(saccades, pylab, figure):

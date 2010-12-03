@@ -1,11 +1,13 @@
+import numpy, os
 from optparse import OptionParser
-from geometric_saccade_detector.io import saccades_read_h5, saccades_write_all
-import numpy
-from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
-from reprep import Report
-from saccade_analysis.tammero.approach_angle import compute_approach_angle
-import os
 
+from reprep import Report
+
+# XXX: remove dep
+from geometric_saccade_detector.io import saccades_read_h5, saccades_write_all
+from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
+
+from .approach_angle import compute_approach_angle
 
 
 def main():
@@ -37,10 +39,12 @@ def divide_into_subsets(saccades):
 #    close_threshold = 0.65
     close_threshold = 0.5
     subsets = [
-     ('all', 'All saccades', lambda x: True),
-     ('close_to_center', 'Close to center', lambda x: x['distance_from_center'] < close_threshold),
-     ('close_to_wall', 'Close to wall', lambda x: x['distance_from_center'] > close_threshold),
-     ]
+               ('all', 'All saccades', lambda x: True), #@UnusedVariable
+               ('close_to_center', 'Close to center',
+                lambda x: x['distance_from_center'] < close_threshold),
+               ('close_to_wall', 'Close to wall',
+                lambda x: x['distance_from_center'] > close_threshold),
+    ]
     
     for id, desc, test in subsets:
         include = map(test, saccades)
@@ -58,14 +62,14 @@ def create_report(subsets):
     return report
 
 def create_report_subset(id, desc, saccades):
-    report = Report('subset_'+id)
+    report = Report('subset_' + id)
     report.text('description', '''
 
 Subset: %s
 
 It contains %d saccades.
 
-''' % (desc, len(saccades)) )
+''' % (desc, len(saccades)))
  
     saccade_angle = saccades['saccade_angle']
     approach_angle = saccades['approach_angle']

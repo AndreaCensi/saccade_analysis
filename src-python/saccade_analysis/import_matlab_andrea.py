@@ -10,7 +10,7 @@ description = "Imports the saccade data from Andrea's Matlab files to FlydraDB."
  
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--saccade_data", help="Main data directory", 
+    parser.add_option("--saccade_data", help="Main data directory",
                       default='saccade_data')
     parser.add_option("--flydra_db", help='Location of output db.',
                       default='saccade_data_flydradb')
@@ -19,11 +19,9 @@ def main():
         
     (options, args) = parser.parse_args() #@UnusedVariable
     
-    if options.verbose:
-        def printv(s):
+    def printv(s):
+        if options.verbose:
             print(s)
-    else:
-        printv = lambda s: None
         
     flydra_db = FlydraDB(options.flydra_db, create=True)
     
@@ -59,7 +57,7 @@ def main():
             # first look for saccades.mat
             saccades_file = os.path.join(processed_dir, conf, 'saccades.mat')
             if os.path.exists(saccades_file):
-                printv('Loading from file %r.' % saccades_file )
+                printv('Loading from file %r.' % saccades_file)
                 saccades = saccades_read_mat(saccades_file)
                 samples = numpy.unique(saccades['sample'])
                 for sample in samples:
