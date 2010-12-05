@@ -34,7 +34,7 @@ def get_delay_desc_string(d):
     else:
         return "(delayed by %d)" % d
 
-def group_var_joint(group, configuration, saccades,
+def group_var_joint(group, configuration, saccades, #@UnusedVariable
                     var1, delay1, var2, delay2):    
     
     var1delay = get_delay_desc_string(delay1)
@@ -86,7 +86,7 @@ def group_var_joint(group, configuration, saccades,
     return r
 
 
-def sample_var_joint(sample, expdata, configuration, saccades,
+def sample_var_joint(sample, expdata, configuration, saccades, #@UnusedVariable
                      var1, delay1, var2, delay2):
     x = saccades[var1.field]
     y = saccades[var2.field]

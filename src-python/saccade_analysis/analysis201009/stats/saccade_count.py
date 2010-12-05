@@ -6,7 +6,7 @@ This figure displays the average number of saccades per second
 over the whole sample. 
 """  
 
-def group_saccade_density(group, configuration, saccades):
+def group_saccade_density(group, configuration, saccades): #@UnusedVariable
     r = Report()
     attach_description(r, description)
     stats = []
@@ -30,7 +30,7 @@ This figure displays the total number of detected saccades.
 by the sample length.) 
 """  
 
-def group_saccade_count(group, configuration, saccades):
+def group_saccade_count(group, configuration, saccades): #@UnusedVariable
     r = Report()
     attach_description(r, description)
     

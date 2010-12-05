@@ -17,7 +17,7 @@ writes the data in the FlydraDB.
 
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--peters_pickle", 
+    parser.add_option("--peters_pickle",
                       help="Peter's pickle file", default='weir.pkl')
     parser.add_option("--flydra_db", help="FlydraDB directory", default='flydra_db')
      
@@ -37,12 +37,12 @@ def main():
     
     with safe_flydra_db_open(options.flydra_db, create=True) as flydra_db:
         for experiment, flies in data.items():
-            experiment = experiment.replace('/','')
+            experiment = experiment.replace('/', '')
             for fly, fly_data in flies.items(): 
                 import_sample(flydra_db, experiment, fly, fly_data)
             
             
-def import_sample(flydra_db, experiment, fly, fly_data):
+def import_sample(flydra_db, experiment, fly, fly_data): #@UnusedVariable
     times = fly_data.pop('times')
     
     date = datetime.datetime.fromtimestamp(times[0])            
@@ -62,7 +62,7 @@ def import_sample(flydra_db, experiment, fly, fly_data):
     
     # just replace with the previous one
     for i in problematic:
-        exp_orientation[i] = exp_orientation[i-1]
+        exp_orientation[i] = exp_orientation[i - 1]
 
     # renormalize so it's easier to visualize
     exp_orientation = degrees(straighten_up_theta(radians(exp_orientation))) 
@@ -70,17 +70,17 @@ def import_sample(flydra_db, experiment, fly, fly_data):
     #
     # now fix timestamps
     # 
-    dt_guess = (times[-1]-times[0]) / len(times)
+    dt_guess = (times[-1] - times[0]) / len(times)
     # recompute the timestamps
     exp_timestamps = times[0] + dt_guess * numpy.array(range(0, len(times)))
     
-    max_var = numpy.abs(exp_timestamps-times).max()
+    max_var = numpy.abs(exp_timestamps - times).max()
     
     print "Estimated real dt: %f  corresponding to %.2f FPS" % (dt_guess,
-                                                                1/dt_guess)
+                                                                1 / dt_guess)
     print "Maximum deviation: %fs" % max_var
     
-    print "Length: %d seconds " % (exp_timestamps[-1]-exp_timestamps[0])
+    print "Length: %d seconds " % (exp_timestamps[-1] - exp_timestamps[0])
 
 
     dtype = [('timestamp', 'float64'),
@@ -95,9 +95,9 @@ def import_sample(flydra_db, experiment, fly, fly_data):
     attributes = {
         'experiment': experiment,
         'species': 'Dmelanogaster',
-        'sample': sample_id, 
+        'sample': sample_id,
         'dt_guess': dt_guess,
-        'fps_guess': 1/dt_guess
+        'fps_guess': 1 / dt_guess
     }
     
     # put other fields specific to Peter
@@ -125,7 +125,7 @@ def import_sample(flydra_db, experiment, fly, fly_data):
     attributes.pop('y')
     attributes.pop('background')
     
-    for k,v in attributes.items():
+    for k, v in attributes.items():
         try:
             flydra_db.set_attr(sample_id, k, v)
         except:

@@ -39,7 +39,7 @@ def sample_var_hist(sample, expdata, configuration, #@UnusedVariable
     return r
  
 
-def group_var_hist(group, configuration, saccades, variable):
+def group_var_hist(group, configuration, saccades, variable): #@UnusedVariable
     lb = variable.interesting[0]
     ub = variable.interesting[1]
     

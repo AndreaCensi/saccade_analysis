@@ -5,7 +5,7 @@ from  .utils import iterate_over_samples, \
 from saccade_analysis.markov.first_order import first_order_analysis
 
 
-def independence(group, configuration, saccades):
+def independence(group, configuration, saccades): #@UnusedVariable
     
     # list, one per sample
     all_results = []

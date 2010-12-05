@@ -4,7 +4,7 @@ from matplotlib import pylab
 # FIXME
 from geometric_saccade_detector.compact_data import h5_read_saccades
 
-def plot_saccades_xy_directions(saccades, pylab, figure):
+def plot_saccades_xy_directions(saccades, pylab, figure): #@UnusedVariable
     for saccade in saccades:    
         x = saccade['x']
         y = saccade['y']

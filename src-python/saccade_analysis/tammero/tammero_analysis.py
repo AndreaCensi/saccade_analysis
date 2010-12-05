@@ -185,7 +185,7 @@ It contains %d saccades.
     
     return report
     
-def create_report_randomness(id, desc, saccades):
+def create_report_randomness(id, desc, saccades): #@UnusedVariable
     report = Report(id)
 
     axis_angle = saccades['axis_angle']
@@ -312,11 +312,7 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         distance_from_wall = arena_radius - distance_from_center
         assert distance_from_wall > 0
         
-        saccade_angle = saccade['sign'] * saccade['amplitude']
-        # NOTE that Tammero's definition is different than ours
-        #saccade_angle = 180 - saccade['sign'] * saccade['amplitude']
-        #saccade_angle = numpy.degrees(normalize_pi(numpy.radians(saccade_angle)))
-        
+        saccade_angle = saccade['sign'] * saccade['amplitude']    
         theta = numpy.radians(saccade['orientation_start'])
         
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
