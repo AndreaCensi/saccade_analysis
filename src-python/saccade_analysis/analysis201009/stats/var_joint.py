@@ -97,7 +97,8 @@ def sample_var_joint(sample, expdata, configuration, saccades, #@UnusedVariable
     
     r = Report()
     attach_description(r, description.format(var1=var1, var2=var2,
-                                             var1delay=var1delay, var2delay=var2delay))
+                                             var1delay=var1delay,
+                                             var2delay=var2delay))
     node_id = 'joint_%s%d_%s%d' % (var1.id, delay1, var2.id, delay2)
     with r.data_pylab(node_id) as pylab:
             

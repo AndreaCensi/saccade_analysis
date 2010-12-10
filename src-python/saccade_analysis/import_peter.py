@@ -1,8 +1,11 @@
-import os, numpy, cPickle as pickle, datetime
+import os
+import numpy
+import cPickle as pickle
+import datetime
 from numpy import degrees, radians
 from optparse import OptionParser
 
-
+# XXX: remove dependency
 from flydra_render.main_filter_meat import straighten_up_theta
 from flydra_db import  safe_flydra_db_open
 
@@ -19,23 +22,26 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--peters_pickle",
                       help="Peter's pickle file", default='weir.pkl')
-    parser.add_option("--flydra_db", help="FlydraDB directory", default='flydra_db')
+    parser.add_option("--db", help="FlydraDB directory")
      
     (options, args) = parser.parse_args()
+    
+    if not options.db:
+        raise Exception('Please define FlydraDB directory using `--db`.')
      
     if args:
-        raise Exception('Extraneous arguments: %r' % args)
+        raise Exception('Extraneous arguments: %r.' % args)
 
     if not os.path.exists(options.peters_pickle):
         raise Exception('File %r does not exist. ' % options.peters_pickle)
     
     
-    print "Loading file %r ..." % options.peters_pickle
+    print("Loading file %r ..." % options.peters_pickle)
     data = pickle.load(open(options.peters_pickle, 'rb'))
-    print "...done."
+    print("...done.")
 
     
-    with safe_flydra_db_open(options.flydra_db, create=True) as flydra_db:
+    with safe_flydra_db_open(options.db, create=True) as flydra_db:
         for experiment, flies in data.items():
             experiment = experiment.replace('/', '')
             for fly, fly_data in flies.items(): 
@@ -76,11 +82,11 @@ def import_sample(flydra_db, experiment, fly, fly_data): #@UnusedVariable
     
     max_var = numpy.abs(exp_timestamps - times).max()
     
-    print "Estimated real dt: %f  corresponding to %.2f FPS" % (dt_guess,
-                                                                1 / dt_guess)
-    print "Maximum deviation: %fs" % max_var
+    print("Estimated real dt: %f  corresponding to %.2f FPS" % 
+          (dt_guess, 1 / dt_guess))
+    print("Maximum deviation: %fs" % max_var)
     
-    print "Length: %d seconds " % (exp_timestamps[-1] - exp_timestamps[0])
+    print("Length: %d seconds " % (exp_timestamps[-1] - exp_timestamps[0]))
 
 
     dtype = [('timestamp', 'float64'),
@@ -129,5 +135,5 @@ def import_sample(flydra_db, experiment, fly, fly_data): #@UnusedVariable
         try:
             flydra_db.set_attr(sample_id, k, v)
         except:
-            print "Can't set attribute %r of class %s" % (k, v.__class__)
+            print("Can't set attribute %r of class %s." % (k, v.__class__))
 

@@ -48,8 +48,7 @@ def get_correlation_matrix(saccades, vars, delays, type):
     R = numpy.ndarray((N, N), dtype='float64')
     P = numpy.ndarray((N, N), dtype='float64')
     
-    types = {# 'kendall': scipy.stats.kendalltau,
-             'kendall': fast_kendall_tau,
+    types = {'kendall': fast_kendall_tau,
              'pearson': scipy.stats.pearsonr,
              'spearman': scipy.stats.spearmanr}
     if not type in types:

@@ -9,11 +9,13 @@ from .constants import SACCADES_TABLE
 def main():
     parser = OptionParser()
     
-    parser.add_option("--db", default='flydra_db', help="FlydraDB directory")
+    parser.add_option("--db", help="FlydraDB directory")
     
     (options, args) = parser.parse_args() #@UnusedVariable
         
-
+    if not options.db:
+        raise Exception('Please define FlydraDB directory using `--db`.')
+    
     db = FlydraDB(options.db)  
     
     official = 'use_for_report'

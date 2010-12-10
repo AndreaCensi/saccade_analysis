@@ -3,21 +3,20 @@ from optparse import OptionParser
 from itertools import product as prod
 
 from reprep import Report, Table
-from compmake  import set_namespace, comp, compmake_console, \
-                      batch_command, parse_job_list
+from compmake  import (set_namespace, comp, compmake_console,
+                      batch_command, parse_job_list)
 from flydra_db import FlydraDB, safe_flydra_db_open
 from flydra_db.natsort import natsorted
 
 # The various plots
 from .master_plot_gui import create_gui, create_main_gui
 from .master_plot_vars import variables
-from stats import \
-    fairness, independence, levy_exp, plot_raw_trajectories, \
-    plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist, \
-    plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist, \
-    group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist, \
-    group_saccade_count, group_saccade_density, group_turnogram, \
-    group_var_time_correlation, sample_var_time_correlation, interval_histogram
+from stats import (fairness, independence, levy_exp, plot_raw_trajectories,
+    plot_simulated_sample_trajectories, group_sign_xcorr, group_sign_hist,
+    plot_detected_saccades, sample_var_hist, group_var_xcorr, group_var_hist,
+    group_var_percentiles, group_var_joint, sample_var_joint, raw_theta_hist,
+    group_saccade_count, group_saccade_density, group_turnogram,
+    group_var_time_correlation, sample_var_time_correlation, interval_histogram)
 
 
 from ..constants import EXP_DATA_TABLE, SACCADES_TABLE
@@ -117,14 +116,14 @@ for var1, var2 in prod(variables, variables):
     
     name = 'joint_%s_%s_delayed' % (var1.id, var2.id)
     vars = {'var1': var1, 'var2': var2, 'delay1': 0, 'delay2': 1}
-    desc = "Joint distribution of %s at time k " \
-           "and %s at k-1." % (var1.name, var2.name)
+    desc = ("Joint distribution of %s at time k " 
+           "and %s at k-1." % (var1.name, var2.name))
     group_plots.append(Plot(name, group_var_joint, vars, desc))
     
     name = 'joint_%s_%s_delayed' % (var1.id, var2.id)
     vars = {'var1': var1, 'var2': var2, 'delay1': 0, 'delay2': 1}
-    desc = "Joint distribution of %s at time k and %s at k-1." % \
-            (var1.name, var2.name)
+    desc = ("Joint distribution of %s at time k and %s at k-1." % 
+            (var1.name, var2.name))
             
     sample_saccades_plots.append(Plot(name, sample_var_joint, vars, desc))
         
@@ -300,12 +299,12 @@ def main():
     # print info
     print('Summary:')
     for group in groups:
-        msg = "  group {group:>20}  samples: {nsamples:3}  configurations: {nconf:3}" \
-              " raw data? {data}".format(
+        msg = ("  group {group:>20}  samples: {nsamples:3} "
+               " configurations: {nconf:3} raw data? {data}".format(
                             group=group,
                             nsamples=len(group2samples[group]),
                             nconf=len(configurations_for_group[group]),
-                            data=group_has_exp_data[group])
+                            data=group_has_exp_data[group]))
         print(msg)
     
     # TODO: iterate by sample, not by group

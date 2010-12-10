@@ -1,4 +1,6 @@
-import os, numpy, scipy.io
+import os
+import numpy
+import scipy.io
 from optparse import OptionParser
 
 from flydra_db import FlydraDB
@@ -11,10 +13,12 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--out", help="Output data directory",
                       default='flydra2ros')
-    parser.add_option("--db", help='Location of input Flydra db.',
-                      default='flydra_db')
+    parser.add_option("--db", help='Location of input Flydra db.')
         
     (options, args) = parser.parse_args() #@UnusedVariable
+    
+    if not options.db:
+        raise Exception('Please define FlydraDB directory using `--db`.')
     
     verbose = True
     def printv(s):
@@ -42,7 +46,7 @@ def main():
         
         if db.has_table(sample, EXP_DATA_TABLE):
             exp_data = db.get_table(sample, EXP_DATA_TABLE)
-            print exp_data.dtype
+            print(exp_data.dtype)
             timestamp = exp_data[:]['timestamp']
         else:
             timestamp = None
@@ -63,7 +67,7 @@ def main():
         scipy.io.savemat(filename, {'magno':magno}, oned_as='row')
         
         # put species and sample
-    print "closing"
+    print("closing")
     db.close()
 
 

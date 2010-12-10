@@ -206,20 +206,15 @@ def write_select(f, name, choices):
         f.write('\t<option value="%s" %s>%s</option>\n' % 
                 (value, selected, desc))
               
-    f.write('</select>\n\n')    
-
+    f.write('</select>\nwn')    
 
 def write_select_box(f, desc, name, choices):
     f.write('<div class="box" id="box-%s">\n' % name)
     f.write('<span>%s</span>\n' % desc)
     write_select(f, name, choices)
-    f.write('</div>\n\n')
+    f.write('</div>\n\n') 
     
-    
-    
-def create_main_gui(tabs, filename):
-   
-    
+def create_main_gui(tabs, filename): 
     topbar = StringIO()
     
     topbar.write("""

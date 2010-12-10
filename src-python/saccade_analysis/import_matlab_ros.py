@@ -1,4 +1,8 @@
-import os, numpy, scipy.io
+import traceback
+import os
+import numpy
+import scipy.io
+import cPickle as pickle
 from optparse import OptionParser
 
 from flydra_db import FlydraDB
@@ -16,10 +20,12 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--saccade_data", help="Main data directory",
                       default='saccade_data')
-    parser.add_option("--db", help='Location of output Flydra db.',
-                      default='saccade_data_flydradb')
+    parser.add_option("--db", help='Location of output Flydra db.')
         
     (options, args) = parser.parse_args() #@UnusedVariable
+    
+    if not options.db:
+        raise Exception('Please define FlydraDB directory using `--db`.')
     
     verbose = True
     
@@ -45,6 +51,8 @@ def main():
         
             if not flydra_db.has_sample(sample):
                 flydra_db.add_sample(sample)
+            flydra_db.add_sample_to_group(sample, group)
+#           flydra_db.add_sample_to_group(sample, 'ros')
             
             filename = os.path.join(group_dir, file)
             
@@ -53,11 +61,8 @@ def main():
             consider_importing_processed(flydra_db, sample, exp_data, attributes)
             
             flydra_db.set_attr(sample, 'species', attributes['species'])
-            flydra_db.set_attr(sample, 'background', attributes['background'])
-            
+            flydra_db.set_attr(sample, 'background', attributes['background'])            
             flydra_db.set_table(sample, EXP_DATA_TABLE, exp_data)
-            flydra_db.add_sample_to_group(sample, group)
-            flydra_db.add_sample_to_group(sample, 'ros')
             
     flydra_db.close()
 
@@ -69,7 +74,7 @@ def read_raw_data(filename):
     
     # convert from array to hash
     assert isinstance(data, numpy.ndarray)
-    data = dict(map(lambda field: (field, data[field]), data.dtype.fields))
+    data = dict([(field, data[field]) for field in data.dtype.fields])
     # convert from array to string
     for k in list(data.keys()):
         # maybe this only for ROS :(
@@ -77,7 +82,7 @@ def read_raw_data(filename):
             data[k] = data[k].item()
         if data[k].dtype.char == 'U':
             data[k] = str(data[k])
-            print 'converted attribute to %r' % data[k]
+            # print('converted attribute to %r' % data[k])
         
     # make sure everything is 1d array
     def as1d(x):  
@@ -100,8 +105,12 @@ def read_raw_data(filename):
 
 def consider_importing_processed(flydra_db, sample, exp_data, data):
             
-    filters = ['unfiltered', 'filt_butter_default',
-               'filt_butter_challis', 'filt_kalman'];
+    filters = [
+               'unfiltered',
+               'filt_butter_default',
+               'filt_butter_challis',
+               'filt_kalman'
+               ]
                
     for f in filters:
         if not f in data:
@@ -111,15 +120,43 @@ def consider_importing_processed(flydra_db, sample, exp_data, data):
         if d.dtype == numpy.dtype('object'):
             d = d.item()
         
+        if d.dtype == numpy.dtype('float64'):
+            print("got invalid data for filter = %s  = %s" % (f, d))
+            continue
+        
         for threshold1 in d.dtype.fields.keys():
             d1 = d[threshold1].item()
             if d1.dtype.fields is None: # empty object
                 continue
             for threshold2 in d1.dtype.fields.keys():
                 d2 = d1[threshold2].item()
-                saccades = convert_saccades_from_ros_format(sample, exp_data, d2)
                 configuration = '%s-%s-%s' % (f, threshold1, threshold2)
-                print '    configuration %s' % configuration
+                if flydra_db.has_table(sample, table=SACCADES_TABLE,
+                                       version=configuration):
+                    # skip; already done
+                    continue
+                    #pass
+                
+                try:
+                    saccades = \
+                        convert_saccades_from_ros_format(sample, exp_data, d2)
+                    
+                except Exception as e:
+                    traceback.print_exc()
+                    print("(!) Could not convert saccade data: %s" % e)
+                    dir = 'failed-imports'
+                    if not os.path.exists(dir):
+                        os.makedirs(dir)
+                        
+                    filename = 'saccades-%s-matlab.pickle' % configuration
+                    filename = os.path.join(dir, filename)
+                    print("(!) I'll save the data to %r so you can have a look." % 
+                          filename)
+                    with open(filename, 'wb') as file:
+                        pickle.dump(d2, file)
+                    raise
+                
+                print('    configuration %s' % configuration)
                 flydra_db.set_table(sample=sample, table=SACCADES_TABLE,
                                     data=saccades, version=configuration)
 
@@ -138,14 +175,20 @@ def convert_saccades_from_ros_format(sample, exp_data, d):
     orientation = exp_data[:]['orientation']
     
     sac_amp = d['sac_amp'].item()
+    num = sac_amp.size
+    if num <= 3:
+        saccades = numpy.ndarray(dtype=saccade_dtype, shape=(0,))
+        return saccades
+    
     sac_index = d['sac_index'].item()
     sac_peak_vel = d['sac_peak_vel'].item()
     # sac_peak_index = d['sac_peak_index'].item()
     sac_dur = d['sac_dur'].item()
     int_sac_dur = d['int_sac_dur'].item()
-
-    saccades = numpy.ndarray(dtype=saccade_dtype, shape=(len(sac_amp) - 1,))
-    for i in range(1, len(sac_amp)):
+    
+    
+    saccades = numpy.ndarray(dtype=saccade_dtype, shape=(num - 1,))
+    for i in range(1, num):
         k = i - 1
         saccades[k]['sign'] = numpy.sign(sac_amp[i])
         saccades[k]['amplitude'] = numpy.abs(sac_amp[i])

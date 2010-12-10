@@ -12,18 +12,21 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--saccade_data", help="Main data directory",
                       default='saccade_data')
-    parser.add_option("--flydra_db", help='Location of output db.',
-                      default='saccade_data_flydradb')
+    parser.add_option("--db", help="FlydraDB directory")
+     
     parser.add_option("--verbose", help='Verbose output',
                       default=False, action="store_true")
         
     (options, args) = parser.parse_args() #@UnusedVariable
     
+    if not options.db:
+        raise Exception('Please define FlydraDB directory using `--db`.')
+    
     def printv(s):
         if options.verbose:
             print(s)
         
-    flydra_db = FlydraDB(options.flydra_db, create=True)
+    flydra_db = FlydraDB(options.db, create=True)
     
     matlab_dir = options.saccade_data
     for group in os.listdir(matlab_dir):
