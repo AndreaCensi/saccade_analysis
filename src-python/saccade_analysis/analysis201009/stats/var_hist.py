@@ -8,7 +8,6 @@ description = """
 This figure shows the distribution of the values of {var.name}.
 The interval [{lb:.3f}, {ub:.3f}] is divided in {var.density_bins:d}.
 """ 
- 
 
 def sample_var_hist(sample, expdata, configuration, #@UnusedVariable
                     saccades, variable):
@@ -49,7 +48,6 @@ def group_var_hist(group, configuration, saccades, variable): #@UnusedVariable
         M = variable.interesting[1]
         x = numpy.fmod(x + M, M)
 
-
     hist, bin_edges = numpy.histogram(x, bins=variable.density_bins,
                 range=variable.interesting, normed=True)
 
@@ -65,5 +63,6 @@ def group_var_hist(group, configuration, saccades, variable): #@UnusedVariable
         pylab.xlabel('%s (%s)' % (variable.name, variable.unit))
         
         pylab.axis([lb, ub, 0, variable.density_max_y])
+        
     return r
 

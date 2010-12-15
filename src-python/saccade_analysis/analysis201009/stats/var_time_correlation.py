@@ -7,6 +7,7 @@ from .utils import attach_description
 from .turnograms import zoom_rgb
 from .fast_kendall_tau import fast_kendall_tau
 
+
 def get_correlation_matrix(saccades, vars, delays, type):
     ''' Returns Correlation, p-value, labels.
     
@@ -17,7 +18,6 @@ def get_correlation_matrix(saccades, vars, delays, type):
     labels = []
     xs = []
     for delay in delays:
-        
         for i, var in enumerate(vars):
             label = "%s[%+d]" % (var.letter, -delay) if delay > 0 else \
                 var.letter + ''
@@ -144,7 +144,6 @@ def sample_var_time_correlation(
     return r
 
 
-    
 def values_to_strings(M, format):
     l = []
     for i in range(M.shape[0]):

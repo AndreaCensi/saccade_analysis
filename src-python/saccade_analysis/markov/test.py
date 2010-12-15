@@ -1,22 +1,19 @@
-from saccade_analysis.markov.first_order import first_order_analysis, \
-    count_overlapping
 import unittest
+
+from .first_order import first_order_analysis, count_overlapping
 
 
 class MarkovTest(unittest.TestCase):
-    
     
     def test_frequencies(self):
         results = dict(first_order_analysis('LR'))
         self.assertEqual(results['frequencies']['L'], 0.5)
         self.assertEqual(results['frequencies']['R'], 0.5)
         
-        
     def test_invalid(self):
         first_order_analysis('LR')
         self.assertRaises(ValueError, first_order_analysis, '')
         self.assertRaises(ValueError, first_order_analysis, 'LER')
-
 
     def test_scipy(self):
         pass
@@ -37,6 +34,5 @@ class MarkovTest(unittest.TestCase):
         ] 
         
         for string, sub, expected in examples:
-            print 'String:', string.__repr__(), 'Sub:', sub.__repr__(), \
-                 'Expect', expected
             self.assertEqual(count_overlapping(string, sub), expected)
+

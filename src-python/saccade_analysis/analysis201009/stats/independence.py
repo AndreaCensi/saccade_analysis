@@ -1,7 +1,8 @@
 from reprep import Report
 
-from  .utils import iterate_over_samples, \
-    create_letter_sequence, attach_description
+from  .utils import (iterate_over_samples, create_letter_sequence,
+                      attach_description)
+
 from saccade_analysis.markov.first_order import first_order_analysis
 
 
@@ -14,8 +15,8 @@ def independence(group, configuration, saccades): #@UnusedVariable
         letters = create_letter_sequence(saccades_for_sample)
         results = first_order_analysis(letters)
         
-        length = saccades_for_sample[-1]['time_start'] - \
-            saccades_for_sample[0]['time_start'] 
+        length = (saccades_for_sample[-1]['time_start'] - 
+                  saccades_for_sample[0]['time_start']) 
         density = len(saccades_for_sample) / length
         
         results.append(('length', length))

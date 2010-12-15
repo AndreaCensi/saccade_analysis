@@ -160,7 +160,6 @@ function get_data_id() {
     
 
 def create_gui_new(filename, menus): 
-
     f = open(filename, 'w')
    
     script = StringIO()

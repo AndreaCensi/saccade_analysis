@@ -17,7 +17,6 @@ def iterate_over_samples(saccades):
 
     samples = numpy.unique(saccades['sample'])
     
-    
     for sample in samples:
         select = saccades['sample'] == sample
         

@@ -3,7 +3,8 @@ import numpy
 
 from .utils import iterate_over_samples, attach_description
 
-description = """This figure shows the proportion of left (blue) vs right (pink) saccades. """
+description = ('This figure shows the proportion of left (blue) '
+               'vs right (pink) saccades.')
 
 def group_sign_hist(group, configuration, saccades): #@UnusedVariable
     r = Report()

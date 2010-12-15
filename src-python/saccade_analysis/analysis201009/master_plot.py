@@ -196,19 +196,24 @@ description = """ Main script to plot everything. """
 
 def main():
     parser = OptionParser(usage=description)
-    parser.add_option("--flydra_db", help="Main data directory",
-                      default='saccade_data_flydradb')
-    parser.add_option("--interactive", action="store_true",
-                      default=False,
+    parser.add_option("--flydra_db", default='saccade_data_flydradb',
+                      help="Main data directory")
+    
+    parser.add_option("--interactive", action="store_true", default=False,
                       help="Starts an interactive compmake session.")
-    parser.add_option("--report", help="Saccade report directory",
-                      default='saccade_report')
-    parser.add_option("--groups", help="Which groups to consider",
-                      default=None)
-    parser.add_option("--configurations", help="Which configurations to consider",
-                      default=None)
-    parser.add_option("--combid", help="How to name this combination of groups/configs.",
-                      default=None)
+    
+    parser.add_option("--report", default='saccade_report',
+                      help="Saccade report directory")
+    
+    parser.add_option("--groups", default=None,
+                      help="Which groups to consider")
+    
+    parser.add_option("--configurations", default=None,
+                      help="Which configurations to consider")
+                      
+    parser.add_option("--combid", default=None,
+                      help="How to name this combination of groups/configs.")
+                      
         
     (options, args) = parser.parse_args() #@UnusedVariable
     if args:
@@ -410,7 +415,7 @@ def main():
                 for plot in sample_saccades_plots:
                     page_id = "%s.%s.%s" % (configuration, group, plot.id)
                     comp(write_empty, page_id, output_dir,
-                         'Group %s has not been processed with algorithm "%s".' % 
+                         'Group %r has not been processed with algorithm %r.' % 
                          (group, configuration),
                          job_id=page_id)
                 continue
@@ -432,10 +437,10 @@ def main():
     comp(create_gui,
          filename=os.path.join(output_dir, 'saccade_plots.html'),
          menus=[
-                  ('Detector', configurations, configurations),
-                  ('Group', ordered_groups, ordered_groups_desc),
-                  ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
-                                 map(lambda x:x.description, sample_saccades_plots))
+              ('Detector', configurations, configurations),
+              ('Group', ordered_groups, ordered_groups_desc),
+              ('Plot/table', map(lambda x:x.id, sample_saccades_plots),
+                             map(lambda x:x.description, sample_saccades_plots))
         ], job_id='gui-saccade_plots')
     
     # fix configuration, sample; plot fullsscreen
@@ -463,7 +468,7 @@ def main():
                     for plot in  sample_fullscreen_plots:
                         page_id = '%s.%s.%s' % (sample, configuration, plot.id)
                         comp(write_empty, page_id, output_dir,
-                             'Group %s does not have raw experimental data.' % 
+                             'Group %r does not have raw experimental data.' % 
                              (group),
                              job_id=page_id)
                     continue    
@@ -584,12 +589,12 @@ def combine_reports(subs, descs, page_id, output_dir):
     
     resources_dir = os.path.join(output_dir, 'images')
     filename = os.path.join(output_dir, "%s.html" % page_id)
-    print "Writing to %s" % filename
+    print("Writing to %r." % filename)
     r.to_html(filename, resources_dir, extra_css=extra_css)
 
 def write_empty(page_id, output_dir, reason):
     filename = os.path.join(output_dir, "%s.html" % page_id)
-    print "Writing to %s" % filename
+    print("Writing to %r." % filename)
     with open(filename, 'w') as f:
         f.write("""
 <html>
@@ -628,9 +633,11 @@ def wrap_sample_saccades_plot(data_dir, sample, configuration,
             exp_data = db.get_table(sample, EXP_DATA_TABLE)
         else:
             exp_data = None
-        table = db.get_table(sample, table=SACCADES_TABLE, version=configuration)
+        table = db.get_table(sample, table=SACCADES_TABLE,
+                             version=configuration)
         saccades = numpy.array(table, dtype=table.dtype)
-        result = plot_func(sample, exp_data, configuration, saccades, **function_args)
+        result = plot_func(sample, exp_data, configuration,
+                           saccades, **function_args)
         db.release_table(table)
         if exp_data:
             db.release_table(exp_data)

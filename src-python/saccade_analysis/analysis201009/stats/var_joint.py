@@ -82,7 +82,6 @@ def group_var_joint(group, configuration, saccades, #@UnusedVariable
         pylab.xlabel('%s (%s)' % (var1.name, var1.unit))
         pylab.ylabel('%s (%s)' % (var2.name, var2.unit))
         
-    
     return r
 
 

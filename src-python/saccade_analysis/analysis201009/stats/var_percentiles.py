@@ -14,8 +14,6 @@ The samples are ordered left-to-right by increasing median value.
     
 def group_var_percentiles(group, configuration, #@UnusedVariable
                           saccades, variable):
-     
-    
     percentiles = [1, 5, 25, 50, 75, 95, 99]
     colors = [ 'k', 'r', 'b', 'g', 'b', 'r', 'k']
     vcolors = ['k', 'r', 'b', 'b', 'r', 'k']
@@ -37,7 +35,6 @@ def group_var_percentiles(group, configuration, #@UnusedVariable
         scores[p] = numpy.array(scores[p])
     
     order = numpy.argsort(scores[50])
-    
     
     r = Report()
     attach_description(r, description.format(var=variable,
@@ -66,6 +63,6 @@ def group_var_percentiles(group, configuration, #@UnusedVariable
         pylab.ylabel('%s (%s)' % (variable.name, variable.unit))
         
         pylab.xlabel('sample')
-        
-    
+            
     return r
+
