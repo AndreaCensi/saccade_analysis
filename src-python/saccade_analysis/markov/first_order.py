@@ -134,7 +134,7 @@ def count_overlapping(s, sub):
 
 from scipy.stats import f
 
-def binofit(x, n, alpha):
+def binofit(x, n, alpha=0.01):
     ''' Copied from Matlab. '''
     # Lower limits
     

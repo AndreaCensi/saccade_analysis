@@ -2,6 +2,7 @@
 scripts = [
     ('sac_plot_xy', 'saccade_analysis.hollywood.plot_xy_direction'),
     ('sac_tammero_analysis', 'saccade_analysis.tammero.tammero_analysis'),
+    ('sac_spontaneous_analysis', 'saccade_analysis.tammero_flydradb.spontaneous'),
     # ('sac_peter2ros', 'expdb.peter2ros'),
     
     ('sac_import_peter', 'saccade_analysis.import_peter'),
