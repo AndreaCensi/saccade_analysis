@@ -2,6 +2,7 @@ from reprep import Report
 import numpy as np
 
 from saccade_analysis.markov.first_order import binofit
+from .report_axis_angle import create_report_axis_angle
 
 def create_report_subset(id, desc, saccades):
     report = Report('subset_' + id)
@@ -142,8 +143,7 @@ def create_report_subset(id, desc, saccades):
         #a = pylab.axis()
             pylab.legend()
         pylab.xlabel('saccade angle')
-        pylab.ylabel('density') 
-        
+        pylab.ylabel('density')         
     
     f = report.figure(cols=3)
     f.sub('distance_from_center', caption='Distance from center')

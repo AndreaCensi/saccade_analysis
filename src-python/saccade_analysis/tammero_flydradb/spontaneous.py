@@ -6,6 +6,7 @@ from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open 
 
 from .reports import create_report_subset,create_report_randomness
+from .report_axis_angle import create_report_axis_angle
 from .load_data import get_saccades
 
 description = """ Creates figures similar to Tammero. """
@@ -110,8 +111,9 @@ def create_report(outdir, combination_id, saccades):
     r.text('stats', stats)
     
     desc = ""
-    r.add_child(create_report_subset(combination_id,desc, saccades))
-    r.add_child(create_report_randomness(combination_id, desc, saccades))
+    #r.add_child(create_report_subset(combination_id,desc, saccades))
+    #r.add_child(create_report_randomness(combination_id, desc, saccades))
+    r.add_child(create_report_axis_angle(combination_id, desc, saccades))
 
     
     rd=os.path.join(outdir, 'images')

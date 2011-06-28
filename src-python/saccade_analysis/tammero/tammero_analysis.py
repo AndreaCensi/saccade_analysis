@@ -328,4 +328,41 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         info[i]['approach_angle'] = numpy.degrees(approach_angle)
         
     return merge_fields(saccades, info)
+
+
+def add_position_information_to_rows(rows,
+                                     arena_center=[0.15, 0.48], arena_radius=1.0):
+    info_dtype = [
+        ('distance_from_wall', 'float64'),
+        ('distance_from_center', 'float64'),
+        ('axis_angle', 'float64'),
+        ('approach_angle', 'float64'), # degrees 
+    ]
+
+    info = numpy.zeros(dtype=info_dtype, shape=(len(rows),))
     
+    for i, row in enumerate(rows):
+        x = row['position'][0]
+        y = row['position'][1]
+        ax = x - arena_center[0]
+        ay = y - arena_center[1]
+        
+        distance_from_center = numpy.hypot(ax, ay)
+        
+        distance_from_wall = arena_radius - distance_from_center
+        assert distance_from_wall > 0
+        
+        theta = row['reduced_angular_orientation']
+        
+        approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
+        
+        angle = numpy.arctan2(ay, ax)
+        axis_angle = normalize_pi(theta - angle)
+        
+        info[i]['distance_from_center'] = distance_from_center
+        info[i]['distance_from_wall'] = distance_from_wall
+        #info[i]['saccade_angle'] = saccade_angle
+        info[i]['axis_angle'] = numpy.degrees(axis_angle)
+        info[i]['approach_angle'] = numpy.degrees(approach_angle)
+        
+    return merge_fields(rows, info)  
