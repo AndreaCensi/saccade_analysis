@@ -4,8 +4,7 @@ from optparse import OptionParser
 from reprep import Report
 from compmake import use_filesystem, comp, compmake_console 
 from flydra_db import safe_flydra_db_open 
-
-from .reports import create_report_subset,create_report_randomness
+ 
 from .report_axis_angle import create_report_axis_angle
 from .load_data import get_saccades
 
@@ -70,12 +69,12 @@ def spontaneous_analysis(db, outdir):
     
     which = {
         'all':                dict(d_min=0, d_max=1, desc='All saccades'),
-        'close_to_the_wall':  dict(d_min=0, d_max=0.5, 
+        'close_to_the_wall':  dict(d_min=0, d_max=0.5,
                                    desc='Close to the wall (<0.5m)'),
         'far_from_the_wall':  dict(d_min=0.5, d_max=1,
                                    desc='Far from the wall (>0.5m)'),
         'wdistance_00cm_to_50cm':  dict(d_min=0, d_max=0.5),
-        'wdistance_00cm_to_40cm':  dict(d_min=0, d_max=0.4), 
+        'wdistance_00cm_to_40cm':  dict(d_min=0, d_max=0.4),
         'wdistance_00cm_to_30cm':  dict(d_min=0, d_max=0.3),
         'wdistance_00cm_to_20cm':  dict(d_min=0, d_max=0.2),
         'wdistance_90cm_to_100cm':  dict(d_min=0.90, d_max=1),
@@ -86,15 +85,15 @@ def spontaneous_analysis(db, outdir):
         'wdistance_60cm_to_100cm':  dict(d_min=0.60, d_max=1),
         'wdistance_55cm_to_100cm':  dict(d_min=0.55, d_max=1),
         'wdistance_50cm_to_100cm':  dict(d_min=0.50, d_max=1),
-        'wdistance_45cm_to_100cm':  dict(d_min=0.45, d_max=1), 
-        'wdistance_40cm_to_100cm':  dict(d_min=0.40, d_max=1), 
+        'wdistance_45cm_to_100cm':  dict(d_min=0.45, d_max=1),
+        'wdistance_40cm_to_100cm':  dict(d_min=0.40, d_max=1),
         'wdistance_30cm_to_100cm':  dict(d_min=0.30, d_max=1),
         'wdistance_20cm_to_100cm':  dict(d_min=0.20, d_max=1),
     }
     
     for group_id, group_attr in groups.items():
         for section_id, section_attrs in which.items():
-            combination_id = '%s-%s' %(group_id,section_id)
+            combination_id = '%s-%s' % (group_id, section_id)
             db_group = group_attr['db_group']
             d_interval = (section_attrs['d_min'], section_attrs['d_max'])
          
@@ -116,9 +115,9 @@ def create_report(outdir, combination_id, saccades):
     r.add_child(create_report_axis_angle(combination_id, desc, saccades))
 
     
-    rd=os.path.join(outdir, 'images')
-    out=os.path.join(outdir, 'combinations', '%s.html' % combination_id)
-    print('Writing to %r' % out )
+    rd = os.path.join(outdir, 'images')
+    out = os.path.join(outdir, 'combinations', '%s.html' % combination_id)
+    print('Writing to %r' % out)
     r.to_html(out, resources_dir=rd)
     
     

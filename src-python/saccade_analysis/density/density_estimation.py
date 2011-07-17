@@ -1,11 +1,35 @@
 from contracts import contract
-import numpy as np
-from ..tammero.tammero_analysis import add_position_information_to_rows
-from flydra_db.db import safe_flydra_db_open
-from geometric_saccade_detector.well_formed_saccade import check_saccade_is_well_formed
-from saccade_analysis.tammero.tammero_analysis import add_position_information
+import numpy as np 
+import itertools
+from collections import namedtuple
 
+class CellsDivision: 
+    def __init__(self, ncells_distance, ncells_axis_angle,
+                        arena_radius, min_distance,
+                        bin_enlarge_angle,
+                        bin_enlarge_dist):
+        self.ncells_distance = ncells_distance
+        self.ncells_axis_angle = ncells_axis_angle
+        self.min_distance = min_distance
+        self.bin_enlarge_dist = bin_enlarge_dist
+        self.bin_enlarge_angle = bin_enlarge_angle
+        
+        self.d_edges = get_distance_edges(arena_radius=arena_radius - min_distance,
+                                     n=ncells_distance)
+        self.a_edges = np.linspace(-180, 180, ncells_axis_angle + 1)
 
+    Cell = namedtuple('Cell', 'a d a_min a_max d_min d_max')
+    def iterate_cells(self):
+        nd = len(self.d_edges) - 1
+        na = len(self.a_edges) - 1
+
+        for a, d  in itertools.product(range(na), range(nd)):
+            a_min = self.a_edges[a + 0] - self.bin_enlarge_angle
+            a_max = self.a_edges[a + 1] + self.bin_enlarge_angle
+            d_min = self.d_edges[d + 0] - self.bin_enlarge_dist
+            d_max = self.d_edges[d + 1] + self.bin_enlarge_dist
+            yield CellsDivision.Cell(a=a, d=d, a_min=a_min, a_max=a_max,
+                                     d_min=d_min, d_max=d_max)
 
 @contract(arena_radius='>0', n='int,>2,N', returns='array[N+1]')
 def get_distance_edges(arena_radius, n):
@@ -92,6 +116,14 @@ def compute_histogram(rows, ncells_distance, ncells_axis_angle,
 
 
 def compute_histogram_saccades(saccades, stats, bin_enlarge_dist=0, bin_enlarge_angle=0):
+    ''' Returns a dictionary with the fields:
+    
+            distance_edges=d_edges,
+                axis_angle_edges=a_edges,
+                total=count,
+                num_left=num_left,
+                num_right=num_right
+    '''
     d_edges = stats['distance_edges']
     a_edges = stats['axis_angle_edges']
     
