@@ -4,14 +4,22 @@ import itertools
 import numpy as np
 
 
-def plot_image(r, f, nid, d_edges, a_edges, field, caption=None, scale_params={},
-               use_posneg=False):
+def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
+               use_posneg=False, scale_format='%4g'):
+    
+    d_edges = cells.d_edges
+    a_edges = cells.a_edges
+    
+    nd = len(d_edges) - 1 
     
     if use_posneg:
         rgb = posneg(field, **scale_params) / 255.0
+        colorbar = None
     else:
-        rgb = scale(field, **scale_params) / 255.0
-         
+        properties = {}
+        rgb = scale(field, properties=properties, **scale_params) / 255.0
+        colorbar = properties['color_bar']
+    
     with r.data_pylab(nid) as pl:
         pl.title(nid if caption is None else caption)
         pl.xlabel('axis angle (deg)')
@@ -33,9 +41,30 @@ def plot_image(r, f, nid, d_edges, a_edges, field, caption=None, scale_params={}
             closest = np.argmin(np.abs(d_edges - l))
             tick_pos.append(closest)
             tick_label.append('%.2f' % l)
-        pl.yticks(tick_pos, tick_label)
-        pl.axis((a_edges[0], a_edges[-1], tick_pos[1], len(d_edges) - 1))
-    r.last().add_to(f, caption=caption)
+    #    pl.yticks(tick_pos, tick_label)
+       
+        bar_w = 15
+        bar_x = 180 + 2 * bar_w
+        if colorbar is not None:
+            f = 3
+            ex = [bar_x - bar_w, bar_x + bar_w, f, nd - f]
+            pl.imshow(colorbar,
+                      extent=ex, aspect='auto')
+            pl.fill([ex[0], ex[0], ex[1], ex[1]],
+                    [ex[2], ex[3], ex[3], ex[2]], facecolor='none', edgecolor='k')
+            vdist = 1.1
+            pl.annotate(scale_format % properties['min_value'], (bar_x, f - vdist),
+                        horizontalalignment='center')
+            pl.annotate(scale_format % properties['max_value'], (bar_x, nd - f + vdist),
+                        horizontalalignment='center')
+        
+        xt = [-180, -135, -90, -45, 0, 45, 90, 135, 180]
+        pl.xticks(xt, ['%+d' % x for x in xt])
+        pl.yticks(range(len(d_edges)), ['%.2f' % x for x in cells.d_edges])
+        #pl.axis((a_edges[0], a_edges[-1], 0, nd))
+        pl.axis((-180, bar_x + bar_w * 2, 0, nd))
+        
+    r.last().add_to(fig, caption=caption)
 #
 #def plot_image_nonscaled(r, f, nid, d_edges, a_edges, field, caption=None, skim=0):
 #    

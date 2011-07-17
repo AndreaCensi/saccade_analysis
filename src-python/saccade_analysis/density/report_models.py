@@ -7,8 +7,7 @@ def report_models_choice(confid, stats):
     
     r = Report('%s_models' % confid)
     
-    distance_edges = stats['distance_edges']
-    axis_angle_edges = stats['axis_angle_edges']
+    cells = stats['cells']
     rate_saccade = stats['rate_saccade']
     rate_saccade_left = stats['rate_saccade_left']
     rate_saccade_right = stats['rate_saccade_right']
@@ -31,32 +30,31 @@ def report_models_choice(confid, stats):
     scale_params = dict(max_value=max_rate, min_value=min_rate, skim=0.5)
     
     plot_image(r, f_rates, 'rate_sac',
-               distance_edges, axis_angle_edges, rate_saccade,
+               cells, rate_saccade,
                scale_params=dict(skim=1, max_color=[0, 0, 0.2],),
                caption="Saccading rate (saccades/s)")
     plot_image(r, f_rates, 'rate_sac_left',
-               distance_edges, axis_angle_edges, rate_saccade_left,
+               cells, rate_saccade_left,
                scale_params=scale_params,
                caption="Left saccading rate (saccades/s)")
     plot_image(r, f_rates, 'rate_sac_right',
-               distance_edges, axis_angle_edges, rate_saccade_right,
+               cells, rate_saccade_right,
                scale_params=scale_params,
                caption="Right saccading rate (saccades/s)")
     plot_image(r, f_rates, 'rate_sac_sym',
-               distance_edges, axis_angle_edges, rate_saccade_sym,
+               cells, rate_saccade_sym,
                scale_params=dict(skim=1, max_color=[0, 0, 0.2],),
                caption="Saccading rate (saccades/s)") 
    
     plot_image(r, f_rates, 'rate_sac_sym_order',
-               distance_edges, axis_angle_edges, rate_saccade_sym_order,
+               cells, rate_saccade_sym_order,
                scale_params={},
                caption="Order saccading rate (saccades/s)")
    
     plot_image(r, f_rates, 'rate_sac_lr',
-               distance_edges, axis_angle_edges, rate_saccade_lr,
+               cells, rate_saccade_lr,
                scale_params={}, use_posneg=True,
                caption="Symmetrized saccading rate (saccades/s)")
-   
    
     return r
 
