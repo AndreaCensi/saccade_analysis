@@ -5,7 +5,7 @@ import numpy as np
 
 
 def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
-               use_posneg=False, scale_format='%4g'):
+               use_posneg=False, scale_format='%.2f'):
     
     d_edges = cells.d_edges
     a_edges = cells.a_edges
@@ -48,7 +48,7 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
         if colorbar is not None:
             f = 3
             ex = [bar_x - bar_w, bar_x + bar_w, f, nd - f]
-            pl.imshow(colorbar,
+            pl.imshow(colorbar, origin='lower',
                       extent=ex, aspect='auto')
             pl.fill([ex[0], ex[0], ex[1], ex[1]],
                     [ex[2], ex[3], ex[3], ex[2]], facecolor='none', edgecolor='k')
