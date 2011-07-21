@@ -1,8 +1,9 @@
-import numpy
+import numpy as np
 import scipy.stats
 from scipy.stats.morestats import binom_test
-from numpy.lib.function_base import linspace
 from scipy.stats import binom
+from . import binofit
+
 
 def first_order_analysis(s, significance=0.05):
     symbols = ['L', 'R']
@@ -33,7 +34,7 @@ def first_order_analysis(s, significance=0.05):
 
     # Run the test for the lower bound
     
-    ps = linspace(p_L_lb, p_L_ub, 50)
+    ps = np.linspace(p_L_lb, p_L_ub, 50)
     pvalues = []
     whys = []
     
@@ -64,7 +65,7 @@ def first_order_analysis(s, significance=0.05):
         whys.append(correlation)
         pvalues.append(pvalue_p)
     
-    best = numpy.argmax(pvalues)
+    best = np.argmax(pvalues)
     best_p = ps[best] 
     indep_pvalue = pvalues[best]
     indep_rejected = indep_pvalue < significance
@@ -131,32 +132,5 @@ def count_overlapping(s, sub):
         if portion == sub:
             count += 1
     return count
-
-from scipy.stats import f
-
-def binofit(x, n, alpha=0.01):
-    ''' Copied from Matlab. '''
-    # Lower limits
-    
-    if x == 0:
-        lb = 0
-    else:    
-        nu1 = 2 * x;
-        nu2 = 2 * (n - x + 1);
-        F = f.ppf(alpha / 2, nu1, nu2);
-        lb = (nu1 * F) / (nu2 + nu1 * F);
-        
-    if x == n:
-        ub = 1
-    else:
-        nu1 = 2 * (x + 1);
-        nu2 = 2 * (n - x);
-        F = f.ppf(1 - alpha / 2, nu1, nu2);
-        ub = (nu1 * F) / (nu2 + nu1 * F);
-        
-    
-    return (lb, ub)
-
-
 
 

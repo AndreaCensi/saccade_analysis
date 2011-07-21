@@ -1,5 +1,5 @@
- 
-from ..tammero_flydradb.report_axis_angle import binomial_stats
+from saccade_analysis.markov import binomial_stats
+binomial_stats
 from .plot_utils import plot_image
 from reprep import Report
 import numpy as np

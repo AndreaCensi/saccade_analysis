@@ -52,6 +52,10 @@ class CellsDivision:
         self.na = len(self.a_edges) - 1
         self.shape = ((self.nd, self.na))
                 
+    def zeros(self, dtype='float32'):
+        ''' Returns a zero array with the same shape. '''
+        return np.zeros(self.shape, dtype=dtype)
+        
     def iterate(self):
         for a, d  in itertools.product(range(self.na), range(self.nd)):
             a_min = self.a_edges[a + 0] - self.bin_enlarge_angle
@@ -83,7 +87,7 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
     distance = rows['distance_from_wall']
     linear_velocity_modulus = rows['linear_velocity_modulus']
 
-    count = np.zeros(cells.shape)
+    count = np.zeros(cells.shape, dtype='int')
     mean_speed = np.zeros(cells.shape)
     time_spent = np.zeros(cells.shape)
     
@@ -122,7 +126,8 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
 
 def compute_histogram_saccades(saccades, cells):
     ''' Returns a dictionary with the fields:
-     
+                
+                cells
                 total=count,
                 num_left=num_left,
                 num_right=num_right
@@ -131,9 +136,9 @@ def compute_histogram_saccades(saccades, cells):
     axis_angle = saccades['axis_angle']
     distance = saccades['distance_from_wall']
   
-    count = np.zeros(cells.shape) 
-    num_left = np.zeros(cells.shape) 
-    num_right = np.zeros(cells.shape) 
+    count = np.zeros(cells.shape, dtype='int') 
+    num_left = np.zeros(cells.shape, dtype='int') 
+    num_right = np.zeros(cells.shape, dtype='int') 
      
     for c in cells.iterate(): 
         inside = c.inside(axis_angle=axis_angle, distance=distance)

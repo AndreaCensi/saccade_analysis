@@ -15,6 +15,7 @@ import numpy as np
 import os
 import sys
 import traceback
+import compmake
 
  
 description = """  """
@@ -33,7 +34,8 @@ def main():
                       help="Discretization for distance")
     parser.add_option("--ncells_axis_angle", type='int', default=36,
                       help="Discretization for axis angle")
-    
+    parser.add_option("--compmake_command", default=None,
+                      help="Execute the CompMake command and exit.")
     (options, args) = parser.parse_args() #@UnusedVariable
     
     try:
@@ -88,7 +90,10 @@ def main():
         html = os.path.join(options.outdir, "%s_models.html" % confid)
         comp(write_report, report_m, html, rd)
         
-        compmake_console()
+        if options.compmake_command is not None:
+            compmake.batch_command(options.compmake_command)
+        else:
+            compmake_console()
 
 
     except Exception as e:

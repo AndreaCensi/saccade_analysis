@@ -1,8 +1,7 @@
 from reprep import Report
 import numpy as np
 
-from saccade_analysis.markov.first_order import binofit
-from .report_axis_angle import create_report_axis_angle
+from ..markov.first_order import binofit
 
 def create_report_subset(id, desc, saccades):
     report = Report('subset_' + id)
