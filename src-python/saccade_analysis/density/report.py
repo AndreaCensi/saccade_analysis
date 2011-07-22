@@ -1,29 +1,26 @@
-from . import logger
-from ..tammero.tammero_analysis import (add_position_information,
-    add_position_information_to_rows)
-from .density_estimation import (compute_histogram, compute_histogram_saccades,
-    CellsDivision)
+from . import DACells, logger
+from ..tammero.tammero_analysis import add_position_information, \
+    add_position_information_to_rows
+from .density_estimation import compute_histogram, compute_histogram_saccades
 from .report_models import report_models_choice
 from .report_previous import report_stats
 from .statistics import compute_joint_statistics
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
-from geometric_saccade_detector.well_formed_saccade import (
-    check_saccade_is_well_formed)
+from geometric_saccade_detector.well_formed_saccade import \
+    check_saccade_is_well_formed
 from optparse import OptionParser
-import numpy as np
+import compmake
 import os
 import sys
 import traceback
-import compmake
-
  
 description = """  """
 
 
 
 def main():
-    #np.seterr(all='raise')
+#    np.seterr(all='raise')
     
     parser = OptionParser(usage=description)
     parser.add_option("--db", help="Main data directory")
@@ -61,11 +58,15 @@ def main():
         confid = '%s-D%d-A%d' % (options.group, options.ncells_distance,
                               options.ncells_axis_angle)
           
-        bin_enlarge_dist = 0.05
+        bin_enlarge_dist = 0
         bin_enlarge_angle = 10
         min_distance = 0.15
+
+#        bin_enlarge_dist = 0.05
+#        bin_enlarge_angle = 10
+#        min_distance = 0.15
         
-        cells = CellsDivision(
+        cells = DACells(
                     ncells_distance=options.ncells_distance,
                     ncells_axis_angle=options.ncells_axis_angle,
                     arena_radius=1, min_distance=min_distance,
@@ -102,9 +103,9 @@ def main():
         logger.error(traceback.format_exc())
         sys.exit(-2)
         
-def zoom(x, n):
-    k = np.ones((n, n))
-    return np.kron(x, k) 
+#def zoom(x, n):
+#    k = np.ones((n, n))
+#    return np.kron(x, k) 
     
 
 def write_report(report, html, rd):
@@ -113,7 +114,7 @@ def write_report(report, html, rd):
 
 def get_group_density_stats(flydra_db_directory, db_group, cells): 
     with safe_flydra_db_open(flydra_db_directory) as db:
-        rows = db.get_table_for_group(db_group, table='rows')
+        rows = db.get_table_for_group(db_group, table='rows', version='smooth')
         print('Read %d rows' % len(rows))
     
         print('Computing extra information')

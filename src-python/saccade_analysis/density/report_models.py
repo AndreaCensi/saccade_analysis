@@ -1,6 +1,8 @@
 from reprep import  Report
 import numpy as np
 from .plot_utils import plot_image
+from saccade_analysis.density.plot_utils import plot_arena
+from saccade_analysis.density.xy_cells import XYCells
 
 COL_LEFT = 'r'
 COL_LEFT_RGB = [1, 0, 0]
@@ -13,42 +15,40 @@ def report_models_choice(confid, stats):
     r = Report('%s_models' % confid)
     
     cells = stats['cells']
-    rate_saccade = stats['rate_saccade']
-    rate_saccade_left = stats['rate_saccade_left']
-    rate_saccade_right = stats['rate_saccade_right'] 
-    
-    rate_saccade_left_order = scale_score_norm(rate_saccade_left)
-    rate_saccade_right_order = scale_score_norm(rate_saccade_right)
+
+    rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
+    rate_saccade_right_order = scale_score_norm(stats['rate_saccade_right2']['mean'])
+               
+    M = 0.5 * (rate_saccade_left_order + 1 - rate_saccade_right_order)
+    c = 0.5 # TODO
+    phi = 2 * (M - c)
+
 
     f_rates = r.figure('Saccade rates', cols=3)
     
-    s = ""
-    s += ('Saccade rate:      %8f  %8f\n' % compute_interval(rate_saccade))
-    s += ('Saccade rate (L):  %8f  %8f\n' % compute_interval(rate_saccade_left))
-    s += ('Saccade rate (R):  %8f  %8f\n' % compute_interval(rate_saccade_right))
+    max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
+                          np.nanmax(stats['rate_saccade_right2']['mean'])])
     
-    r.text('rate_values', s)
-    #min_rate, max_rate = compute_interval(rate_saccade_left, perc=[0, 100])    
-    max_rate = np.max([np.max(rate_saccade_left), np.max(rate_saccade_right)])
     plot_image(r, f_rates, 'rate_sac_left',
-               cells, rate_saccade_left,
+               cells, stats['rate_saccade_left2']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
                                  max_color=COL_LEFT_RGB),
                caption="Left saccading rate (saccades/s)")
+    
     plot_image(r, f_rates, 'rate_sac_right',
-               cells, rate_saccade_right,
+               cells, stats['rate_saccade_right2']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
                                  max_color=COL_RIGHT_RGB),
                caption="Right saccading rate (saccades/s)") 
 
 
     plot_image(r, f_rates, 'rate_sac',
-               cells, rate_saccade,
+               cells, stats['rate_saccade2']['mean'],
                scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
                caption="Saccading rate (saccades/s)")
-    
 
     order_params = dict(max_color=[0, 1, 0], min_color=[1, 0, 1])
+    
     plot_image(r, f_rates, 'rate_saccade_left_order',
                cells, rate_saccade_left_order,
                scale_params=order_params,
@@ -59,10 +59,6 @@ def report_models_choice(confid, stats):
                scale_params=order_params,
                caption="order[ right saccade rate]")
    
-               
-    M = 0.5 * (rate_saccade_left_order + 1 - rate_saccade_right_order)
-    c = 0.5 # TODO
-    phi = 2 * (M - c)
 
     plot_image(r, f_rates, 'phi', cells, phi,
                scale_params={}, use_posneg=True,
@@ -70,10 +66,76 @@ def report_models_choice(confid, stats):
 This is the 1D quantity that best explains the saccading rates,
 assuming that there is a left-right symmetry. """)
     
+    f_arena = r.figure('Arena view', cols=3)
+    
+    ncells = 200
+    xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
+
+    da2xy = lambda F:  xy_cells.from_da_field(F) 
+    
+    if True:
+        plot_arena(f_arena, f_arena, 'x', xy_cells.x,
+                   use_posneg=True, caption="x")
+        plot_arena(f_arena, f_arena, 'y', xy_cells.y,
+                   use_posneg=True, caption="y")
+        plot_arena(f_arena, f_arena, 'd', xy_cells.d,
+                   use_posneg=True, caption="d")
+        plot_arena(f_arena, f_arena, 'axis_angle', xy_cells.axis_angle_deg,
+                   use_posneg=True, caption="axis_angle")
+#        plot_arena(f_arena, f_arena, 'inside', xy_cells.in_cell * 1.0,
+#                   use_posneg=True, caption="inside")
+        plot_arena(f_arena, f_arena, 'd_index', xy_cells.d_index % 2,
+                   use_posneg=True, caption="d_index")
+        plot_arena(f_arena, f_arena, 'a_index', xy_cells.a_index % 2,
+                   use_posneg=True, caption="a_index")
+        plot_arena(f_arena, f_arena, 'cells',
+                   (xy_cells.a_index + xy_cells.d_index) % 2,
+                   use_posneg=True, caption="Cells division")
+        
+       
+    plot_arena(f_arena, f_arena, 'rate_sac_left',
+               da2xy(stats['rate_saccade_left2']['mean']),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_LEFT_RGB),
+               caption="Left saccading rate (saccades/s)")
+    
+    plot_arena(f_arena, f_arena, 'rate_sac_right',
+               da2xy(stats['rate_saccade_right2']['mean']),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_RIGHT_RGB),
+               caption="Right saccading rate (saccades/s)") 
+
+    plot_arena(f_arena, f_arena, 'rate_sac',
+               da2xy(stats['rate_saccade2']['mean']),
+               scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
+               caption="Saccading rate (saccades/s)")
+
+    order_params = dict(max_color=[0, 1, 0], min_color=[1, 0, 1])
+    
+    plot_arena(f_arena, f_arena, 'rate_saccade_left_order',
+               da2xy(rate_saccade_left_order),
+               scale_params=order_params,
+               caption="order[ left saccade rate]")
+   
+    plot_arena(f_arena, f_arena, 'rate_saccade_right_order',
+               da2xy(rate_saccade_right_order),
+               scale_params=order_params,
+               caption="order[ right saccade rate]")
+   
+    plot_arena(f_arena, f_arena, 'phi',
+               da2xy(phi),
+               scale_params={}, use_posneg=True,
+                caption="""Normalized reduced stimulus. 
+This is the 1D quantity that best explains the saccading rates,
+assuming that there is a left-right symmetry. """)
+    
+    
+    
+    
     f_stimulus = r.figure('stimulus', cols=2)
     with r.data_pylab('behavior_rates_both_raw') as pylab:
         params = dict()
-        pylab.plot(phi.flat, rate_saccade.flat,
+        pylab.plot(phi.flat, stats['rate_saccade2']['mean'].flat,
                    'k.', label='saccade (left or right)', **params)
         pylab.ylabel('Saccade rates')
         pylab.xlabel('Normalized reduced stimulus')
@@ -95,7 +157,20 @@ Same thing, but plotting 95% confidence intervals.
 Note that it would be desirable to have x-axis error bars, but 
 the analysis gets a bit complicated...
 """)
-
+#
+#    sample_phi = np.linspace(-1,+1, 100)
+#    sample_fit = 
+#    x = phi
+#    y = stats['rate_saccade2']
+#    yerr = stats['rate_saccade2']['confidence']
+#    
+#    with r.data_pylab('behavior_rates_both_intervals_fit') as pylab:
+#        plot_rate_bars(pylab, phi, stats['rate_saccade2'], 'k')
+#        pylab.ylabel('Behavior rates')
+#        pylab.xlabel('Normalized reduced stimulus')
+#
+#    r.last().add_to(f_stimulus, caption="""Robust fit""")
+    
     with r.data_pylab('behavior_rates_raw') as pylab:
         pylab.plot(phi.flat, stats['rate_saccade_left2']['mean'].flat,
                    '%s.' % COL_LEFT, label='saccade left')
@@ -184,11 +259,6 @@ def scale_score(x):
     order_order = np.argsort(order)
     y.flat[:] = order_order.astype(y.dtype)
     return y
-
-
-#
-#def symmetrize(M):
-#    return 0.5 * (M + np.fliplr(M))
 
 def compute_interval(rate, perc=[1, 99]):
     limits = np.percentile(np.array(rate.flat), perc)

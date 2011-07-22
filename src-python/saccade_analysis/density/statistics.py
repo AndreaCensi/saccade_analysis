@@ -6,20 +6,12 @@ def compute_joint_statistics(stats, saccades_stats):
         if k in saccades_stats:
             print('Warning, %r in both' % k)
     stats.update(**saccades_stats)
-    count = stats['count']
+    C = stats['count']
     # Total number of saccades 
-    total = saccades_stats['total']
-    num_left = saccades_stats['num_left']
-    num_right = saccades_stats['num_right']
-    #assert_all_close(total, num_left + num_right)
-    dt = 1.0 / 60
-    T = count * dt
-
-    T[count == 0] = 1
-    stats['rate_saccade'] = total * 1.0 / T
-    stats['rate_saccade_left'] = num_left * 1.0 / T
-    stats['rate_saccade_right'] = num_right * 1.0 / T
- 
+    N = saccades_stats['total']
+    N_L = saccades_stats['num_left']
+    N_R = saccades_stats['num_right']
+    dt = 1.0 / 60 
     cells = stats['cells'] 
     ft = lambda: cells.zeros(fit_dtype) 
     stats['rate_saccade2'] = ft()
@@ -28,16 +20,16 @@ def compute_joint_statistics(stats, saccades_stats):
     stats['prob_left2'] = ft()
     stats['prob_right2'] = ft()
     
-    
+    alpha = 0.05
+
     for c in cells.iterate():
         k = c.k
-        pf = fit_poisson
-        stats['rate_saccade2'][k] = pf(count[k], total[k], dt)
-        stats['rate_saccade_right2'][k] = pf(count[k], num_right[k], dt)
-        stats['rate_saccade_left2'][k] = pf(count[k], num_left[k], dt)
-        alpha = 0.05
-        stats['prob_left2'][k] = fit_binomial(num_left[k], total[k], alpha)
-        stats['prob_right2'][k] = fit_binomial(num_right[k], total[k], alpha) 
+        stats['rate_saccade2'][k] = fit_poisson(C[k], N[k], dt)
+        stats['rate_saccade_left2'][k] = fit_poisson(C[k], N_L[k], dt)
+        stats['rate_saccade_right2'][k] = fit_poisson(C[k], N_R[k], dt)
+        stats['prob_left2'][k] = fit_binomial(N_L[k], N[k], alpha)
+        stats['prob_right2'][k] = fit_binomial(N_R[k], N[k], alpha)
+         
     return stats
 
 
@@ -65,7 +57,7 @@ doi:10.1016/j.jsg.2009.04.016.
     
     # maximum likelihood (also unbiased mean)
     if N <= 4: # TODO: simple formula below doesn't work for N<=4
-        ml = np.NaN
+        ml = N / L 
         upper = np.NaN
         lower = np.NaN
     else:
@@ -87,6 +79,7 @@ doi:10.1016/j.jsg.2009.04.016.
 
 @contract(x='int,>=0,x', n='int,>=0,>=x', alpha='>0,<1')
 def fit_binomial(x, n, alpha=0.01):
+    ''' If n=0, the distribution is uniform in [0,1]. '''
     from scipy.stats import f
     if n == 0:
         ml = 0.5

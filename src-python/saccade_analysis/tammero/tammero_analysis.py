@@ -8,13 +8,16 @@ from geometric_saccade_detector.io import saccades_read_h5, saccades_write_all
 from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
 
 from .approach_angle import compute_approach_angle
+from contracts import contract
 
 
 def main():
     
     parser = OptionParser()
-    parser.add_option("--saccades", help="Saccades file (.h5 created by geo_sac_compact)")
-    parser.add_option("--output", help="Output directory", default='tammero_analysis')
+    parser.add_option("--saccades",
+                      help="Saccades file (.h5 created by geo_sac_compact)")
+    parser.add_option("--output", help="Output directory",
+                      default='tammero_analysis')
 
     (options, args) = parser.parse_args() #@UnusedVariable
 
@@ -316,10 +319,8 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         theta = numpy.radians(saccade['orientation_start'])
         
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
-        
-        angle = numpy.arctan2(ay, ax)
-        axis_angle = normalize_pi(theta - angle)
-        
+
+        axis_angle = compute_axis_angle(ax, ay, theta)
         
         info[i]['distance_from_center'] = distance_from_center
         info[i]['distance_from_wall'] = distance_from_wall
@@ -350,19 +351,28 @@ def add_position_information_to_rows(rows,
         distance_from_center = numpy.hypot(ax, ay)
         
         distance_from_wall = arena_radius - distance_from_center
-        assert distance_from_wall > 0
+        assert distance_from_wall > 0, ('Arena: %s radius %s distance %s position %s' % 
+                                        (arena_center, arena_radius, distance_from_center,
+                                         row['position']))
         
         theta = row['reduced_angular_orientation']
         
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
-        
-        angle = numpy.arctan2(ay, ax)
-        axis_angle = normalize_pi(theta - angle)
-        
+        axis_angle = compute_axis_angle(ax, ay, theta)
+
         info[i]['distance_from_center'] = distance_from_center
         info[i]['distance_from_wall'] = distance_from_wall
-        #info[i]['saccade_angle'] = saccade_angle
         info[i]['axis_angle'] = numpy.degrees(axis_angle)
         info[i]['approach_angle'] = numpy.degrees(approach_angle)
         
     return merge_fields(rows, info)  
+
+
+@contract(x='float', y='float', theta='float', returns='>=-pi,<=pi')
+def compute_axis_angle(x, y, theta):
+    ''' x,y: coordinates with respect to center of arena.
+        Returns the angle in radians. '''
+    angle = numpy.arctan2(y, x)
+    axis_angle = normalize_pi(theta - angle)
+    return axis_angle
+
