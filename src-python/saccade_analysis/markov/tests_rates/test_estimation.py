@@ -1,7 +1,7 @@
 from saccade_analysis.markov.tests_rates.simulate import simulate_system
 from contracts import contract
 import numpy as np
-from saccade_analysis.markov.poisson_rates import estimate_rates_dep
+from saccade_analysis.markov import fit_poisson_multiple
 
 def test_estimation_rates1():
     cases = [
@@ -14,7 +14,7 @@ def test_estimation_rates1():
     
     T = 100000.0
     
-    algorithms = [estimate_rates_simple, estimate_rates_indep, estimate_rates_dep] 
+    algorithms = [estimate_rates_simple, estimate_rates_indep, fit_poisson_multiple] 
     for case in cases:
         rates = case['rates']
         refractory = case['refractory']
@@ -22,7 +22,7 @@ def test_estimation_rates1():
         
         for algo in algorithms:
 
-            rates_est = algo(T, refractory, count)
+            rates_est = algo(count, T, refractory)
             err = np.linalg.norm(np.log(rates) - np.log(rates_est))
             ok = ":-)" if err < 0.1 else " X "
             w = lambda r: ", ".join("%8g e/s" % ri for ri in r) 
@@ -33,12 +33,12 @@ def test_estimation_rates1():
 
 @contract(T='float,>0', refractory='>=0', count='array[K](int32),K>0',
           returns='array[K](>=0)')
-def estimate_rates_simple(T, refractory, count):
+def estimate_rates_simple(count, T, refractory): #@UnusedVariable
     ''' Naive '''
     return count / T
     
 
-def estimate_rates_indep(T, refractory, count):
+def estimate_rates_indep(count, T, refractory):
     ''' Independent of each other. '''
     n = len(count)
     res = np.zeros(n)
@@ -51,6 +51,7 @@ def estimate_rates_indep(T, refractory, count):
           returns='float,>=0')
 def solve_rate(num, interval, refractory):
     return num / (interval - num * refractory)
+
 #
 #@contract(num='int,>=0', refractory='float,>=0', interval='float,>0',
 #          returns='float,>=0')

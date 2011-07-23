@@ -25,7 +25,8 @@ def main():
     
     parser = OptionParser(usage=description)
     parser.add_option("--db", help="Main data directory")
-    parser.add_option("--outdir", help="Output directory")
+    parser.add_option("--outdir", help="Output directory for reports")
+    parser.add_option("--datadir", help="Output directory for compmake files")
     parser.add_option("--version", help="Table version ('kf' or 'smooth')")
     parser.add_option("--group", help="Sample group", default='nopost')
     
@@ -41,14 +42,12 @@ def main():
         if args:
             raise Exception('Spurious arguments %r.' % args)
     
-        if not options.db:
-            raise Exception('Please provide --db option.')
-    
-        if not options.outdir:
-            raise Exception('Please provide --outdir option.')
+        def missing(x): raise Exception('Please provide --%s option.' % x)
         
-        if not options.version:
-            raise Exception('Please provide --version option.')
+        if not options.db: missing('db')
+        if not options.outdir:  missing('outdir')
+        if not options.datadir: missing('datadir') 
+        if not options.version: missing('version') 
         
     except Exception as e:
         logger.error('Error while parsing configuration.')
@@ -61,14 +60,10 @@ def main():
                                        options.ncells_distance,
                                        options.ncells_axis_angle)
         
-        compmake_dir = os.path.join(options.outdir, 'compmake', confid)
+        compmake_dir = os.path.join(options.datadir, confid)
         use_filesystem(compmake_dir)
         
           
-#        bin_enlarge_dist = 0
-#        bin_enlarge_angle = 10
-#        min_distance = 0.15
-
         bin_enlarge_dist = 0.05
         bin_enlarge_angle = 10
         min_distance = 0.15
@@ -104,7 +99,6 @@ def main():
             compmake.batch_command(options.compmake_command)
         else:
             compmake_console()
-
 
     except Exception as e:
         logger.error('Error while processing. Exception and traceback follow.')
