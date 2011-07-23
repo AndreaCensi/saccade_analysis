@@ -18,7 +18,8 @@ def report_stats(id, stats, saccades_stats):
     
     f = r.figure('flight')
     
-    plot_image(r, f, 'transit', cells, count,
+    dt = 1.0 / 60
+    plot_image(r, f, 'transit', cells, count * dt,
                caption="Transit probability")
     #plot_image(r, f, 'mean_speed', distance_edges, axis_angle_edges, mean_speed)
     #plot_image(r, f, 'time_spent', distance_edges, axis_angle_edges, time_spent)

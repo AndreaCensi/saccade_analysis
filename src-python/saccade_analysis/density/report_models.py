@@ -157,20 +157,9 @@ Same thing, but plotting 95% confidence intervals.
 Note that it would be desirable to have x-axis error bars, but 
 the analysis gets a bit complicated...
 """)
-#
-#    sample_phi = np.linspace(-1,+1, 100)
-#    sample_fit = 
-#    x = phi
-#    y = stats['rate_saccade2']
-#    yerr = stats['rate_saccade2']['confidence']
-#    
-#    with r.data_pylab('behavior_rates_both_intervals_fit') as pylab:
-#        plot_rate_bars(pylab, phi, stats['rate_saccade2'], 'k')
-#        pylab.ylabel('Behavior rates')
-#        pylab.xlabel('Normalized reduced stimulus')
-#
-#    r.last().add_to(f_stimulus, caption="""Robust fit""")
     
+    scale_rate = 6
+
     with r.data_pylab('behavior_rates_raw') as pylab:
         pylab.plot(phi.flat, stats['rate_saccade_left2']['mean'].flat,
                    '%s.' % COL_LEFT, label='saccade left')
@@ -178,6 +167,7 @@ the analysis gets a bit complicated...
                    '%s.' % COL_RIGHT, label='saccade right')
         pylab.ylabel('Behavior rates')
         pylab.xlabel('Normalized reduced stimulus')
+        pylab.axis((-1, +1, 0, scale_rate))
         pylab.legend()
         
     r.last().add_to(f_stimulus, caption="""
@@ -195,7 +185,7 @@ feature.
         plot_rate_bars(pylab, phi, stats['rate_saccade_right2'], COL_RIGHT)
         pylab.ylabel('Behavior rates')
         pylab.xlabel('Normalized reduced stimulus') 
-        # TODO: set same scale
+        pylab.axis((-1, +1, 0, scale_rate))
         
     r.last().add_to(f_stimulus, caption="""
 Same thing, but plotting 95% confidence intervals.
@@ -227,6 +217,21 @@ Direction choice probabilities
         pylab.axis((-1, +1, 0, 1))
     r.last().add_to(f_stimulus, caption="""
 Same thing, but plotting 99% confidence intervals. 
+""")
+    
+    
+    with r.data_pylab('behavior_rates_est') as pylab:
+        pylab.plot(phi.flat, stats['rate_saccade_L_est'].flat,
+                   '%s.' % COL_LEFT, label='saccade left')
+        pylab.plot(phi.flat, stats['rate_saccade_R_est'].flat,
+                   '%s.' % COL_RIGHT, label='saccade right')
+        pylab.ylabel('Behavior rates')
+        pylab.xlabel('Normalized reduced stimulus') 
+        pylab.axis((-1, +1, 0, scale_rate))
+    
+    r.last().add_to(f_stimulus, caption="""
+    This is the rate estimated taking into account a refractory 
+    period.
 """)
     
     # TODO: do not enlarge in rho direction

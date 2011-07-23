@@ -14,6 +14,7 @@ import compmake
 import os
 import sys
 import traceback
+import warnings
  
 description = """  """
 
@@ -25,6 +26,7 @@ def main():
     parser = OptionParser(usage=description)
     parser.add_option("--db", help="Main data directory")
     parser.add_option("--outdir", help="Output directory")
+    parser.add_option("--version", help="Table version ('kf' or 'smooth')")
     parser.add_option("--group", help="Sample group", default='nopost')
     
     parser.add_option("--ncells_distance", type='int', default=20,
@@ -40,10 +42,13 @@ def main():
             raise Exception('Spurious arguments %r.' % args)
     
         if not options.db:
-            raise Exception('Please provide --db option')
+            raise Exception('Please provide --db option.')
     
         if not options.outdir:
-            raise Exception('Please provide --outdir option')
+            raise Exception('Please provide --outdir option.')
+        
+        if not options.version:
+            raise Exception('Please provide --version option.')
         
     except Exception as e:
         logger.error('Error while parsing configuration.')
@@ -51,20 +56,22 @@ def main():
         sys.exit(-1)
   
     try:
+        confid = '%s-%s-D%d-A%d' % (options.group,
+                                       options.version,
+                                       options.ncells_distance,
+                                       options.ncells_axis_angle)
         
-        compmake_dir = os.path.join(options.outdir, 'compmake')
+        compmake_dir = os.path.join(options.outdir, 'compmake', confid)
         use_filesystem(compmake_dir)
         
-        confid = '%s-D%d-A%d' % (options.group, options.ncells_distance,
-                              options.ncells_axis_angle)
           
-        bin_enlarge_dist = 0
-        bin_enlarge_angle = 10
-        min_distance = 0.15
-
-#        bin_enlarge_dist = 0.05
+#        bin_enlarge_dist = 0
 #        bin_enlarge_angle = 10
 #        min_distance = 0.15
+
+        bin_enlarge_dist = 0.05
+        bin_enlarge_angle = 10
+        min_distance = 0.15
         
         cells = DACells(
                     ncells_distance=options.ncells_distance,
@@ -73,10 +80,12 @@ def main():
                     bin_enlarge_angle=bin_enlarge_angle,
                     bin_enlarge_dist=bin_enlarge_dist)
         
-        stats = comp(get_group_density_stats, options.db, options.group,
+        stats = comp(get_group_density_stats,
+                     options.db, options.group, options.version,
                      cells)
           
-        saccades = comp(get_saccades_for_group, options.db, options.group)
+        saccades = comp(get_saccades_for_group,
+                        options.db, options.group, options.version)
         saccades_stats = comp(compute_histogram_saccades, saccades, cells)
         
         
@@ -101,23 +110,20 @@ def main():
         logger.error('Error while processing. Exception and traceback follow.')
         logger.error(str(e))
         logger.error(traceback.format_exc())
-        sys.exit(-2)
-        
-#def zoom(x, n):
-#    k = np.ones((n, n))
-#    return np.kron(x, k) 
+        sys.exit(-2) 
     
 
 def write_report(report, html, rd):
     print('Writing to %r.' % html)
     report.to_html(html, resources_dir=rd)
 
-def get_group_density_stats(flydra_db_directory, db_group, cells): 
+def get_group_density_stats(flydra_db_directory, db_group, version, cells): 
     with safe_flydra_db_open(flydra_db_directory) as db:
-        rows = db.get_table_for_group(db_group, table='rows', version='smooth')
+        rows = db.get_table_for_group(db_group, table='rows', version=version)
         print('Read %d rows' % len(rows))
     
         print('Computing extra information')
+        warnings.warn('Using hardcoded arena size and position.')
         rowsp = add_position_information_to_rows(rows)
         
         print('Computing histogram')
@@ -125,17 +131,20 @@ def get_group_density_stats(flydra_db_directory, db_group, cells):
         return stats
 
 
-def get_saccades_for_group(flydra_db_directory, db_group):
+def get_saccades_for_group(flydra_db_directory, db_group, version):
     
     with safe_flydra_db_open(flydra_db_directory) as db:
         
-        saccades = db.get_table_for_group(db_group, 'saccades')
+        saccades = db.get_table_for_group(group=db_group,
+                                          table='saccades',
+                                          version=version)
         if len(saccades) == 0:
             raise Exception('No saccades found for group %r.' % db_group)
         
         for s in saccades:
             check_saccade_is_well_formed(s)
-            
+        
+        warnings.warn('Using hardcoded arena size and position.')
         saccades = add_position_information(saccades) # XXX: using default arena size
        
         return saccades

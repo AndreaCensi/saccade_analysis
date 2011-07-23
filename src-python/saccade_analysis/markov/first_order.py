@@ -17,7 +17,7 @@ def first_order_analysis(s, significance=0.05):
     
     for x in s:
         if not x in symbols:
-            raise ValueError('Unknown character "%s" in string.' % x)
+            raise ValueError('Unknown character %r in string.' % x)
      
     n_L = count_overlapping(s, 'L')
     n_R = count_overlapping(s, 'R')

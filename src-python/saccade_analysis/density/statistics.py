@@ -1,5 +1,6 @@
 import numpy as np
 from contracts import contract
+from saccade_analysis.markov.poisson_rates import estimate_rates_dep
 
 def compute_joint_statistics(stats, saccades_stats):
     for k in stats: 
@@ -17,6 +18,8 @@ def compute_joint_statistics(stats, saccades_stats):
     stats['rate_saccade2'] = ft()
     stats['rate_saccade_left2'] = ft()
     stats['rate_saccade_right2'] = ft()
+    stats['rate_saccade_L_est'] = cells.zeros()
+    stats['rate_saccade_R_est'] = cells.zeros()
     stats['prob_left2'] = ft()
     stats['prob_right2'] = ft()
     
@@ -27,6 +30,16 @@ def compute_joint_statistics(stats, saccades_stats):
         stats['rate_saccade2'][k] = fit_poisson(C[k], N[k], dt)
         stats['rate_saccade_left2'][k] = fit_poisson(C[k], N_L[k], dt)
         stats['rate_saccade_right2'][k] = fit_poisson(C[k], N_R[k], dt)
+        
+        T = C[k] * dt
+        count = np.array([N_L[k], N_R[k]])
+        refractory = 0.1
+        rates = estimate_rates_dep(T=T, count=count, refractory=refractory)
+        
+        stats['rate_saccade_L_est'][k] = rates[0]
+        stats['rate_saccade_R_est'][k] = rates[1]
+        
+        
         stats['prob_left2'][k] = fit_binomial(N_L[k], N[k], alpha)
         stats['prob_right2'][k] = fit_binomial(N_R[k], N[k], alpha)
          

@@ -1,4 +1,4 @@
-import numpy, os
+import numpy as np, os
 from optparse import OptionParser
 
 from reprep import Report
@@ -51,7 +51,7 @@ def divide_into_subsets(saccades):
     
     for id, desc, test in subsets:
         include = map(test, saccades)
-        select = saccades[numpy.array(include)]
+        select = saccades[np.array(include)]
         print desc, len(select)
         yield id, desc, select
     
@@ -132,23 +132,23 @@ It contains %d saccades.
         pylab.legend()
  
     bin_size = 10
-    saccade_bin_centers = numpy.array(range(-180, 185, bin_size))
+    saccade_bin_centers = np.array(range(-180, 185, bin_size))
     n = len(saccade_bin_centers)
-    saccade_bins = numpy.zeros(shape=(n + 1))
+    saccade_bins = np.zeros(shape=(n + 1))
     saccade_bins[0:n] = saccade_bin_centers - bin_size
     saccade_bins[n] = saccade_bin_centers[-1]
     
-    bin_centers = numpy.array(range(-50, 55, 10))
+    bin_centers = np.array(range(-50, 55, 10))
     bin_size = 15
     distributions = []
     for angle in bin_centers:
-        indices, = numpy.nonzero(
-                    numpy.logical_and(
+        indices, = np.nonzero(
+                    np.logical_and(
                         approach_angle > angle - bin_size,
                         approach_angle < angle + bin_size
                     ))
         x = saccade_angle[indices]
-        hist, edges = numpy.histogram(x, bins=saccade_bins, normed=True) #@UnusedVariable
+        hist, edges = np.histogram(x, bins=saccade_bins, normed=True) #@UnusedVariable
 
         distributions.append(hist)
  
@@ -278,13 +278,13 @@ def compute_turning_probability(approach_angle, saccade_angle):
     approach = range(-45, 45 + spacing, spacing)
     probability_left = []
     for a in approach:
-        inbin = numpy.logical_and(a - spacing <= approach_angle,
+        inbin = np.logical_and(a - spacing <= approach_angle,
                                    approach_angle <= a + spacing)
         angles = saccade_angle[inbin]
         num_left = (angles > 0).astype('int').sum()
         prob = num_left * 1.0 / len(angles) 
         probability_left.append(prob)
-    return approach, numpy.array(probability_left)
+    return approach, np.array(probability_left)
 
 
 def write_report(report, output_dir):
@@ -302,7 +302,7 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         ('saccade_angle', 'float64'), # degrees
     ]
 
-    info = numpy.zeros(dtype=info_dtype, shape=(len(saccades),))
+    info = np.zeros(dtype=info_dtype, shape=(len(saccades),))
     
     for i, saccade in enumerate(saccades):
         x = saccade['position'][0]
@@ -310,13 +310,13 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         ax = x - arena_center[0]
         ay = y - arena_center[1]
         
-        distance_from_center = numpy.hypot(ax, ay)
+        distance_from_center = np.hypot(ax, ay)
         
         distance_from_wall = arena_radius - distance_from_center
         assert distance_from_wall > 0
         
         saccade_angle = saccade['sign'] * saccade['amplitude']    
-        theta = numpy.radians(saccade['orientation_start'])
+        theta = np.radians(saccade['orientation_start'])
         
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
 
@@ -325,8 +325,8 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
         info[i]['distance_from_center'] = distance_from_center
         info[i]['distance_from_wall'] = distance_from_wall
         info[i]['saccade_angle'] = saccade_angle
-        info[i]['axis_angle'] = numpy.degrees(axis_angle)
-        info[i]['approach_angle'] = numpy.degrees(approach_angle)
+        info[i]['axis_angle'] = np.degrees(axis_angle)
+        info[i]['approach_angle'] = np.degrees(approach_angle)
         
     return merge_fields(saccades, info)
 
@@ -340,7 +340,11 @@ def add_position_information_to_rows(rows,
         ('approach_angle', 'float64'), # degrees 
     ]
 
-    info = numpy.zeros(dtype=info_dtype, shape=(len(rows),))
+    info = np.zeros(dtype=info_dtype, shape=(len(rows),))
+    
+    # let's keep track of the maximum error
+    min_distance_from_wall = arena_radius
+    num_outside = 0
     
     for i, row in enumerate(rows):
         x = row['position'][0]
@@ -348,13 +352,28 @@ def add_position_information_to_rows(rows,
         ax = x - arena_center[0]
         ay = y - arena_center[1]
         
-        distance_from_center = numpy.hypot(ax, ay)
+        distance_from_center = np.hypot(ax, ay)
         
         distance_from_wall = arena_radius - distance_from_center
-        assert distance_from_wall > 0, ('Arena: %s radius %s distance %s position %s' % 
-                                        (arena_center, arena_radius, distance_from_center,
-                                         row['position']))
+        if distance_from_wall <= 0:
+            num_outside += 1
+            
+            if distance_from_wall < min_distance_from_wall:
+                msg = ('Fly is outside of arena for %d/%d (of %d) samples. New record: %s' % 
+                       (num_outside, i + 1, len(rows), distance_from_wall))
+                print(msg)
+#            
+#            Arena: %s radius %s distance %s position %s' % 
+#                    (arena_center, arena_radius, distance_from_center,
+#                                         row['position']))
         
+                min_distance_from_wall = distance_from_wall
+            
+            distance_from_wall = 0
+            # also correct coordinates to put it inside:
+            correct = (arena_radius - 0.01) / distance_from_center 
+            ax *= correct
+            ay *= correct 
         theta = row['reduced_angular_orientation']
         
         approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
@@ -362,8 +381,8 @@ def add_position_information_to_rows(rows,
 
         info[i]['distance_from_center'] = distance_from_center
         info[i]['distance_from_wall'] = distance_from_wall
-        info[i]['axis_angle'] = numpy.degrees(axis_angle)
-        info[i]['approach_angle'] = numpy.degrees(approach_angle)
+        info[i]['axis_angle'] = np.degrees(axis_angle)
+        info[i]['approach_angle'] = np.degrees(approach_angle)
         
     return merge_fields(rows, info)  
 
@@ -372,7 +391,7 @@ def add_position_information_to_rows(rows,
 def compute_axis_angle(x, y, theta):
     ''' x,y: coordinates with respect to center of arena.
         Returns the angle in radians. '''
-    angle = numpy.arctan2(y, x)
+    angle = np.arctan2(y, x)
     axis_angle = normalize_pi(theta - angle)
     return axis_angle
 
