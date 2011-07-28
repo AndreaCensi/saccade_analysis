@@ -10,12 +10,16 @@ COL_LEFT_RGB = [1, 0, 0]
 COL_RIGHT = 'b'
 COL_RIGHT_RGB = [0, 0, 1]
 
+COL_BOTH = 'k'
+COL_BOTH_RGB = [0, 0, 0.2]
+
  
 def report_models_choice(confid, stats):
     r = Report('%s_models' % confid)
     
     cells = stats['cells']
 
+    
     rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
     rate_saccade_right_order = scale_score_norm(stats['rate_saccade_right2']['mean'])
                
@@ -23,11 +27,67 @@ def report_models_choice(confid, stats):
     c = 0.5 # TODO
     phi = 2 * (M - c)
 
+    ncells = 200
+    xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
+
+    da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
+    
+    f_counts = r.figure('counts', cols=3)
+    
+    plot_image(f_counts, f_counts, 'time_spent',
+               cells, stats['time_spent'],
+               scale_params=dict(min_value=0),
+               caption="Time spent (s)")
+  
+    plot_image(f_counts, f_counts, 'total',
+               cells, stats['total'],
+               scale_params=dict(min_value=0, max_color=COL_BOTH_RGB),
+               caption="Number of  saccades")
+  
+    plot_image(f_counts, f_counts, 'num_left',
+               cells, stats['num_left'],
+               scale_params=dict(min_value=0, max_color=COL_LEFT_RGB),
+               caption="Number of left saccades")
+  
+    plot_image(f_counts, f_counts, 'num_right',
+               cells, stats['num_right'],
+               scale_params=dict(min_value=0, max_color=COL_RIGHT_RGB),
+               caption="Number of right saccades")
+    
+    f_counts = r.figure('counts_arena', cols=3)
+    
+    plot_arena(f_counts, f_counts, 'time_spent',
+               da2xy(stats['time_spent']),
+               scale_params=dict(min_value=0),
+               caption="Time spent (s)")
+  
+    plot_arena(f_counts, f_counts, 'total',
+               da2xy(stats['total']),
+               scale_params=dict(min_value=0, max_color=COL_BOTH_RGB),
+               caption="Number of  saccades")
+  
+    plot_arena(f_counts, f_counts, 'num_left',
+               da2xy(stats['num_left']),
+               scale_params=dict(min_value=0, max_color=COL_LEFT_RGB),
+               caption="Number of left saccades")
+  
+    plot_arena(f_counts, f_counts, 'num_right',
+               da2xy(stats['num_right']),
+               scale_params=dict(min_value=0, max_color=COL_RIGHT_RGB),
+               caption="Number of right saccades")
+  
 
     f_rates = r.figure('Saccade rates', cols=3)
     
     max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
-                          np.nanmax(stats['rate_saccade_right2']['mean'])])
+                          np.nanmax(stats['rate_saccade_right2']['mean']),
+                          np.nanmax(stats['rate_saccade_L_est']['mean']),
+                          np.nanmax(stats['rate_saccade_R_est']['mean'])])
+    
+    plot_image(r, f_rates, 'rate_sac',
+               cells, stats['rate_saccade2']['mean'],
+               scale_params=dict(max_color=COL_BOTH_RGB, min_value=0),
+               caption="Saccading rate (saccades/s)")
     
     plot_image(r, f_rates, 'rate_sac_left',
                cells, stats['rate_saccade_left2']['mean'],
@@ -41,11 +101,18 @@ def report_models_choice(confid, stats):
                                  max_color=COL_RIGHT_RGB),
                caption="Right saccading rate (saccades/s)") 
 
+    plot_image(r, f_rates, 'rate_saccade_L_est',
+               cells, stats['rate_saccade_L_est']['mean'],
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_LEFT_RGB),
+               caption="Est. left saccading rate (saccades/s)")
+    
+    plot_image(r, f_rates, 'rate_saccade_R_est',
+               cells, stats['rate_saccade_R_est']['mean'],
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_RIGHT_RGB),
+               caption="Est. right saccading rate (saccades/s)") 
 
-    plot_image(r, f_rates, 'rate_sac',
-               cells, stats['rate_saccade2']['mean'],
-               scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
-               caption="Saccading rate (saccades/s)")
 
     order_params = dict(max_color=[0, 1, 0], min_color=[1, 0, 1])
     
@@ -68,10 +135,6 @@ assuming that there is a left-right symmetry. """)
     
     f_arena = r.figure('Arena view', cols=3)
     
-    ncells = 200
-    xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
-
-    da2xy = lambda F:  xy_cells.from_da_field(F) 
     
     if True:
         plot_arena(f_arena, f_arena, 'x', xy_cells.x,
@@ -92,7 +155,12 @@ assuming that there is a left-right symmetry. """)
                    (xy_cells.a_index + xy_cells.d_index) % 2,
                    use_posneg=True, caption="Cells division")
         
-       
+
+    plot_arena(f_arena, f_arena, 'rate_sac',
+               da2xy(stats['rate_saccade2']['mean']),
+               scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
+               caption="Saccading rate (saccades/s)")
+    
     plot_arena(f_arena, f_arena, 'rate_sac_left',
                da2xy(stats['rate_saccade_left2']['mean']),
                scale_params=dict(max_value=max_rate, min_value=0,
@@ -105,10 +173,18 @@ assuming that there is a left-right symmetry. """)
                                  max_color=COL_RIGHT_RGB),
                caption="Right saccading rate (saccades/s)") 
 
-    plot_arena(f_arena, f_arena, 'rate_sac',
-               da2xy(stats['rate_saccade2']['mean']),
-               scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
-               caption="Saccading rate (saccades/s)")
+
+    plot_arena(f_arena, f_arena, 'rate_saccade_L_est',
+               da2xy(stats['rate_saccade_L_est']['mean']),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_LEFT_RGB),
+               caption="Est. left saccade gen. rate (saccades/s)")
+    
+    plot_arena(f_arena, f_arena, 'rate_saccade_R_est',
+               da2xy(stats['rate_saccade_R_est']['mean']),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_RIGHT_RGB),
+               caption="Est. right saccade gen. rate (saccades/s)")
 
     order_params = dict(max_color=[0, 1, 0], min_color=[1, 0, 1])
     
@@ -241,10 +317,18 @@ Direction choice probabilities
     r.last().add_to(f_stimulus, caption="""
 Same thing, but plotting 95% confidence intervals. 
 """)
+   
+    with r.data_pylab('model_manifold') as pylab:
+        fL = stats['rate_saccade_L_est']['mean']
+        fR = stats['rate_saccade_R_est']['mean']
+        pylab.plot(fL, fR, 'k.')
+        pylab.ylabel('f_L')
+        pylab.xlabel('f_R') 
+        #pylab.axis((-1, +1, 0, 1))
+    r.last().add_to(f_stimulus, caption="""Model manifold""")
     
     
     
-    # TODO: do not enlarge in rho direction
     return r
 
 def plot_rate_bars(pylab, phi, st, color, **kwargs):
