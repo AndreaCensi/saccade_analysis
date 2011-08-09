@@ -1,4 +1,4 @@
-from reprep import *
+from reprep import Report
 import numpy as np
 
 def noise(sigma):
@@ -37,7 +37,7 @@ def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
             who[i] = np.sum(s == what)
 
 
-    M = np.max((np.max(fL), np.max(fR), np.max(no)))
+#    M = np.max((np.max(fL), np.max(fR), np.max(no)))
     
     with f.data_pylab(name) as pylab:
         pylab.plot(zs, (fR + fL) / K, 'k--')            

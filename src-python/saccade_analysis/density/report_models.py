@@ -136,7 +136,7 @@ assuming that there is a left-right symmetry. """)
     f_arena = r.figure('Arena view', cols=3)
     
     
-    if True:
+    if False: # XXX
         plot_arena(f_arena, f_arena, 'x', xy_cells.x,
                    use_posneg=True, caption="x")
         plot_arena(f_arena, f_arena, 'y', xy_cells.y,
@@ -328,7 +328,55 @@ Same thing, but plotting 95% confidence intervals.
     r.last().add_to(f_stimulus, caption="""Model manifold""")
     
     
+    f_misc = r.figure('misc', cols=3)
     
+    phi_threshold = 0.5
+    phi_small = np.abs(phi) <= phi_threshold
+    phi_large = np.abs(phi) >= phi_threshold
+    plot_arena(f_misc, f_misc, 'phi_small', da2xy(phi_small),
+               scale_params={}, use_posneg=True,
+               caption="""Stimulus |z| <= %g """ % phi_threshold)
+    plot_arena(f_misc, f_misc, 'phi_large', da2xy(phi_large),
+               scale_params={}, use_posneg=True,
+               caption="""Stimulus |z| >= %g """ % phi_threshold)
+   
+#    rate_threshold = 1.5
+   
+    feature_small_rate_L = stats['rate_saccade_L_est']['mean'] * phi_small
+    feature_small_rate_R = stats['rate_saccade_R_est']['mean'] * phi_small
+    feature_large_rate_L = stats['rate_saccade_L_est']['mean'] * phi_large
+    feature_large_rate_R = stats['rate_saccade_R_est']['mean'] * phi_large
+    
+    plot_arena(f_misc, f_misc, 'phi_small_rate_L', da2xy(feature_small_rate_L),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_LEFT_RGB),
+               caption="""Left rate (stimulus |z| <= %g) """ % phi_threshold)
+    plot_arena(f_misc, f_misc, 'phi_small_rate_R', da2xy(feature_small_rate_R),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_RIGHT_RGB),
+               caption="""Right rate (stimulus |z| <= %g) """ % phi_threshold)
+    plot_arena(f_misc, f_misc, 'phi_large_rate_L', da2xy(feature_large_rate_L),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_LEFT_RGB),
+               caption="""Left rate (stimulus |z| >= %g) """ % phi_threshold)
+    plot_arena(f_misc, f_misc, 'phi_large_rate_R', da2xy(feature_large_rate_R),
+               scale_params=dict(max_value=max_rate, min_value=0,
+                                 max_color=COL_RIGHT_RGB),
+               caption="""Right rate (stimulus |z| >= %g) """ % phi_threshold)
+         
+    with r.data_pylab('behavior_rates_est_intervals_small_stimulus') as pylab: 
+        pylab.plot(phi.flat, feature_small_rate_L.flat,
+                   '%s.' % COL_LEFT, label='saccade left')
+        pylab.plot(phi.flat, feature_small_rate_R.flat,
+                   '%s.' % COL_RIGHT, label='saccade right')
+      
+        pylab.ylabel('Behavior rates')
+        pylab.xlabel('Normalized reduced stimulus') 
+        pylab.axis((-1, +1, 0, scale_rate))
+        
+    r.last().add_to(f_misc, caption="Saccade rates for small stimulus.")
+      
+
     return r
 
 def plot_rate_bars(pylab, phi, st, color, **kwargs):
