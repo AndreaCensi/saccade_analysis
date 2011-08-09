@@ -1,12 +1,14 @@
 from contracts import contract, new_contract
 from numpy.testing.utils import assert_allclose
 from reprep import Report
-from saccade_analysis.density.report_models import scale_score_norm, \
-    plot_rate_bars, scale_score
+from saccade_analysis.density.order_estimation import scale_score_norm, \
+     scale_score
 from saccade_analysis.markov import fit_dtype
 import itertools
 import numpy as np
 from collections import namedtuple
+from saccade_analysis.density.order_estimation import estimate_stimulus
+from saccade_analysis.density.report_models import plot_rate_bars
 
 @contract(y_L='array[N]', y_R='array[N]')
 def estimate_stimulus_naive(y_L, y_R):
@@ -18,61 +20,6 @@ def estimate_stimulus_naive(y_L, y_R):
     phi = 2 * (M - c)
     return phi
 
-
-#fit_dtype = [
-#     ('lower', float),
-#     ('upper', float),
-#     ('mean', float),
-#     ('confidence', float),
-#     ('skewed', float) # only used for binomial
-#]
-
-estimate_stimulus_return = namedtuple('estimate_stimulus_return',
-                                      'L_order R_order order z'
-                                      )
-@contract(y_L='array[N]', y_R='array[N]', returns=estimate_stimulus_return)
-def estimate_stimulus(y_L, y_R):
-    ''' Assumes that both y_L and y_R have a dtype with upper and lower.
-        Considers uniform probability in upper/lower. 
-        
-        Returns the order as a fit_dtype.
-    ''' 
-    z = np.ndarray(y_L.shape, fit_dtype)
-    order = np.ndarray(y_L.shape, fit_dtype)
-    
-    T = 1000
-    perc = 1
-    L_order = estimate_order_by_simulation(y_L, T=T, perc=perc)
-    R_order = estimate_order_by_simulation(y_R, T=T, perc=perc, inverse=True)
-    
-    L_var = L_order['upper'] - L_order['lower']
-    R_var = R_order['upper'] - R_order['lower']
-    
-    # slight shortcut for var == 0
-    L_var += 0.1
-    R_var += 0.1
-    
-    L_inf = 1.0 / L_var
-    R_inf = 1.0 / R_var
-    
-    order_mean = (L_inf * L_order['mean'] + R_inf * R_order['mean']) / (L_inf + R_inf)
-    order_var = 1 / (L_inf + R_inf)
-    order_upper = order_mean + 3 * np.sqrt(order_var)
-    order_lower = order_mean - 3 * np.sqrt(order_var)
-    
-    order['mean'] = order_mean 
-    order['upper'] = order_upper
-    order['lower'] = order_lower
-    
-    f = lambda x: 2 * (x / y_L.size - 0.5) 
-    z['mean'] = f(order_mean)
-    z['upper'] = f(order_upper)
-    z['lower'] = f(order_lower) 
-    
-    return estimate_stimulus_return(L_order=L_order,
-                                    R_order=R_order,
-                                    order=order,
-                                    z=z)
 
 Comp = namedtuple('Comparison', 'gt eq lt desc')
 def opposite(c1):
@@ -255,28 +202,6 @@ def estimate_order(y):
     return res, M
     
 
-@contract(y='array[N]')
-def estimate_order_by_simulation(y, T=100, perc=5, inverse=False):
-    n = y.size 
-    def simulate():
-        lower = y['lower']
-        upper = y['upper']
-        x = np.random.uniform(lower, upper)
-        if inverse:
-            x = -x
-        return x
-    
-    ord = np.zeros((n, T))
-    for k in range(T):
-        ord[:, k] = scale_score(simulate())
-    
-    order_sim = np.ndarray(n, fit_dtype) 
-    for i in range(n):
-        order_sim[i]['mean'] = np.mean(ord[i, :])
-        l, u = np.percentile(ord[i, :], [perc, 100 - perc])
-        order_sim[i]['upper'] = u
-        order_sim[i]['lower'] = l
-    return order_sim
 
 def main():
     
@@ -285,11 +210,10 @@ def main():
     n = 100
     z = np.linspace(-1, 1, n)
     z_order = np.array(range(n))
-    alpha = 0.2
     alpha = 0.1
     base = 0.3
-    noise = 0.1
-    noise_eff = noise / 2
+    noise_eff = 0.05
+    noise_est = noise_eff
     f_L = lambda z: np.exp(-np.abs(1 - np.maximum(z, 0)) / alpha) + base
     f_R = lambda z: np.exp(-np.abs(-1 - np.minimum(z, 0)) / alpha) + base
     
@@ -302,27 +226,25 @@ def main():
     rate_L = simulate_L()
     rate_R = simulate_R()
     
-    print('Simulation')
+
     T = 100
     ord = np.zeros((n, T))
     for k in range(T):
         ord[:, k] = scale_score(simulate_L())
-    print('Done')
     order_L_sim = np.ndarray(n, fit_dtype) 
     for i in range(n):
         order_L_sim[i]['mean'] = np.mean(ord[i, :])
         l, u = np.percentile(ord[i, :], [5, 95])
         order_L_sim[i]['upper'] = u
         order_L_sim[i]['lower'] = l
-        
     
-
+    
     rate_L_est = np.ndarray(n, fit_dtype) 
-    rate_L_est['upper'] = rate_L + noise
-    rate_L_est['lower'] = rate_L - noise
+    rate_L_est['upper'] = rate_L + noise_est
+    rate_L_est['lower'] = rate_L - noise_est
     rate_R_est = np.ndarray(n, fit_dtype) 
-    rate_R_est['upper'] = rate_R + noise
-    rate_R_est['lower'] = rate_R - noise 
+    rate_R_est['upper'] = rate_R + noise_est
+    rate_R_est['lower'] = rate_R - noise_est
 
     # estimate according to naive procedure
     z_naive = estimate_stimulus_naive(rate_L, rate_R)
@@ -337,7 +259,7 @@ def main():
     cR = 'b'
     
     r = Report()
-    f = r.figure(cols=4)
+    f = r.figure(cols=3)
     with r.data_pylab('noiseless') as pylab:
         pylab.plot(z, rate_L0, '%s-' % cL)
         pylab.plot(z, rate_R0, '%s-' % cR)
@@ -349,9 +271,6 @@ def main():
         pylab.plot(z, rate_L0, '%s-' % cL)
         plot_rate_bars(pylab, z, rate_L_est, '%s' % cL)
         plot_rate_bars(pylab, z, rate_R_est, '%s' % cR)
-#
-#        pylab.plot(z, rate_L, '%s.' % cL)
-#        pylab.plot(z, rate_R, '%s.' % cR)
         pylab.axis((-1, 1, 0.0, scale_rate))
     r.last().add_to(f, caption='true_rates')
   
@@ -399,35 +318,20 @@ def main():
         plot_rate_bars(pylab, z, L_order, '%s' % cL)
         plot_rate_bars(pylab, z, R_order, '%s' % cR)     
         pylab.axis((-1, 1, -n / 2, n * 3 / 2))
-    r.last().add_to(f, caption='estimated_order_bar')
-#  
+    r.last().add_to(f, caption='estimated_order_bar') 
 
     with r.data_pylab('estimated_order_both') as pylab:
         pylab.plot([0, 0], [n, n], 'g-')
-        pylab.plot(z_order, res.z['mean'], 'k.')
-        plot_rate_bars(pylab, z_order, res.z, 'k')
+        pylab.plot(z_order, res.order['mean'], 'k.')
+        plot_rate_bars(pylab, z_order, res.order, 'k')
         pylab.axis((0, n, -n / 10, n * 1.1))
         pylab.axis('equal')
-    r.last().add_to(f, caption='estimated_order_order')
-#    cvalue = 0.05
-#    vR = np.logical_and(res.MR > cvalue, res.MR < 1 - cvalue) 
-#    vL = np.logical_and(res.ML > cvalue, res.ML < 1 - cvalue)
-#    
-#    r.data('MR', res.MR).display('scale', max_value=1, min_value=0)
-#    r.last().add_to(f, caption='MR')
-#    r.data('ML', res.ML).display('scale', max_value=1, min_value=0)
-#    r.last().add_to(f, caption='ML')
-#    r.data('vR', vR).display('scale', max_value=1, min_value=0)
-#    r.last().add_to(f, caption='vR')
-#    r.data('vL', vL).display('scale', max_value=1, min_value=0)
-#    r.last().add_to(f, caption='vL')
-#  
-
+    r.last().add_to(f, caption='estimated_order_order') 
 
     with r.data_pylab('z_better') as pylab:
         pylab.plot(res.z['mean'], rate_L, '%s.' % cL)
         pylab.plot(res.z['mean'], rate_R, '%s.' % cR)
-#        pylab.axis((-1, 1, 0.0, scale_rate))
+        pylab.axis((-1, 1, 0.0, scale_rate))
     r.last().add_to(f, caption='Stimulus estimated in a better way.')
     
   

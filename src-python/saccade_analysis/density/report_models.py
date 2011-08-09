@@ -1,8 +1,8 @@
-from reprep import  Report
+from .order_estimation import estimate_stimulus, scale_score_norm
+from .plot_utils import plot_arena, plot_image
+from .xy_cells import XYCells
+from reprep import Report
 import numpy as np
-from .plot_utils import plot_image
-from saccade_analysis.density.plot_utils import plot_arena
-from saccade_analysis.density.xy_cells import XYCells
 
 COL_LEFT = 'r'
 COL_LEFT_RGB = [1, 0, 0]
@@ -22,11 +22,15 @@ def report_models_choice(confid, stats):
     
     rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
     rate_saccade_right_order = scale_score_norm(stats['rate_saccade_right2']['mean'])
-               
-    M = 0.5 * (rate_saccade_left_order + 1 - rate_saccade_right_order)
-    c = 0.5 # TODO
-    phi = 2 * (M - c)
+#               
+#    M = 0.5 * (rate_saccade_left_order + 1 - rate_saccade_right_order)
+#    c = 0.5 # TODO
+#    phi = 2 * (M - c)
 
+    res = estimate_stimulus(stats['rate_saccade_left2'], stats['rate_saccade_right2'])
+    stimulus = res.z
+    phi = stimulus['mean']
+    
     ncells = 200
     xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
 
@@ -233,6 +237,9 @@ the analysis gets a bit complicated...
 """)
     
     scale_rate = 6
+    
+    # plot error bars slightlty dealigned
+    phir = phi + 0.005
 
     with r.data_pylab('behavior_rates_raw') as pylab:
         pylab.plot(phi.flat, stats['rate_saccade_left2']['mean'].flat,
@@ -256,7 +263,7 @@ feature.
         
     with r.data_pylab('behavior_rates_raw_intervals') as pylab:
         plot_rate_bars(pylab, phi, stats['rate_saccade_left2'], COL_LEFT)
-        plot_rate_bars(pylab, phi, stats['rate_saccade_right2'], COL_RIGHT)
+        plot_rate_bars(pylab, phir, stats['rate_saccade_right2'], COL_RIGHT)
         pylab.ylabel('Behavior rates')
         pylab.xlabel('Normalized reduced stimulus') 
         pylab.axis((-1, +1, 0, scale_rate))
@@ -282,7 +289,7 @@ This shows that the outliers are just noisy samples.
          
     with r.data_pylab('behavior_rates_est_intervals') as pylab:
         plot_rate_bars(pylab, phi, stats['rate_saccade_L_est'], COL_LEFT)
-        plot_rate_bars(pylab, phi, stats['rate_saccade_R_est'], COL_RIGHT)
+        plot_rate_bars(pylab, phir, stats['rate_saccade_R_est'], COL_RIGHT)
         pylab.ylabel('Behavior rates')
         pylab.xlabel('Normalized reduced stimulus') 
         pylab.axis((-1, +1, 0, scale_rate))
@@ -377,6 +384,16 @@ Same thing, but plotting 95% confidence intervals.
     r.last().add_to(f_misc, caption="Saccade rates for small stimulus.")
       
 
+    with r.data_pylab('stimulus_uncertainty') as pylab:
+        plot_rate_bars(pylab, stimulus['mean'], stimulus, COL_BOTH) 
+        pylab.ylabel('Uncertainty on stimulus determination')
+        pylab.xlabel('Normalized reduced stimulus') 
+        pylab.axis((-1, +1, -1, +1))
+        
+    r.last().add_to(f_stimulus,
+        caption="Errors on the estimate of z.")
+    
+    
     return r
 
 def plot_rate_bars(pylab, phi, st, color, **kwargs):
@@ -395,17 +412,6 @@ def plot_rate_bars(pylab, phi, st, color, **kwargs):
                        capsize=0, # was 8
                         elinewidth=1, **kwargs)
     
-def scale_score_norm(x):
-    ''' Returns the score, normalized in [0,1] '''
-    return scale_score(x).astype('float32') / (x.size - 1)
-
-def scale_score(x):
-    y = x.copy()
-    order = np.argsort(x.flat)
-    # Black magic ;-) Probably the smartest thing I came up with today. 
-    order_order = np.argsort(order)
-    y.flat[:] = order_order.astype(y.dtype)
-    return y
 
 def compute_interval(rate, perc=[1, 99]):
     limits = np.percentile(np.array(rate.flat), perc)
