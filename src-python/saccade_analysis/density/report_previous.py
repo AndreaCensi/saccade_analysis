@@ -1,13 +1,10 @@
-from saccade_analysis.markov import binomial_stats
-binomial_stats
+from ..markov import binomial_stats
 from .plot_utils import plot_image
 from reprep import Report
 import numpy as np
 
- 
-
-def report_stats(id, stats, saccades_stats):
-    r = Report(id)
+def report_stats(confid, stats, saccades_stats):
+    r = Report(confid)
     
     cells = stats['cells']
     
@@ -34,9 +31,9 @@ def report_stats(id, stats, saccades_stats):
     prob_right = np.zeros(cells.shape)
     skewed = np.zeros(cells.shape)
     for c in cells.iterate():
-        pl, pr, ml, mr = \
+        pl, pr, ml, mr = (#@UnusedVariable
             binomial_stats(total[c.k], num_left[c.k], num_right[c.k])
-            
+            )
         prob_left[c.k] = pl
         prob_right[c.k] = pr
         skewed[c.k] = 0 if (ml[0] < 0.5 and 0.5 < ml[1])  else 1

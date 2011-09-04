@@ -1,10 +1,8 @@
-from . import DACells, logger
+from . import DACells, logger, compute_histogram, compute_histogram_saccades, \
+    compute_joint_statistics, report_models_choice, report_stats, \
+    report_visual_stimulus, compute_visual_stimulus
 from ..tammero.tammero_analysis import add_position_information, \
     add_position_information_to_rows
-from .density_estimation import compute_histogram, compute_histogram_saccades
-from .report_models import report_models_choice
-from .report_previous import report_stats
-from .statistics import compute_joint_statistics
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
 from geometric_saccade_detector.well_formed_saccade import \
@@ -85,6 +83,7 @@ def main():
         
         
         joint_stats = comp(compute_joint_statistics, stats, saccades_stats)
+        joint_stats = comp(compute_visual_stimulus, joint_stats)
         
         report = comp(report_stats, confid, stats, saccades_stats)
         rd = os.path.join(options.outdir, 'images')
@@ -95,6 +94,11 @@ def main():
         html = os.path.join(options.outdir, "%s_models.html" % confid)
         comp(write_report, report_m, html, rd)
         
+        
+        report_s = comp(report_visual_stimulus, confid, joint_stats)        
+        html = os.path.join(options.outdir, "%s_stimulus.html" % confid)
+        comp(write_report, report_s, html, rd)
+             
         if options.compmake_command is not None:
             compmake.batch_command(options.compmake_command)
         else:

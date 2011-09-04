@@ -1,11 +1,12 @@
+from . import x_y_from_axisangle_distance, estimate_stimulus
+from ..markov import fit_poisson, fit_dtype, fit_poisson_multiple, fit_binomial
 import numpy as np
-from saccade_analysis.markov import fit_poisson, fit_dtype, fit_poisson_multiple, \
-    fit_binomial
 
 def compute_joint_statistics(stats, saccades_stats):
     for k in stats: 
         if k in saccades_stats:
-            print('Warning, %r in both' % k)
+            if k != 'cells':
+                print('Warning, %r in both' % k)
     stats.update(**saccades_stats)
     C = stats['count']
     # Total number of saccades 
@@ -44,6 +45,26 @@ def compute_joint_statistics(stats, saccades_stats):
         stats['prob_left2'][k] = fit_binomial(N_L[k], N[k], alpha)
         stats['prob_right2'][k] = fit_binomial(N_R[k], N[k], alpha)
          
+
+    res = estimate_stimulus(stats['rate_saccade_left2'], stats['rate_saccade_right2'])
+    stats['feature'] = res.z
+
+
+    # Computes equivalent coordinates
+    
+    dtype = [('x', 'float'), ('y', 'float'), ('theta', 'float')]
+    stats['equiv_pose'] = cells.zeros(dtype)
+    assumed_theta = np.pi / 2
+    for c in cells.iterate():
+        x, y = x_y_from_axisangle_distance(axis_angle=np.deg2rad(c.a_center),
+                                           distance=c.d_center,
+                                           assumed_theta=assumed_theta,
+                                           radius=1.0)
+        stats['equiv_pose'][c.k]['x'] = x
+        stats['equiv_pose'][c.k]['y'] = y
+        stats['equiv_pose'][c.k]['theta'] = assumed_theta
+        
+    
     return stats
 
 

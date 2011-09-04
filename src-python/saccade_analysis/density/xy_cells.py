@@ -1,4 +1,4 @@
-from saccade_analysis.tammero.tammero_analysis import compute_axis_angle
+from ..tammero.tammero_analysis import compute_axis_angle
 import itertools
 import numpy as np
 
@@ -12,7 +12,6 @@ class XYCells(object):
         self.ncells = ncells
         shape = (ncells, ncells)
         self.shape = shape 
-#        self.inside = self.zeros('bool')
         self.x = self.zeros()
         self.y = self.zeros()
         self.d = self.zeros()
@@ -44,14 +43,6 @@ class XYCells(object):
         for i, j in itertools.product(range(self.shape[0]),
                                       range(self.shape[1])):
             yield i, j 
-#            
-#    def iterate_indices_inside(self):
-#        for k in self.iterate_indices():
-#            if self.inside[k]: yield k
-#
-#    def iterate_indices_outside(self):
-#        for k in self.iterate_indices():
-#            if not self.inside[k]: yield k
 
     def create_xy_to_cells(self, cells):
         self.xy_to_cells = self.zeros('object')

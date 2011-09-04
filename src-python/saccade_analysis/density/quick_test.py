@@ -66,7 +66,7 @@ def main():
    
     sigmas = np.linspace(0, 3, 10)
     f = r.figure('sigma', cols=4)
-    for i, sigma in enumerate(sigmas):
+    for i, sigma in enumerate(sigmas): #@UnusedVariable
         plot_stats(f, 'model%.1f' % sigma, sigma1=sigma, T1=1, sigma2=0, T2=1)
         
     r.to_html('quick_test.html')

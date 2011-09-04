@@ -4,6 +4,9 @@ import itertools
 from contracts import contract
 
 class DACell:
+    ''' d = index
+        a = index 
+    '''
     
     def __init__(self, a, d, a_min, a_max, d_min, d_max):
         self.a = a
@@ -12,6 +15,8 @@ class DACell:
         self.a_max = a_max
         self.d_min = d_min
         self.d_max = d_max
+        self.a_center = 0.5 * (a_min + a_max)
+        self.d_center = 0.5 * (d_min + d_max)
         self.k = (d, a)
         
     @contract(axis_angle='array[K](>=-180,<=180)', distance='array[K](>=0)')

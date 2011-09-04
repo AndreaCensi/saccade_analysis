@@ -1,14 +1,12 @@
+from . import estimate_stimulus, scale_score_norm, scale_score
+from ..markov import fit_dtype
+from collections import namedtuple
 from contracts import contract, new_contract
 from numpy.testing.utils import assert_allclose
 from reprep import Report
-from saccade_analysis.density.order_estimation import scale_score_norm, \
-     scale_score
-from saccade_analysis.markov import fit_dtype
+from saccade_analysis.density.report_models import plot_rate_bars
 import itertools
 import numpy as np
-from collections import namedtuple
-from saccade_analysis.density.order_estimation import estimate_stimulus
-from saccade_analysis.density.report_models import plot_rate_bars
 
 @contract(y_L='array[N]', y_R='array[N]')
 def estimate_stimulus_naive(y_L, y_R):
@@ -214,7 +212,7 @@ def main():
     base = 0.3
     noise_eff = 0.05
     noise_est = noise_eff
-    f_L = lambda z: np.exp(-np.abs(1 - np.maximum(z, 0)) / alpha) + base
+    f_L = lambda z: np.exp(-np.abs(+1 - np.maximum(z, 0)) / alpha) + base
     f_R = lambda z: np.exp(-np.abs(-1 - np.minimum(z, 0)) / alpha) + base
     
     rate_L0 = f_L(z) 
@@ -228,13 +226,13 @@ def main():
     
 
     T = 100
-    ord = np.zeros((n, T))
+    ord1 = np.zeros((n, T))
     for k in range(T):
-        ord[:, k] = scale_score(simulate_L())
+        ord1[:, k] = scale_score(simulate_L())
     order_L_sim = np.ndarray(n, fit_dtype) 
     for i in range(n):
-        order_L_sim[i]['mean'] = np.mean(ord[i, :])
-        l, u = np.percentile(ord[i, :], [5, 95])
+        order_L_sim[i]['mean'] = np.mean(ord1[i, :])
+        l, u = np.percentile(ord1[i, :], [5, 95])
         order_L_sim[i]['upper'] = u
         order_L_sim[i]['lower'] = l
     

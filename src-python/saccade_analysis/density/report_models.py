@@ -1,4 +1,4 @@
-from .order_estimation import estimate_stimulus, scale_score_norm
+from .order_estimation import scale_score_norm
 from .plot_utils import plot_arena, plot_image
 from .xy_cells import XYCells
 from reprep import Report
@@ -18,18 +18,12 @@ def report_models_choice(confid, stats):
     r = Report('%s_models' % confid)
     
     cells = stats['cells']
-
     
     rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
     rate_saccade_right_order = scale_score_norm(stats['rate_saccade_right2']['mean'])
-#               
-#    M = 0.5 * (rate_saccade_left_order + 1 - rate_saccade_right_order)
-#    c = 0.5 # TODO
-#    phi = 2 * (M - c)
 
-    res = estimate_stimulus(stats['rate_saccade_left2'], stats['rate_saccade_right2'])
-    stimulus = res.z
-    phi = stimulus['mean']
+    feature = stats['feature']
+    phi = feature['mean']
     
     ncells = 200
     xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
@@ -385,7 +379,7 @@ Same thing, but plotting 95% confidence intervals.
       
 
     with r.data_pylab('stimulus_uncertainty') as pylab:
-        plot_rate_bars(pylab, stimulus['mean'], stimulus, COL_BOTH) 
+        plot_rate_bars(pylab, feature['mean'], feature, COL_BOTH) 
         pylab.ylabel('Uncertainty on stimulus determination')
         pylab.xlabel('Normalized reduced stimulus') 
         pylab.axis((-1, +1, -1, +1))

@@ -9,6 +9,7 @@ from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
 
 from .approach_angle import compute_approach_angle
 from contracts import contract
+from contracts.main import new_contract
 
 
 def main():
@@ -359,7 +360,8 @@ def add_position_information_to_rows(rows,
             num_outside += 1
             
             if distance_from_wall < min_distance_from_wall:
-                msg = ('Fly is outside of arena for %d/%d (of %d) samples. New record: %s' % 
+                msg = ('Fly is outside of arena for %d/%d (of %d) samples. '
+                       'New record: %s' % 
                        (num_outside, i + 1, len(rows), distance_from_wall))
                 print(msg)
 #            
@@ -376,7 +378,8 @@ def add_position_information_to_rows(rows,
             ay *= correct 
         theta = row['reduced_angular_orientation']
         
-        approach_angle = compute_approach_angle(ax, ay, theta, radius=arena_radius)
+        approach_angle = compute_approach_angle(ax, ay, theta,
+                                                radius=arena_radius)
         axis_angle = compute_axis_angle(ax, ay, theta)
 
         info[i]['distance_from_center'] = distance_from_center
@@ -394,4 +397,13 @@ def compute_axis_angle(x, y, theta):
     angle = np.arctan2(y, x)
     axis_angle = normalize_pi(theta - angle)
     return axis_angle
+
+    
+#
+#
+#@contract(x='float', y='float', theta='float', returns='>=-pi,<=pi')
+#def distance_axisangle_from_(x, y, theta):
+
+
+
 
