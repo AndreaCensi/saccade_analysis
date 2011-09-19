@@ -1,7 +1,6 @@
 from reprep import Report
 import numpy as np 
-from saccade_analysis.density.order_estimation import scale_score
-
+from . import scale_score
 
 
 def report_visual_stimulus(confid, stats): 
@@ -67,25 +66,22 @@ def report_visual_stimulus(confid, stats):
     for alpha in [0.001, 0.01, 0.1, 1, 100, 10000]:
         Q = np.dot(Y.T, Y) + alpha * np.eye(num_photo)
         A_reg = np.linalg.solve(Q, np.dot(Y.T, Z))    
-        plot_stats('reg-%g' % alpha, A_reg, 'Norm regularization, alpha=%g' % alpha) 
+        plot_stats('reg-%g' % alpha, A_reg,
+                   'Norm regularization, alpha=%g' % alpha) 
     
     B = deriv_matrix_phased(num_photo)
     for alpha in [0.01, 0.1, 10, 1000, 10000, 100000]:
         Q = np.dot(Y.T, Y) + alpha * np.dot(B.T, B)
         A_reg = np.linalg.solve(Q, np.dot(Y.T, Z))    
-        plot_stats('regd-%g' % alpha, A_reg, 'Derivative norm reg., alpha=%g' % alpha)
+        plot_stats('regd-%g' % alpha, A_reg,
+                   'Derivative norm reg., alpha=%g' % alpha)
     
     C = deriv2_matrix(num_photo)
     for alpha in [0.01, 0.1, 10, 1000, 10000, 100000]:
         Q = np.dot(Y.T, Y) + alpha * np.dot(C.T, C)
         A_reg = np.linalg.solve(Q, np.dot(Y.T, Z))    
-        plot_stats('regc-%g' % alpha, A_reg, 'Curvature norm reg., alpha=%g' % alpha)
-    
-    
-    
-    B = deriv_matrix(5)
-    print(B)
-    print(np.dot(B.T, B))
+        plot_stats('regc-%g' % alpha, A_reg,
+                   'Curvature norm reg., alpha=%g' % alpha)
     
 
     if False:
