@@ -18,6 +18,9 @@ def report_stats(confid, stats, saccades_stats):
     dt = 1.0 / 60
     plot_image(r, f, 'transit', cells, count * dt,
                caption="Transit probability")
+    plot_image(r, f, 'mean_speed', cells, stats['mean_speed'],
+               caption="Mean speed (m/s)")
+    
     #plot_image(r, f, 'mean_speed', distance_edges, axis_angle_edges, mean_speed)
     #plot_image(r, f, 'time_spent', distance_edges, axis_angle_edges, time_spent)
     #plot_image(r, f, 'probability', distance_edges, axis_angle_edges, probability)

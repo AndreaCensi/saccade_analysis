@@ -37,6 +37,16 @@ def report_models_choice(confid, stats):
                scale_params=dict(min_value=0),
                caption="Time spent (s)")
   
+    plot_image(f_counts, f_counts, 'mean_speed',
+               cells, stats['mean_speed'],
+               #scale_params=dict(min_value=0),
+               caption="Mean speed in cell (m/s)")
+  
+    plot_image(f_counts, f_counts, 'mean_speed_sac_start',
+               cells, stats['mean_speed_sac_start'],
+               #scale_params=dict(min_value=0),
+               caption="Mean speed at saccade start (m/s)")
+    
     plot_image(f_counts, f_counts, 'total',
                cells, stats['total'],
                scale_params=dict(min_value=0, max_color=COL_BOTH_RGB),
@@ -58,6 +68,14 @@ def report_models_choice(confid, stats):
                da2xy(stats['time_spent']),
                scale_params=dict(min_value=0),
                caption="Time spent (s)")
+    
+    plot_arena(f_counts, f_counts, 'mean_speed',
+               da2xy(stats['mean_speed']),
+               caption="Mean speed in cell (m/s)")
+    plot_arena(f_counts, f_counts, 'mean_speed_sac_start',
+               da2xy(stats['mean_speed_sac_start']),
+               caption="Mean speed at saccade start (m/s)")
+    
   
     plot_arena(f_counts, f_counts, 'total',
                da2xy(stats['total']),

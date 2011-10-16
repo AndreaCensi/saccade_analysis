@@ -69,13 +69,17 @@ def compute_histogram_saccades(saccades, cells):
                 num_right=num_right
     '''
 
+
     axis_angle = saccades['axis_angle']
     distance = saccades['distance_from_wall']
+    velocity = saccades['linear_velocity_modulus']
   
     count = np.zeros(cells.shape, dtype='int') 
     num_left = np.zeros(cells.shape, dtype='int') 
     num_right = np.zeros(cells.shape, dtype='int') 
-     
+    mean_speed_start = cells.zeros()
+    
+    
     for c in cells.iterate(): 
         inside = c.inside(axis_angle=axis_angle, distance=distance)
           
@@ -86,9 +90,11 @@ def compute_histogram_saccades(saccades, cells):
         num_right[c.k] = (inside_saccades['sign'] == -1).sum()
         assert count[c.k] == num_left[c.k] + num_right[c.k]
             
+        mean_speed_start[c.k] = np.mean(velocity[inside])
     
     return dict(cells=cells,
                 total=count,
                 num_left=num_left,
-                num_right=num_right)
+                num_right=num_right,
+                mean_speed_sac_start=mean_speed_start)
 

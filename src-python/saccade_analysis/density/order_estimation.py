@@ -79,14 +79,14 @@ def estimate_order_by_simulation(y, T=100, perc=5, inverse=False):
             x = -x
         return x
     
-    ord = np.zeros((n, T))
+    order = np.zeros((n, T))
     for k in range(T):
-        ord[:, k] = scale_score(simulate()).flat
+        order[:, k] = scale_score(simulate()).flat
     
     order_sim = np.ndarray(y.shape, fit_dtype) 
     for i in range(n):
-        order_sim.flat[i]['mean'] = np.mean(ord[i, :])
-        l, u = np.percentile(ord[i, :], [perc, 100 - perc])
+        order_sim.flat[i]['mean'] = np.mean(order[i, :])
+        l, u = np.percentile(order[i, :], [perc, 100 - perc])
         order_sim.flat[i]['upper'] = u
         order_sim.flat[i]['lower'] = l
     return order_sim

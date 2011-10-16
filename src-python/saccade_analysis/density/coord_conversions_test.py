@@ -1,9 +1,7 @@
-
-import numpy as np
+from . import x_y_from_axisangle_distance, axisangle_distance_from_x_y_theta
 from numpy.testing.utils import assert_allclose
 import itertools
-from saccade_analysis.density.coord_conversions import x_y_from_axisangle_distance, \
-    axisangle_distance_from_x_y_theta 
+import numpy as np
 
 radius = 1.0
 
