@@ -1,6 +1,8 @@
 from reprep import Report
-import numpy as np 
-from . import scale_score
+
+from . import scale_score, np
+
+     
 
 
 def report_visual_stimulus(confid, stats): 

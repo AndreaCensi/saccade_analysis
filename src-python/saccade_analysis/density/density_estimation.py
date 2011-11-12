@@ -61,7 +61,8 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
 
 
 def compute_histogram_saccades(saccades, cells):
-    ''' Returns a dictionary with the fields:
+    ''' 
+        Returns a dictionary with the fields:
                 
                 cells
                 total=count,

@@ -2,7 +2,17 @@ import numpy as np
 from contracts import contract, new_contract
 
 def compute_visual_stimulus(stats, num_photoreceptors=180):
-    directions = np.linspace(-np.pi, np.pi, num_photoreceptors)
+    ''' 
+        Computes the simulated visual stimulus. 
+    
+        Returns the ``stats`` dictionary with the field 
+        'visual_stimulus' added. For each cell, it recorded, 
+        the 
+    '''
+    
+    delta = 2 * np.pi / (num_photoreceptors - 1)
+    directions = np.linspace(-np.pi + delta / 2,
+                             np.pi - delta / 2, num_photoreceptors)
     
     stats['directions'] = directions
     cells = stats['cells']

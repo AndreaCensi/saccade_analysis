@@ -1,19 +1,19 @@
-from . import DACells, logger, compute_histogram, compute_histogram_saccades, \
-    compute_joint_statistics, report_models_choice, report_stats, \
-    report_visual_stimulus, compute_visual_stimulus
-from ..tammero.tammero_analysis import add_position_information, \
-    add_position_information_to_rows
+from . import (DACells, logger, compute_histogram, compute_histogram_saccades,
+    compute_joint_statistics, report_models_choice, report_stats,
+    report_visual_stimulus, compute_visual_stimulus)
+from ..tammero.tammero_analysis import (add_position_information,
+    add_position_information_to_rows)
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
-from geometric_saccade_detector.well_formed_saccade import \
-    check_saccade_is_well_formed
+from geometric_saccade_detector import check_saccade_is_well_formed
 from optparse import OptionParser
+from saccade_analysis.density.report_features import report_intuitive
 import compmake
 import os
 import sys
 import traceback
 import warnings
- 
+  
 description = """  """
 
 
@@ -94,10 +94,15 @@ def main():
         html = os.path.join(options.outdir, "%s_models.html" % confid)
         comp(write_report, report_m, html, rd)
         
-        
         report_s = comp(report_visual_stimulus, confid, joint_stats)        
         html = os.path.join(options.outdir, "%s_stimulus.html" % confid)
         comp(write_report, report_s, html, rd)
+        
+        report_i = comp(report_intuitive, confid, joint_stats,
+                               job_id='report_intuitive')        
+        html = os.path.join(options.outdir, "%s_intuitive.html" % confid)
+        comp(write_report, report_i, html, rd,
+             job_id='report_intuitive_write')
              
         if options.compmake_command is not None:
             compmake.batch_command(options.compmake_command)
