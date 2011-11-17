@@ -1,8 +1,6 @@
+from . import XYCells, plot_image, plot_arena, scale_score, np
 from reprep import Report
 
-from . import scale_score, np
-
-     
 
 
 def report_visual_stimulus(confid, stats): 
@@ -15,12 +13,19 @@ def report_visual_stimulus(confid, stats):
     directions = stats['directions']
 
     feature = stats['feature']
+
+    # XXX: repeated code
+    ncells = 200
+    xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
+    da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
+
+
     
     num_photo = directions.size
     num_cells = visual_stimulus.size
     Y = np.zeros((num_cells, num_photo))
     Z = np.zeros(num_cells)
-    i = 0;
+    i = 0
     for c in cells.iterate():
         Y[i, :] = visual_stimulus[c.k]['optic_flow']
         Z[i] = feature[c.k]['mean']
@@ -37,31 +42,51 @@ def report_visual_stimulus(confid, stats):
     print('Detected rank: %s' % rank)
     
     def plot_stats(name, A, desc):
-        
+        print(A.shape)
+        print('plot_stats(%s)' % name)
         # normalize A such that the norm is 1
         A = A / np.linalg.norm(A)
         
-        with f.data_pylab('%s_solution' % name) as pylab:
+        s = r.node(name)
+        
+        with s.data_pylab('kernel') as pylab:
             plot_field_of_view(pylab, directions, A, marker='x-')
             pylab.plot([-180, 180], [0, 0], 'k-')
             pylab.axis((-180, 180, -1, 1))
-        f.last().add_to(f, desc)
+        s.last().add_to(f, desc)
         
         Zpred = np.dot(Y, A) 
-        with f.data_pylab('%s_Z_Z2' % name) as pylab:
+        with s.data_pylab('Z_Z2', caption='Feature vs predicted feature') as pylab:
             pylab.plot(Z, Zpred, '.')
             pylab.xlabel('feature')
             pylab.ylabel('predicted feature')
-        f.last().add_to(f, 'Feature vs predicted feature')
+        s.last().add_to(f)
             
-        Z_order = scale_score(Z)
+        Z_order = scale_score(Z) 
         Zpred_order = scale_score(Zpred)
-        with f.data_pylab('%s_Z_Z2_order' % name) as pylab:
+        with s.data_pylab('Z_Z2_order',
+            caption="order(feature) vs order(predicted feat.)") as pylab:
             pylab.plot(Z_order, Zpred_order, '.')
             pylab.xlabel('Z')
             pylab.ylabel('Z2')
-        f.last().add_to(f, 'order(feature) vs order(predicted feat.)')
-            
+        s.last().add_to(f)
+        
+        Zpred_field = cells.zeros()
+        for c in cells.iterate():
+            optic_flow = visual_stimulus[c.k]['optic_flow']
+            Zpred_field[c.k] = np.sum(A * optic_flow[::reduce_factor])
+        
+        Zpred_field2 = nonlinearfit(Zpred_field, Z)
+
+        plot_image(s, f, 'feature1', cells, Zpred_field, use_posneg=True,
+                   caption='Feature in axis angle/distance plane')
+
+        plot_arena(s, f, 'feature2', da2xy(Zpred_field), use_posneg=True,
+                   caption='Feature in reduced coordinates') 
+
+        plot_arena(s, f, 'feature3', da2xy(Zpred_field2), use_posneg=True,
+                   caption='Feature in reduced coordinates (normalized)') 
+        
         
     plot_stats('lst', A_lst, 'Least square solution')
     
@@ -79,7 +104,7 @@ def report_visual_stimulus(confid, stats):
                    'Derivative norm reg., alpha=%g' % alpha)
     
     C = deriv2_matrix(num_photo)
-    for alpha in [0.01, 0.1, 10, 1000, 10000, 100000]:
+    for alpha in [0.01, 0.1, 10, 1000, 10000, 100000, 1000000]:
         Q = np.dot(Y.T, Y) + alpha * np.dot(C.T, C)
         A_reg = np.linalg.solve(Q, np.dot(Y.T, Z))    
         plot_stats('regc-%g' % alpha, A_reg,
@@ -97,7 +122,7 @@ def report_visual_stimulus(confid, stats):
         if (c.k[0] + c.k[1]) % 10 != 0:
             continue 
         
-        if True: continue
+        if True: continue # XXX
 
         pose = poses[c.k]
         x = pose['x']
@@ -154,6 +179,15 @@ def report_visual_stimulus(confid, stats):
         f.last().add_to(f, 'Optic flow')
             
     return r
+
+
+def nonlinearfit(x, Z):
+    assert x.size == Z.size
+    x_order = scale_score(x).astype('int') 
+    Z_sorted = np.sort(Z.flat)
+    x2 = Z_sorted[x_order]
+    return x2
+    
 
 def deriv_matrix(n):
     X = np.zeros((n, n))

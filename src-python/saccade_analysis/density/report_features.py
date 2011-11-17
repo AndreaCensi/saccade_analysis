@@ -2,6 +2,8 @@ from . import Report, np, plot_image, plot_arena
 from saccade_analysis.density.xy_cells import XYCells
 from reprep.plot_utils.axes import y_axis_balanced, x_axis_set
 from reprep.constants import MIME_RST
+from saccade_analysis.density.visual_stimulus_report import nonlinearfit
+from saccade_analysis.density.order_estimation import scale_score
  
 __all__ = ['report_intuitive']
 
@@ -63,11 +65,16 @@ def report_intuitive(confid, stats):
            'expressed as linear combinations of perceived optic flow '
            'times a given kernel. ', MIME_RST)
 
+    Z = stats['feature']['mean']
+    Z_order = scale_score(Z) 
+
     for model in models:
         name = model['name']
         feature = model['feature']
         kernel = model['kernel']
         desc = model['desc']
+
+        feature_order = scale_score(feature)
         
         s = r.node(name)
         f = s.figure('Figure0', cols=3)
@@ -78,6 +85,20 @@ def report_intuitive(confid, stats):
             y_axis_balanced(pylab, 0.2)
             x_axis_set(pylab, -180, +180)
             pylab.xlabel('directions')
+            
+        with s.data_pylab('Z_Z2', caption='Feature vs predicted feature') as pylab:
+            pylab.plot(feature, Z, '.')
+            pylab.xlabel('feature')
+            pylab.ylabel('predicted feature')
+        s.last().add_to(f)
+        
+        
+        with s.data_pylab('Z_Z2_order',
+            caption="order(feature) vs order(predicted feat.)") as pylab:
+            pylab.plot(Z_order, feature_order, '.')
+            pylab.xlabel('Z')
+            pylab.ylabel('Z2')
+        s.last().add_to(f)            
         
         plot_image(s, f, 'feature1', cells, feature, use_posneg=True,
                    caption='Feature in axis angle/distance plane')
@@ -85,7 +106,10 @@ def report_intuitive(confid, stats):
         plot_arena(s, f, 'feature2', da2xy(feature), use_posneg=True,
                    caption='Feature in reduced coordinates') 
 
+        feature2 = nonlinearfit(feature, Z)
     
+        plot_arena(s, f, 'feature2nonlinear', da2xy(feature2), use_posneg=True,
+                   caption='Feature in reduced coordinates (nonlinear fit)') 
     
     return r
 

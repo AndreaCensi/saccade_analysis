@@ -1,6 +1,7 @@
 """ Statistics of permanence """
 
 import numpy as np
+from contracts import contract
 
 from reprep import Report
 

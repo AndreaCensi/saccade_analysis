@@ -1,7 +1,7 @@
-from saccade_analysis.density.density_estimation import get_distance_edges
-import numpy as np
+from . import  np, contract
 import itertools
-from contracts import contract
+from saccade_analysis.density.density_estimation import get_distance_edges
+
 
 class DACell:
     ''' d = index
@@ -22,6 +22,7 @@ class DACell:
     @contract(axis_angle='array[K](>=-180,<=180)', distance='array[K](>=0)')
     def inside(self, axis_angle, distance):
         And = np.logical_and
+        # TODO: check +- 180deg 
         inside_a = And(axis_angle >= self.a_min,
                        axis_angle <= self.a_max)
         inside_d = And(distance >= self.d_min,
@@ -79,6 +80,13 @@ class DACells:
         if d is None or a is None:
             return None
         return (d, a)
+    
+    @contract(field='array')
+    def check_compatible_shape(self, field):
+        ''' Raises an exception if the array is not of a compatible shape. '''
+        if field.shape != self.shape:
+            raise Exception("Not compatible shape: %r instead of %r." % 
+                                (field.shape, self.shape))
         
     
 @contract(edges='array[K]', v='float', returns='None|(>=0,<K)')

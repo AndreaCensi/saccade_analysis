@@ -94,15 +94,17 @@ def main():
         html = os.path.join(options.outdir, "%s_models.html" % confid)
         comp(write_report, report_m, html, rd)
         
-        report_s = comp(report_visual_stimulus, confid, joint_stats)        
+        report_s = comp(report_visual_stimulus, confid, joint_stats,
+                        job_id='report_stimulus')        
         html = os.path.join(options.outdir, "%s_stimulus.html" % confid)
-        comp(write_report, report_s, html, rd)
+        comp(write_report, report_s, html, rd,
+             job_id='report_stimulus-write')
         
         report_i = comp(report_intuitive, confid, joint_stats,
                                job_id='report_intuitive')        
         html = os.path.join(options.outdir, "%s_intuitive.html" % confid)
         comp(write_report, report_i, html, rd,
-             job_id='report_intuitive_write')
+             job_id='report_intuitive-write')
              
         if options.compmake_command is not None:
             compmake.batch_command(options.compmake_command)

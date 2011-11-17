@@ -1,10 +1,13 @@
 from reprep import posneg, scale 
 import itertools
 import numpy as np
+from contracts import contract
 
 
+@contract(field='array[AxB]')
 def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
                use_posneg=False, scale_format='%.2f'):
+    cells.check_compatible_shape(field)
     
     d_edges = cells.d_edges
     a_edges = cells.a_edges
