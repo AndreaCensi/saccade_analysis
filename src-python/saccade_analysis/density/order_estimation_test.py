@@ -1,10 +1,11 @@
-from . import estimate_stimulus, scale_score_norm, scale_score
-from ..markov import fit_dtype
 from collections import namedtuple
 from contracts import contract, new_contract
 from numpy.testing.utils import assert_allclose
 from reprep import Report
+from saccade_analysis.density import (estimate_stimulus, scale_score_norm,
+    scale_score)
 from saccade_analysis.density.report_models import plot_rate_bars
+from saccade_analysis.markov import fit_dtype
 import itertools
 import numpy as np
 
