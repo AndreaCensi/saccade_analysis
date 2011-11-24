@@ -1,12 +1,11 @@
-from contracts import contract
-import numpy as np 
+from . import contract, np
 
 
 @contract(arena_radius='>0', n='int,>2,N', returns='array[N+1](>=0)')
 def get_distance_edges(arena_radius, n):
-    ''' Returns n+1 edges for a division of the distance from the wall, 
-        such that 
-        each one has equal area.  
+    ''' 
+        Returns n+1 edges for a division of the distance from the wall, 
+        such that each one has equal area.  
     '''
     R = arena_radius
     A = np.pi * R ** 2
@@ -19,14 +18,25 @@ def get_distance_edges(arena_radius, n):
 
 
 def compute_histogram(rows, cells, vel_threshold=0.05):
+    ''' 
+        Computes global statistics of the trajectories.
+        
+        cells: DACell structure
+        rows:  flydra rows + arena position annotations
+    '''
+    
+  
     axis_angle = rows['axis_angle']
     distance = rows['distance_from_wall']
     linear_velocity_modulus = rows['linear_velocity_modulus']
 
-    count = np.zeros(cells.shape, dtype='int')
-    mean_speed = np.zeros(cells.shape)
-    time_spent = np.zeros(cells.shape)
-    
+    count = cells.zeros('int')
+    mean_speed = cells.zeros()
+    time_spent = cells.zeros()
+  
+    print('Intervals of axis_angle: %s - %s' % (np.min(axis_angle),
+                                                np.max(axis_angle)))
+  
     for c in cells.iterate():
         incell = c.inside(axis_angle=axis_angle,
                             distance=distance)
@@ -41,7 +51,7 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
         count[c.k] = len(inside_rows)
         
         if count[c.k] == 0:
-            print('Warning, no data for %s' % str(c))
+            print('Warning, no data for cell %s' % str(c))
             mean_speed[c.k] = np.NaN
             time_spent[c.k] = 0 
         else:
@@ -62,6 +72,8 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
 
 def compute_histogram_saccades(saccades, cells):
     ''' 
+        Computes statistics for the saccades distribution.
+    
         Returns a dictionary with the fields:
                 
                 cells
@@ -75,12 +87,15 @@ def compute_histogram_saccades(saccades, cells):
     distance = saccades['distance_from_wall']
     velocity = saccades['linear_velocity_modulus']
   
-    count = np.zeros(cells.shape, dtype='int') 
-    num_left = np.zeros(cells.shape, dtype='int') 
-    num_right = np.zeros(cells.shape, dtype='int') 
+    count = cells.zeros('int')
+    num_left = cells.zeros('int')
+    num_right = cells.zeros('int')
     mean_speed_start = cells.zeros()
     
-    
+
+    print('Intervals of axis_angle: %s - %s' % (np.min(axis_angle),
+                                                np.max(axis_angle)))
+              
     for c in cells.iterate(): 
         inside = c.inside(axis_angle=axis_angle, distance=distance)
           

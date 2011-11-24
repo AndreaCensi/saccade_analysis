@@ -49,7 +49,6 @@ def compute_joint_statistics(stats, saccades_stats):
     res = estimate_stimulus(stats['rate_saccade_left2'], stats['rate_saccade_right2'])
     stats['feature'] = res.z
 
-
     # Computes equivalent coordinates
     
     dtype = [('x', 'float'), ('y', 'float'), ('theta', 'float')]

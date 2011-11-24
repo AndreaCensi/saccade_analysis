@@ -56,6 +56,7 @@ def estimate_stimulus(y_L, y_R):
     return estimate_stimulus_return(L_order=L_order,
                                     R_order=R_order,
                                     order=order,
+                                    order_var=order_var,
                                     z=z)
 
 

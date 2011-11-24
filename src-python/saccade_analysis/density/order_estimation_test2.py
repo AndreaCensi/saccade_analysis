@@ -1,11 +1,9 @@
-from reprep import Report
-from saccade_analysis.density import (scale_score)
-from saccade_analysis.density.report_models import plot_rate_bars
+from contracts import contract
+from reprep import MIME_PDF, Report
+from saccade_analysis.density import scale_score, plot_rate_bars
 from saccade_analysis.markov import fit_dtype
 import numpy as np
-from reprep import MIME_PDF
 import os
-from contracts import contract
 
 
 def compute_samples(simulate, N):
