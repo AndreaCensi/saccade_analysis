@@ -1,5 +1,5 @@
-from . import XYCells, plot_image, plot_arena, scale_score, np
-from reprep import Report
+from . import XYCells, plot_image, plot_arena, scale_score, np, Report
+
 
 
 

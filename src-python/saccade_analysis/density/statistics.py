@@ -1,6 +1,6 @@
-from . import x_y_from_axisangle_distance, estimate_stimulus
+from . import x_y_from_axisangle_distance, estimate_stimulus, np
 from ..markov import fit_poisson, fit_dtype, fit_poisson_multiple, fit_binomial
-import numpy as np
+
 
 def compute_joint_statistics(stats, saccades_stats):
     for k in stats: 

@@ -1,5 +1,4 @@
-from reprep import Report
-import numpy as np
+from . import np, Report
 
 def noise(sigma):
     return np.random.randn() * sigma

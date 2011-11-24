@@ -1,5 +1,6 @@
-import numpy as np 
-from contracts import contract, new_contract
+from . import np, contract
+from contracts import new_contract
+ 
 
 def compute_visual_stimulus(stats, num_photoreceptors=180):
     ''' 

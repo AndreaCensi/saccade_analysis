@@ -1,6 +1,5 @@
-from saccade_analysis.density.density_estimation import get_distance_edges
-from contracts import contract
-import numpy as np
+from . import get_distance_edges, contract, np
+
 from numpy.ma.testutils import  assert_almost_equal
 
 def get_distance_edges_test():

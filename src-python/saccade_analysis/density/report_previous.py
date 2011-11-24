@@ -1,7 +1,5 @@
+from . import plot_image, Report, np
 from ..markov import binomial_stats
-from .plot_utils import plot_image
-from reprep import Report
-import numpy as np
 
 def report_stats(confid, stats, saccades_stats):
     r = Report(confid)
@@ -98,7 +96,7 @@ def report_stats(confid, stats, saccades_stats):
     prob_sac2 = np.array(prob_sac)
     prob_sac2 [prob_sac < baseline_rate] = np.NaN
     
-    print('baseline_rate is %g' % baseline_rate)
+    #print('baseline_rate is %g' % baseline_rate)
 #    plot_image(r, f3, 'prob_sac2',
 #               distance_edges, axis_angle_edges, prob_sac2,
 #               caption="Used to compute baseline saccade rate")

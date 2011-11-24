@@ -1,8 +1,7 @@
 from reprep import posneg, scale 
 import itertools
-import numpy as np
-from contracts import contract
 
+from . import np, contract
 
 @contract(field='array[AxB]')
 def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},

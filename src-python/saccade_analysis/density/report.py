@@ -1,13 +1,12 @@
 from . import (DACells, logger, compute_histogram, compute_histogram_saccades,
     compute_joint_statistics, report_models_choice, report_stats,
-    report_visual_stimulus, compute_visual_stimulus)
+    report_visual_stimulus, compute_visual_stimulus, report_intuitive)
 from ..tammero.tammero_analysis import (add_position_information,
-    add_position_information_to_rows)
+    add_position_information_to_rows) # XXX: remove
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
 from geometric_saccade_detector import check_saccade_is_well_formed
 from optparse import OptionParser
-from saccade_analysis.density.report_features import report_intuitive
 import compmake
 import os
 import sys

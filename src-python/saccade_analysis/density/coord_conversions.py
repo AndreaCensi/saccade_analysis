@@ -1,6 +1,7 @@
-from contracts import contract, new_contract
+from . import contract, np
 from ..tammero.tammero_analysis import compute_axis_angle
-import numpy as np
+from contracts import new_contract
+
 
 new_contract('angle_pi', 'float,>=-pi,<=pi')
 

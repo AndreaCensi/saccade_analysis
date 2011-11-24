@@ -1,6 +1,6 @@
+from . import np
 from ..tammero.tammero_analysis import compute_axis_angle
 import itertools
-import numpy as np
 
 class XYCells(object):
     

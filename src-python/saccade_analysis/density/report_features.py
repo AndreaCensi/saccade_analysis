@@ -1,9 +1,7 @@
-from . import Report, np, plot_image, plot_arena
-from saccade_analysis.density.xy_cells import XYCells
-from reprep.plot_utils.axes import y_axis_balanced, x_axis_set
-from reprep.constants import MIME_RST
-from saccade_analysis.density.visual_stimulus_report import nonlinearfit
-from saccade_analysis.density.order_estimation import scale_score
+from . import (Report, np, plot_image, plot_arena, XYCells, nonlinearfit,
+    scale_score)
+from reprep import MIME_RST
+from reprep.plot_utils import y_axis_balanced, x_axis_set
  
 __all__ = ['report_intuitive']
 
