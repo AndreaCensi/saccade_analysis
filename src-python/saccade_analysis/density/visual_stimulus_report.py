@@ -49,14 +49,14 @@ def report_visual_stimulus(confid, stats):
         
         s = r.node(name)
         
-        with s.data_pylab('kernel') as pylab:
+        with s.plot('kernel') as pylab:
             plot_field_of_view(pylab, directions, A, marker='x-')
             pylab.plot([-180, 180], [0, 0], 'k-')
             pylab.axis((-180, 180, -1, 1))
         s.last().add_to(f, desc)
         
         Zpred = np.dot(Y, A) 
-        with s.data_pylab('Z_Z2', caption='Feature vs predicted feature') as pylab:
+        with s.plot('Z_Z2', caption='Feature vs predicted feature') as pylab:
             pylab.plot(Z, Zpred, '.')
             pylab.xlabel('feature')
             pylab.ylabel('predicted feature')
@@ -64,7 +64,7 @@ def report_visual_stimulus(confid, stats):
             
         Z_order = scale_score(Z) 
         Zpred_order = scale_score(Zpred)
-        with s.data_pylab('Z_Z2_order',
+        with s.plot('Z_Z2_order',
             caption="order(feature) vs order(predicted feat.)") as pylab:
             pylab.plot(Z_order, Zpred_order, '.')
             pylab.xlabel('Z')
@@ -112,7 +112,7 @@ def report_visual_stimulus(confid, stats):
     
 
     if False:
-        with f.data_pylab('coords') as pylab:    
+        with f.plot('coords') as pylab:    
             for c in cells.iterate():
                 pose = stats['equiv_pose'][c.k]
                 pylab.plot(pose['x'], pose['y'], '.')
@@ -132,7 +132,7 @@ def report_visual_stimulus(confid, stats):
         retinal_velocities = visual_stimulus[c.k]['retinal_velocities']
         optic_flow = visual_stimulus[c.k]['optic_flow']
         
-        with f.data_pylab('c.%d.%d' % c.k) as pylab: 
+        with f.plot('c.%d.%d' % c.k, 'readings') as pylab: 
             xs = []
             ys = []
             for phi, rho in zip(directions, distance):
@@ -145,38 +145,33 @@ def report_visual_stimulus(confid, stats):
             pylab.plot([x, x + np.cos(theta) * A],
                        [y, y + np.sin(theta) * A], 'r-', markersize=3); 
             pylab.axis('equal')
-        f.last().add_to(f, 'readings')
 
-        with f.data_pylab('c.%d.%d_distance' % c.k):
+        with f.plot('c.%d.%d_distance' % c.k, caption='distance'):
             plot_field_of_view(pylab, directions, distance, bounds=[0, 2])
             pylab.ylabel('distance (m)')
             
-        f.last().add_to(f, 'Distance')
-        
-        with f.data_pylab('c.%d.%d_rv' % c.k) as pylab:
+
+        with f.plot('c.%d.%d_rv' % c.k, caption='Retinal velocities') as pylab:
             plot_field_of_view(pylab, directions,
                                np.degrees(retinal_velocities))
             pylab.ylabel('retinal vel (deg/s)')
-        f.last().add_to(f, 'Retinal velocities')
         
-        with f.data_pylab('c.%d.%d_of' % c.k) as pylab:
+        with f.plot('c.%d.%d_of' % c.k, caption='Opti flow') as pylab:
             plot_field_of_view(pylab, directions, optic_flow)
             pylab.ylabel('optic flow')
-        f.last().add_to(f, 'Optic flow')
-             
+    
 
-        with f.data_pylab('c.%d.%d_distance2' % c.k):
+        with f.plot('c.%d.%d_distance2' % c.k, caption='Distance'):
             polar_negative(pylab, directions, distance, 'b-')
-        f.last().add_to(f, 'Distance')
+
         
-        with f.data_pylab('c.%d.%d_rv2' % c.k): 
+        with f.plot('c.%d.%d_rv2' % c.k, caption='Retinal velocities'): 
             polar_negative(pylab, directions,
                            np.degrees(retinal_velocities), 'b-')
-        f.last().add_to(f, 'Retinal velocities')
         
-        with f.data_pylab('c.%d.%d_of2' % c.k):
+        with f.plot('c.%d.%d_of2' % c.k, caption='Optic flow'):
             polar_negative(pylab, directions, optic_flow, 'b-')
-        f.last().add_to(f, 'Optic flow')
+        
             
     return r
 

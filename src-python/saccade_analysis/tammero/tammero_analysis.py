@@ -397,13 +397,7 @@ def compute_axis_angle(x, y, theta):
     angle = np.arctan2(y, x)
     axis_angle = normalize_pi(theta - angle)
     return axis_angle
-
-    
-#
-#
-#@contract(x='float', y='float', theta='float', returns='>=-pi,<=pi')
-#def distance_axisangle_from_(x, y, theta):
-
+  
 
 
 

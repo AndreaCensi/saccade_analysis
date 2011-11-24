@@ -8,6 +8,7 @@ class DACell:
         a = index 
     '''
     
+    @contract(a='int', d='int', a_min='x', a_max='>x', d_min='y', d_max='>y')
     def __init__(self, a, d, a_min, a_max, d_min, d_max):
         self.a = a
         self.d = d
@@ -23,8 +24,13 @@ class DACell:
     def inside(self, axis_angle, distance):
         And = np.logical_and
         # TODO: check +- 180deg 
-        inside_a = And(axis_angle >= self.a_min,
+        inside_a1 = And(axis_angle >= self.a_min,
                        axis_angle <= self.a_max)
+        inside_a2 = And(axis_angle + 360 >= self.a_min,
+                       axis_angle + 360 <= self.a_max)
+        inside_a3 = And(axis_angle - 360 >= self.a_min,
+                       axis_angle - 360 <= self.a_max)
+        inside_a = np.logical_or(np.logical_or(inside_a1, inside_a2), inside_a3)
         inside_d = And(distance >= self.d_min,
                        distance <= self.d_max)
         return And(inside_a, inside_d)
@@ -54,7 +60,7 @@ class DACells:
         
         #print('Now edges: %.3f <= d <= %.3f' % (d_edges[0], d_edges[-1]))
         self.d_edges = d_edges
-        self.a_edges = np.linspace(-180, 180, ncells_axis_angle + 1)
+        self.a_edges = np.linspace(-180, 180, ncells_axis_angle + 1) 
         self.nd = len(self.d_edges) - 1
         self.na = len(self.a_edges) - 1
         self.shape = ((self.nd, self.na))

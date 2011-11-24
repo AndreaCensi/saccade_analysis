@@ -7,6 +7,7 @@ from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
 from geometric_saccade_detector import check_saccade_is_well_formed
 from optparse import OptionParser
+from reprep import MIME_PDF, RepRepDefaults
 import compmake
 import os
 import sys
@@ -33,6 +34,10 @@ def main():
                       help="Discretization for axis angle")
     parser.add_option("--compmake_command", default=None,
                       help="Execute the CompMake command and exit.")
+    
+    parser.add_option("--pdf", default=False, action='store_true',
+                      help="Uses PDF for the reports (slower).")
+    
     (options, args) = parser.parse_args() #@UnusedVariable
     
     try:
@@ -52,6 +57,18 @@ def main():
         sys.exit(-1)
   
     try:
+        
+        if options.pdf:
+            logger.info('Using PDF for plots.')
+            RepRepDefaults.default_image_format = MIME_PDF
+                    
+        from matplotlib import rc
+        rc('font', **{'family':'serif',
+                      'serif':['Times', 'Times New Roman', 'Palatino'],
+                       'size': 8.0})
+            #rc('text', usetex=True)
+        
+        
         confid = '%s-%s-D%d-A%d' % (options.group,
                                        options.version,
                                        options.ncells_distance,
@@ -64,11 +81,13 @@ def main():
         bin_enlarge_dist = 0.05
         bin_enlarge_angle = 10
         min_distance = 0.15
+        arena_radius = 1
         
         cells = DACells(
                     ncells_distance=options.ncells_distance,
                     ncells_axis_angle=options.ncells_axis_angle,
-                    arena_radius=1, min_distance=min_distance,
+                    arena_radius=arena_radius,
+                    min_distance=min_distance,
                     bin_enlarge_angle=bin_enlarge_angle,
                     bin_enlarge_dist=bin_enlarge_dist)
         
@@ -87,11 +106,13 @@ def main():
         report = comp(report_stats, confid, stats, saccades_stats)
         rd = os.path.join(options.outdir, 'images')
         html = os.path.join(options.outdir, "%s.html" % confid)
-        comp(write_report, report, html, rd)
+        comp(write_report, report, html, rd,
+             job_id='report_stats-write')
         
         report_m = comp(report_models_choice, confid, joint_stats)        
         html = os.path.join(options.outdir, "%s_models.html" % confid)
-        comp(write_report, report_m, html, rd)
+        comp(write_report, report_m, html, rd,
+             job_id='report_models_choice-write')
         
         report_s = comp(report_visual_stimulus, confid, joint_stats,
                         job_id='report_stimulus')        
@@ -127,7 +148,7 @@ def get_group_density_stats(flydra_db_directory, db_group, version, cells):
         print('Read %d rows' % len(rows))
     
         print('Computing extra information')
-        warnings.warn('Using hardcoded arena size and position.')
+        warnings.warn('Using default arena size and position.')
         rowsp = add_position_information_to_rows(rows)
         
         print('Computing histogram')
@@ -149,6 +170,6 @@ def get_saccades_for_group(flydra_db_directory, db_group, version):
             check_saccade_is_well_formed(s)
         
         warnings.warn('Using hardcoded arena size and position.')
-        saccades = add_position_information(saccades) # XXX: using default arena size
-       
+        saccades = add_position_information(saccades)  
+        
         return saccades
