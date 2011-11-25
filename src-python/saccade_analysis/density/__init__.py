@@ -13,6 +13,7 @@ logger.setLevel(logging.DEBUG)
 
 from .da_cells import *
 from .xy_cells import *
+from .plot_utils import *
 
 from .coord_conversions import *
 from .order_estimation import *

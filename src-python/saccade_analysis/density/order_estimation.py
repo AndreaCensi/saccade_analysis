@@ -62,7 +62,6 @@ def estimate_stimulus(y_L, y_R):
     return estimate_stimulus_return(L_order=L_order,
                                     R_order=R_order,
                                     order=order,
-                                    order_var=order_var,
                                     z=z)
 
 
@@ -73,10 +72,6 @@ def estimate_order_by_simulation(y, T=100, perc=5, inverse=False):
     lower = y['lower']
     upper = y['upper']
     diff = upper - lower
-    # XXX: there are still NaN in the array
-#    print diff
-#    print diff >= 0
-#    assert np.all(diff >= 0)
     lower2 = lower - diff / 2
     upper2 = upper + diff / 2
     
