@@ -53,7 +53,6 @@ def report_intuitive(confid, stats):
     
         model['feature'] = -feature
 
-
     ncells = 200
     xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
     da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
@@ -77,21 +76,21 @@ def report_intuitive(confid, stats):
         s = r.node(name)
         f = s.figure('Figure0', cols=3)
         
-        with f.data_pylab('kernel', caption='kernel: %s' % desc) as pylab:
+        with f.plot('kernel', caption='kernel: %s' % desc) as pylab:
             theta = np.rad2deg(directions)
             pylab.plot(theta, kernel)
             y_axis_balanced(pylab, 0.2)
             x_axis_set(pylab, -180, +180)
             pylab.xlabel('directions')
             
-        with s.data_pylab('Z_Z2', caption='Feature vs predicted feature') as pylab:
+        with s.plot('Z_Z2', caption='Feature vs predicted feature') as pylab:
             pylab.plot(feature, Z, '.')
             pylab.xlabel('feature')
             pylab.ylabel('predicted feature')
         s.last().add_to(f)
         
         
-        with s.data_pylab('Z_Z2_order',
+        with s.plot('Z_Z2_order',
             caption="order(feature) vs order(predicted feat.)") as pylab:
             pylab.plot(Z_order, feature_order, '.')
             pylab.xlabel('Z')

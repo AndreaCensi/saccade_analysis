@@ -13,6 +13,7 @@ def compute_joint_statistics(stats, saccades_stats):
     N = saccades_stats['total']
     N_L = saccades_stats['num_left']
     N_R = saccades_stats['num_right']
+
     dt = 1.0 / 60 
     cells = stats['cells'] 
     ft = lambda: cells.zeros(fit_dtype) 

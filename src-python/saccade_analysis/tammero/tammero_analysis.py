@@ -9,7 +9,7 @@ from geometric_saccade_detector.math_utils import merge_fields, normalize_pi
 
 from .approach_angle import compute_approach_angle
 from contracts import contract
-from contracts.main import new_contract
+from contracts import new_contract
 
 
 def main():
@@ -294,7 +294,12 @@ def write_report(report, output_dir):
     report.to_html(filename)
     print("...done")
 
-def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1.0):
+@contract(arena_radius='>0', arena_center='seq[2](float)')
+def add_position_information(saccades, arena_center, arena_radius):
+    '''
+        Values I used: 
+            arena_center=[0.15, 0.48], arena_radius=1.0
+    '''
     info_dtype = [
         ('distance_from_wall', 'float64'),
         ('distance_from_center', 'float64'),
@@ -332,8 +337,12 @@ def add_position_information(saccades, arena_center=[0.15, 0.48], arena_radius=1
     return merge_fields(saccades, info)
 
 
-def add_position_information_to_rows(rows,
-                                     arena_center=[0.15, 0.48], arena_radius=1.0):
+def add_position_information_to_rows(rows, arena_center, arena_radius):
+    '''
+        Values I used: 
+            arena_center=[0.15, 0.48], arena_radius=1.0
+    '''
+
     info_dtype = [
         ('distance_from_wall', 'float64'),
         ('distance_from_center', 'float64'),

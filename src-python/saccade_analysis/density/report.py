@@ -16,6 +16,16 @@ import warnings
 description = """  """
 
 
+# Constant arena center and position
+#arena_center = [0.075, 0.46] # Obtaining by computing average of rows
+# arena_center = [0.114,  0.46] # Obtained by computing average of saccades position
+# arena_center = [0.09, 0.5] # obtained by guessing
+
+# arena_center = [0.2,  0.46] # random value
+
+arena_center = [0.15, 0.48] # Obtained from calibration
+arena_radius = 1.0 
+
 
 def report_main(args):
 #    np.seterr(all='raise')
@@ -117,7 +127,12 @@ def report_main(args):
     html = os.path.join(options.outdir, "%s_intuitive.html" % confid)
     comp(write_report, report_i, html, rd,
          job_id='report_intuitive-write')
-         
+    
+    comp(write_report, comp(report_saccades, confid, saccades, 
+        job_id='report_saccades'), 
+          html=os.path.join(options.outdir, "%s_saccades.html" % confid), 
+          rd=rd, job_id='report_saccades-write')
+
     if options.compmake_command is not None:
         compmake.batch_command(options.compmake_command)
     else:
@@ -127,7 +142,6 @@ def report_main(args):
 
 def main():
     wrap_script_entry_point(report_main, logger)
-    
     
 if __name__ == '__main__':
     main()
@@ -143,28 +157,65 @@ def get_group_density_stats(flydra_db_directory, db_group, version, cells):
         print('Read %d rows' % len(rows))
     
         print('Computing extra information')
-        warnings.warn('Using default arena size and position.')
-        rowsp = add_position_information_to_rows(rows)
+        warnings.warn('Using hardcoded arena size and position (%s, %s)' 
+                        %(arena_center, arena_radius))
+
+        rowsp = add_position_information_to_rows(rows, 
+            arena_radius=arena_radius, 
+            arena_center=arena_center)
         
         print('Computing histogram')
         stats = compute_histogram(rowsp, cells)
         return stats
 
-
 def get_saccades_for_group(flydra_db_directory, db_group, version):
     
     with safe_flydra_db_open(flydra_db_directory) as db:
-        
+        print('Getting all saccades from group %r.' % db_group)
         saccades = db.get_table_for_group(group=db_group,
                                           table='saccades',
                                           version=version)
         if len(saccades) == 0:
             raise Exception('No saccades found for group %r.' % db_group)
         
+        print('Checking saccades are well formed.')
         for s in saccades:
             check_saccade_is_well_formed(s)
         
-        warnings.warn('Using hardcoded arena size and position.')
-        saccades = add_position_information(saccades)  
+        warnings.warn('Using hardcoded arena size and position (%s, %s)' 
+                      %(arena_center, arena_radius))
+        print('Adding position information')
+        saccades = add_position_information(saccades,
+          arena_radius=arena_radius, 
+            arena_center=arena_center)  
         
         return saccades
+
+from reprep import Report, MIME_PDF
+import numpy as np
+def report_saccades(confid, saccades):
+    r = Report('%s_saccades' % confid)
+
+    print saccades['position'].shape
+    x = saccades['position'][:,0]
+    y = saccades['position'][:,1]
+
+    with r.plot('histogram', mime=MIME_PDF, figsize=(10,10)) as pylab:
+        pylab.plot(x,y,'.',markersize=0.8)
+        plot_arena(pylab, center=arena_center, radius=1)
+        pylab.plot(arena_center[0],arena_center[1],'r+',markersize=2)
+        pylab.axis('equal')
+        pylab.title('Center: %s' % str(arena_center) )
+    return r
+
+
+def plot_arena(pylab, center, radius):
+    for r in np.linspace(0,radius,10):
+      plot_circle(pylab, center, r, 'b-')      
+    plot_circle(pylab, center, radius, 'k-')      
+
+def plot_circle(pylab, center, radius, *args, **kwargs):
+    theta = np.linspace(0, 2 * np.pi, 200)
+    pylab.plot(radius*np.cos(theta)+center[0], 
+               radius*np.sin(theta)+center[1], *args, **kwargs)
+

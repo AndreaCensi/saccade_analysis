@@ -259,13 +259,13 @@ def main():
     
     r = Report()
     f = r.figure(cols=3)
-    with r.data_pylab('noiseless') as pylab:
+    with r.plot('noiseless') as pylab:
         pylab.plot(z, rate_L0, '%s-' % cL)
         pylab.plot(z, rate_R0, '%s-' % cR)
         pylab.axis((-1, 1, 0.0, scale_rate))
     r.last().add_to(f, caption='noiseless rates')
     
-    with r.data_pylab('observed_rates') as pylab:
+    with r.plot('observed_rates') as pylab:
         pylab.plot(z, rate_R0, '%s-' % cR)
         pylab.plot(z, rate_L0, '%s-' % cL)
         plot_rate_bars(pylab, z, rate_L_est, '%s' % cL)
@@ -273,19 +273,19 @@ def main():
         pylab.axis((-1, 1, 0.0, scale_rate))
     r.last().add_to(f, caption='true_rates')
   
-    with r.data_pylab('M') as pylab:
+    with r.plot('M') as pylab:
         pylab.plot(z, rate_L0, '%s-' % cL)
         pylab.plot(z, rate_R0, '%s-' % cR)
         pylab.axis((-1, 1, 0.0, scale_rate))
         
-    with r.data_pylab('z_naive') as pylab:
+    with r.plot('z_naive') as pylab:
         pylab.plot(z_naive, rate_L, '%s.' % cL)
         pylab.plot(z_naive, rate_R, '%s.' % cR)
         pylab.axis((-1, 1, 0.0, scale_rate))
     r.last().add_to(f, caption='Stimulus estimated in naive way.')
     
     
-    with r.data_pylab('simulated_order_stats') as pylab:
+    with r.plot('simulated_order_stats') as pylab:
         pylab.plot([0, 0], [n, n], 'k-')
         pylab.plot([0, n], [n, 0], 'k-')
         pylab.plot(z_order, order_L_sim['mean'], '%s.' % cL)
@@ -295,13 +295,13 @@ def main():
     r.last().add_to(f, caption='Orders as found by simulation')
   
     
-    with r.data_pylab('estimated_order') as pylab:
+    with r.plot('estimated_order') as pylab:
         pylab.plot(z, L_order['mean'], '%s.' % cL)
         pylab.plot(z, R_order['mean'], '%s.' % cR)
         pylab.axis((-1, 1, -n / 2, n * 3 / 2))
     r.last().add_to(f, caption='estimated_order')
   
-    with r.data_pylab('estimated_order_order') as pylab:
+    with r.plot('estimated_order_order') as pylab:
         
         pylab.plot([0, 0], [n, n], 'k-')
         plot_rate_bars(pylab, z_order, L_order, '%s' % cL)
@@ -311,7 +311,7 @@ def main():
         pylab.axis('equal')
     r.last().add_to(f, caption='estimated_order_order')
   
-    with r.data_pylab('estimated_order_bar') as pylab:
+    with r.plot('estimated_order_bar') as pylab:
         pylab.plot(z, L_order['mean'], '%s.' % cL)
         pylab.plot(z, R_order['mean'], '%s.' % cR)
         plot_rate_bars(pylab, z, L_order, '%s' % cL)
@@ -319,7 +319,7 @@ def main():
         pylab.axis((-1, 1, -n / 2, n * 3 / 2))
     r.last().add_to(f, caption='estimated_order_bar') 
 
-    with r.data_pylab('estimated_order_both') as pylab:
+    with r.plot('estimated_order_both') as pylab:
         pylab.plot([0, 0], [n, n], 'g-')
         pylab.plot(z_order, res.order['mean'], 'k.')
         plot_rate_bars(pylab, z_order, res.order, 'k')
@@ -327,7 +327,7 @@ def main():
         pylab.axis('equal')
     r.last().add_to(f, caption='estimated_order_order') 
 
-    with r.data_pylab('z_better') as pylab:
+    with r.plot('z_better') as pylab:
         pylab.plot(res.z['mean'], rate_L, '%s.' % cL)
         pylab.plot(res.z['mean'], rate_R, '%s.' % cR)
         pylab.axis((-1, 1, 0.0, scale_rate))

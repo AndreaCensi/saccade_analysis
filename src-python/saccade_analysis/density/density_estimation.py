@@ -24,30 +24,37 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
         cells: DACell structure
         rows:  flydra rows + arena position annotations
     '''
-    
-  
+
     axis_angle = rows['axis_angle']
     distance = rows['distance_from_wall']
     linear_velocity_modulus = rows['linear_velocity_modulus']
+    fast = linear_velocity_modulus > vel_threshold
 
     count = cells.zeros('int')
     mean_speed = cells.zeros()
     time_spent = cells.zeros()
   
-    print('Intervals of axis_angle: %s - %s' % (np.min(axis_angle),
-                                                np.max(axis_angle)))
-  
+    samples2interval = lambda N: N / 60.0
+    print('Trajectory statistics')
+    print('* number of rows: %5d  length: %5s seconds.' %
+            (len(rows), samples2interval(len(rows))))
+    print('* selected  rows: %5d  length: %5s seconds.' %
+            (fast.sum(), samples2interval(fast.sum())))
+
+    print('* mean x: %10f' % np.mean(rows['x']))
+    print('* mean y: %10f' % np.mean(rows['y']))
+
+    print rows.dtype
+
     for c in cells.iterate():
         incell = c.inside(axis_angle=axis_angle,
                             distance=distance)
-        fast = linear_velocity_modulus > vel_threshold
         
         inside = np.logical_and(incell, fast)
         
         inside_rows = rows[inside]
         speed = rows[inside]['linear_velocity_modulus']
 
-        
         count[c.k] = len(inside_rows)
         
         if count[c.k] == 0:
@@ -82,6 +89,12 @@ def compute_histogram_saccades(saccades, cells):
                 num_right=num_right
     '''
 
+
+    print('Saccade statistics')
+    print('* number of saccades: %5d ' % len(saccades))
+
+    print saccades['position']
+    print('* mean position: %s' % np.mean(saccades['position'], axis=0))
 
     axis_angle = saccades['axis_angle']
     distance = saccades['distance_from_wall']

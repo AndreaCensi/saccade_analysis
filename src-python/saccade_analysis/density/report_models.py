@@ -31,7 +31,7 @@ def report_models_choice(confid, stats):
     xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
 
     da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
-    
+
     f_counts = r.figure('counts', cols=3)
     
     plot_image(f_counts, f_counts, 'time_spent',
@@ -95,7 +95,7 @@ def report_models_choice(confid, stats):
                caption="Number of right saccades")
   
 
-    f_rates = r.figure('Saccade rates', cols=3)
+    f_rates = r.figure('Event rates', cols=3)
     
     max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
                           np.nanmax(stats['rate_saccade_right2']['mean']),
@@ -240,12 +240,12 @@ assuming that there is a left-right symmetry. """, **phi_colors)
     
     f_stimulus = r.figure('stimulus', cols=2)
 
-    with r.plot('behavior_rates_both_raw', 
+    with r.plot('behavior_rates_both_raw',
                 caption="""Saccade rate as a function of normalized stimulus.""",
                 **figparams) as pylab:
         pylab.plot(phi.flat, stats['rate_saccade2']['mean'].flat,
                    'k.', label='saccade (left or right)', **raw_params)
-        pylab.ylabel('Saccade rates')
+        pylab.ylabel('Event rates')
         pylab.xlabel(FEATURE_TEXT)
         #pylab.legend()
         
@@ -289,7 +289,7 @@ feature.""", **figparams) as pylab:
     r.last().add_to(f_stimulus)
     
          
-    with r.plot('behavior_rates_raw_intervals', 
+    with r.plot('behavior_rates_raw_intervals',
                 caption="""
                     Same thing, but plotting 95% confidence intervals.
                     This shows that the outliers are just noisy samples.
@@ -329,7 +329,7 @@ feature.""", **figparams) as pylab:
     with r.plot('behavior_prob_raw', caption="""
                   Direction choice probabilities 
                   (given that we are saccading, are we going left or right?).
-                """,**figparams) as pylab:  
+                """, **figparams) as pylab:  
         pylab.plot(phi.flat, stats['prob_left2']['mean'].flat,
                    '%s.' % COL_LEFT, label='saccade left', **raw_params)
         pylab.plot(phi.flat, stats['prob_right2']['mean'].flat,
@@ -340,7 +340,7 @@ feature.""", **figparams) as pylab:
         pylab.axis((-1, +1, 0, 1))
         #pylab.legend()
         
-    r.last().add_to(f_stimulus, )
+    r.last().add_to(f_stimulus,)
      
     with r.plot('behavior_prob_raw_intervals', caption="""
                 Same thing, but plotting 95% confidence intervals. 
@@ -399,7 +399,7 @@ feature.""", **figparams) as pylab:
                caption="""Right rate (|z| >= %g) """ % phi_threshold)
        
     with r.plot('behavior_rates_est_intervals_small_stimulus',
-                caption="Saccade rates for small stimulus.",
+                caption="Event rates for small stimulus.",
                 **figparams) as pylab: 
         pylab.plot(phi.flat, feature_small_rate_L.flat,
                    '%s.' % COL_LEFT, label='saccade left', **raw_params)

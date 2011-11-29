@@ -38,7 +38,7 @@ def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
 
 #    M = np.max((np.max(fL), np.max(fR), np.max(no)))
     
-    with f.data_pylab(name) as pylab:
+    with f.plot(name) as pylab:
         pylab.plot(zs, (fR + fL) / K, 'k--')            
         pylab.plot(zs, fL / K, 'r')
         pylab.plot(zs, fR / K, 'b')
@@ -46,7 +46,7 @@ def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
     
     f.last().add_to(f)
     
-    with f.data_pylab(name + 'm') as pylab:            
+    with f.plot(name + 'm') as pylab:            
         pylab.plot(fL / K, fR / K, 'k.') 
         pylab.axis((-0.1, 1.1, -0.1, 1.1))
     

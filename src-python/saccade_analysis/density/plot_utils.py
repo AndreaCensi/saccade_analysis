@@ -27,8 +27,8 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
     
     with r.plot(nid, caption=caption, **figparams) as pl:
         #pl.title(nid if caption is None else caption)
-        pl.xlabel('axis angle (deg)')
-        pl.ylabel('distance from wall (m)')
+        pl.xlabel('axis angle  $\\varphi$ (deg)')
+        pl.ylabel('distance from wall $d$ (m)')
         for a, d in itertools.product(range(len(a_edges) - 1),
                                       range(len(d_edges) - 1)):
             a_min = a_edges[a]
@@ -49,7 +49,7 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
         pl.yticks(tick_pos, tick_label)
        
         bar_w = 15
-        bar_x = 180 + 2 * bar_w
+        bar_x = 180 + 3 * bar_w
         pl.axis((-180, bar_x + bar_w * 2, 0, nd))
 
         if colorbar is not None:
@@ -106,8 +106,8 @@ def plot_arena(r, fig, nid, xy_field, caption=None, scale_params={},
         a = np.transpose(rgb, axes=(1, 0, 2))
         a = np.flipud(a) 
         pl.imshow(a, extent=(-1, +1, -1, +1)) 
-        pl.xlabel('x (m)')
-        pl.ylabel('y (m)')
+        pl.xlabel('$x^a$ (m)')
+        pl.ylabel('$y^a$ (m)')
          
         xt = [-1, -0.5, 0, 0.5, +1]
         pl.xticks(xt, ['%+.1f' % x for x in xt])
