@@ -1,23 +1,13 @@
-from . import XYCells, plot_arena, plot_image, scale_score_norm, np, Report
+from . import (PlotParams, XYCells, plot_arena, plot_image, scale_score_norm, np,
+    Report)
+from saccade_analysis.density.params_estimation import ParamsEstimation
 
-
-COL_LEFT = 'r'
-COL_LEFT_RGB = [1, 0, 0]
-
-COL_RIGHT = 'b'
-COL_RIGHT_RGB = [0, 0, 1]
-
-COL_BOTH = 'k'
-COL_BOTH_RGB = [0, 0, 0.2]
-
-FEATURE_TEXT = 'Estimated feature'
-
-
-figparams = dict(figsize=(2.5, 1.5))
 
 def report_models_choice(confid, stats):
     r = Report('%s_models' % confid)
     
+    figparams = dict(figsize=PlotParams.figsize)
+
     cells = stats['cells']
     
     rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
@@ -27,108 +17,141 @@ def report_models_choice(confid, stats):
     phi = feature['mean']
     phi_var = feature['upper'] - feature['lower']
     
-    ncells = 200
-    xy_cells = XYCells(radius=1, ncells=ncells, da_cells=cells)
+    ncells = 200 # XXX: repeated
+#    ncells = 50 # XXX: repeated
+    xy_cells = XYCells(radius=ParamsEstimation.arena_radius,
+                       ncells=ncells, da_cells=cells)
 
     da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
 
-    f_counts = r.figure('counts', cols=3)
     
-    plot_image(f_counts, f_counts, 'time_spent',
-               cells, stats['time_spent'],
-               scale_params=dict(min_value=0),
-               caption="Time spent (s)")
-  
+    # XXX: detect this
+    
+    speed_format = dict(colors='cmap',
+                        scale_params=dict(cmap=PlotParams.cmap_speed,
+                                          **PlotParams.speed_bounds),
+                        scale_format='%.2f')
+    total_format = dict(colors='cmap',
+                        scale_params=dict(min_value=0, cmap=PlotParams.cmap_total),
+                        scale_format='%d')
+               
+    phi_colors = dict(scale_params={}, colors='posneg')
+    
+    
+    num_left_saccades_format = dict(colors='scale',
+                                    scale_params=dict(min_value=0,
+                                                       min_color=[1, 1, 1],
+                                                      max_color=PlotParams.COL_LEFT_RGB),
+                                    scale_format='%d')
+    num_right_saccades_format = dict(colors='scale',
+                                     scale_params=dict(min_value=0,
+                                                       min_color=[1, 1, 1],
+                                                       max_color=PlotParams.COL_RIGHT_RGB),
+                                    scale_format='%d')
+                               
+                               
+                               
+    f_counts = r.figure('counts', cols=3)
+    f_arena = r.figure('counts_arena', cols=3)
+    
+    def plot_both(name, field, caption, **kwargs):
+    
+        plot_image(f_counts, f_counts, name, cells, field, caption=caption,
+                   **kwargs)
+      
+        plot_arena(f_arena, f_arena, name, da2xy(field), caption=caption,
+                   **kwargs)
+        
+    seconds2minutes = 1 / 60.0
+    samples2seconds = 1 / 60.0 # XXX fixed
+    plot_both('time_spent', stats['count'] * samples2seconds * seconds2minutes,
+              "Time spent (min)",
+              scale_params=dict(min_value=0),
+              scale_format='%.2f')
+
+
+    
     plot_image(f_counts, f_counts, 'mean_speed',
                cells, stats['mean_speed'],
-               #scale_params=dict(min_value=0),
-               caption="Mean speed in cell (m/s)")
+               caption="Mean speed in cell (m/s)",
+               **speed_format)
   
     plot_image(f_counts, f_counts, 'mean_speed_sac_start',
                cells, stats['mean_speed_sac_start'],
-               #scale_params=dict(min_value=0),
-               caption="Mean speed at saccade start (m/s)")
+               caption="Mean speed at saccade start (m/s)",
+               **speed_format)
+    
+    
+    plot_both('num_left', stats['num_left'].astype('int'),
+              caption="Number of left saccades",
+              **num_left_saccades_format)
+    
+    
+    plot_both('num_right', stats['num_right'].astype('int'),
+              caption="Number of right saccades",
+              **num_right_saccades_format)
+    
+    
     
     plot_image(f_counts, f_counts, 'total',
                cells, stats['total'],
-               scale_params=dict(min_value=0, max_color=COL_BOTH_RGB),
-               caption="Number of  saccades")
-  
-    plot_image(f_counts, f_counts, 'num_left',
-               cells, stats['num_left'],
-               scale_params=dict(min_value=0, max_color=COL_LEFT_RGB),
-               caption="Number of left saccades")
-  
-    plot_image(f_counts, f_counts, 'num_right',
-               cells, stats['num_right'],
-               scale_params=dict(min_value=0, max_color=COL_RIGHT_RGB),
-               caption="Number of right saccades")
+               caption="Number of saccades",
+               **total_format)
+   
     
-    f_counts = r.figure('counts_arena', cols=3)
-    
-    plot_arena(f_counts, f_counts, 'time_spent',
-               da2xy(stats['time_spent']),
-               scale_params=dict(min_value=0),
-               caption="Time spent (s)")
-    
-    plot_arena(f_counts, f_counts, 'mean_speed',
-               da2xy(stats['mean_speed']),
-               caption="Mean speed in cell (m/s)")
-    plot_arena(f_counts, f_counts, 'mean_speed_sac_start',
+    plot_arena(f_arena, f_arena, 'mean_speed', da2xy(stats['mean_speed']),
+               caption="Mean speed in cell (m/s)",
+               **speed_format)
+    plot_arena(f_arena, f_arena, 'mean_speed_sac_start',
                da2xy(stats['mean_speed_sac_start']),
-               caption="Mean speed at saccade start (m/s)")
+               caption="Mean speed at saccade start (m/s)",
+               **speed_format)
     
   
-    plot_arena(f_counts, f_counts, 'total',
-               da2xy(stats['total']),
-               scale_params=dict(min_value=0, max_color=COL_BOTH_RGB),
-               caption="Number of  saccades")
-  
-    plot_arena(f_counts, f_counts, 'num_left',
-               da2xy(stats['num_left']),
-               scale_params=dict(min_value=0, max_color=COL_LEFT_RGB),
-               caption="Number of left saccades")
-  
-    plot_arena(f_counts, f_counts, 'num_right',
-               da2xy(stats['num_right']),
-               scale_params=dict(min_value=0, max_color=COL_RIGHT_RGB),
-               caption="Number of right saccades")
-  
+    plot_arena(f_arena, f_arena, 'total', da2xy(stats['total']),
+               caption="Number of saccades",
+               **total_format) 
 
-    f_rates = r.figure('Event rates', cols=3)
+    f_rates = r.figure('Event_rates', cols=3)
+    f_arena = r.figure('Arena view', cols=3)
     
-    max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
-                          np.nanmax(stats['rate_saccade_right2']['mean']),
-                          np.nanmax(stats['rate_saccade_L_est']['mean']),
-                          np.nanmax(stats['rate_saccade_R_est']['mean'])])
+#    max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
+#                          np.nanmax(stats['rate_saccade_right2']['mean']),
+#                          np.nanmax(stats['rate_saccade_L_est']['mean']),
+#                          np.nanmax(stats['rate_saccade_R_est']['mean'])])
+    
+    max_rate = PlotParams.max_rate
+    
+    sum_format = dict(scale_params=dict(min_value=0),
+                      colors='cmap')   
     
     plot_image(r, f_rates, 'rate_sac',
                cells, stats['rate_saccade2']['mean'],
-               scale_params=dict(max_color=COL_BOTH_RGB, min_value=0),
-               caption="Saccading rate (saccades/s)")
+               caption="Saccading rate (saccades/s)",
+                **sum_format)
     
     plot_image(r, f_rates, 'rate_sac_left',
                cells, stats['rate_saccade_left2']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="Left saccading rate (saccades/s)")
     
     plot_image(r, f_rates, 'rate_sac_right',
                cells, stats['rate_saccade_right2']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="Right saccading rate (saccades/s)") 
 
     plot_image(r, f_rates, 'rate_saccade_L_est',
                cells, stats['rate_saccade_L_est']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="Est. left saccading rate (saccades/s)")
     
     plot_image(r, f_rates, 'rate_saccade_R_est',
                cells, stats['rate_saccade_R_est']['mean'],
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="Est. right saccading rate (saccades/s)") 
 
 
@@ -142,75 +165,66 @@ def report_models_choice(confid, stats):
     plot_image(r, f_rates, 'rate_saccade_right_order',
                cells, rate_saccade_right_order,
                scale_params=order_params,
-               caption="order[right saccade rate]")
-#   
-#    phi_colors = dict(scale_params=dict(max_value= +1, min_value= -1,
-#                                 min_color=COL_RIGHT_RGB,
-#                                 max_color=COL_LEFT_RGB),
-#                      use_posneg=False)
-    phi_colors = dict(scale_params={},
-                      use_posneg=True)
+               caption="order[right saccade rate]") 
+    
     plot_image(r, f_rates, 'phi', cells, phi,
-               #scale_params={}, 
                 caption="""%s. 
 This is the 1D quantity that best explains the saccading rates,
-assuming that there is a left-right symmetry. """ % FEATURE_TEXT, **phi_colors)
+assuming that there is a left-right symmetry. """ % PlotParams.FEATURE_TEXT,
+                **phi_colors)
 
     plot_image(r, f_rates, 'phi_var', cells, phi_var,
-               scale_params=dict(min_value=0), use_posneg=False,
+               scale_params=dict(min_value=0), colors='scale',
                 caption="""Uncertainty of in the feature estimate """)
     
-    f_arena = r.figure('Arena view', cols=3)
     
     
     if False: # XXX
         plot_arena(f_arena, f_arena, 'x', xy_cells.x,
-                   use_posneg=True, caption="x")
+                   colors='posneg', caption="x")
         plot_arena(f_arena, f_arena, 'y', xy_cells.y,
-                   use_posneg=True, caption="y")
+                   colors='posneg', caption="y")
         plot_arena(f_arena, f_arena, 'd', xy_cells.d,
-                   use_posneg=True, caption="d")
+                   colors='posneg', caption="d")
         plot_arena(f_arena, f_arena, 'axis_angle', xy_cells.axis_angle_deg,
-                   use_posneg=True, caption="axis_angle")
-#        plot_arena(f_arena, f_arena, 'inside', xy_cells.in_cell * 1.0,
-#                   use_posneg=True, caption="inside")
+                   colors='posneg', caption="axis_angle")
         plot_arena(f_arena, f_arena, 'd_index', xy_cells.d_index % 2,
-                   use_posneg=True, caption="d_index")
+                   colors='posneg', caption="d_index")
         plot_arena(f_arena, f_arena, 'a_index', xy_cells.a_index % 2,
-                   use_posneg=True, caption="a_index")
+                   colors='posneg', caption="a_index")
         plot_arena(f_arena, f_arena, 'cells',
                    (xy_cells.a_index + xy_cells.d_index) % 2,
-                   use_posneg=True, caption="Cells division")
+                   colors='posneg', caption="Cells division")
         
 
     plot_arena(f_arena, f_arena, 'rate_sac',
                da2xy(stats['rate_saccade2']['mean']),
-               scale_params=dict(max_color=[0, 0, 0.2], min_value=0),
-               caption="Saccading rate (saccades/s)")
+               caption="Saccading rate (saccades/s)",
+               **sum_format)
     
     plot_arena(f_arena, f_arena, 'rate_sac_left',
                da2xy(stats['rate_saccade_left2']['mean']),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="Left saccading rate (saccades/s)")
     
     plot_arena(f_arena, f_arena, 'rate_sac_right',
                da2xy(stats['rate_saccade_right2']['mean']),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="Right saccading rate (saccades/s)") 
 
 
     plot_arena(f_arena, f_arena, 'rate_saccade_L_est',
                da2xy(stats['rate_saccade_L_est']['mean']),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="Est. left saccade gen. rate (saccades/s)")
     
     plot_arena(f_arena, f_arena, 'rate_saccade_R_est',
                da2xy(stats['rate_saccade_R_est']['mean']),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="Est. right saccade gen. rate (saccades/s)")
 
     order_params = dict(max_color=[0, 1, 0], min_color=[1, 0, 1])
@@ -226,13 +240,13 @@ assuming that there is a left-right symmetry. """ % FEATURE_TEXT, **phi_colors)
                caption="order[ right saccade rate]")
    
     plot_arena(f_arena, f_arena, 'phi', da2xy(phi),
-#               scale_params={}, use_posneg=True,
+#               scale_params={}, colors='posneg',
                 caption="""Normalized reduced stimulus. 
 This is the 1D quantity that best explains the saccading rates,
 assuming that there is a left-right symmetry. """, **phi_colors)
     
     plot_arena(f_arena, f_arena, 'phi_var', da2xy(phi_var),
-               scale_params=dict(min_value=0), use_posneg=False,
+               scale_params=dict(min_value=0), colors='scale',
                 caption="""Uncertainty in estimated stimulus""")
     
     raw_params = dict(markersize=1)
@@ -245,8 +259,7 @@ assuming that there is a left-right symmetry. """, **phi_colors)
                 **figparams) as pylab:
         pylab.plot(phi.flat, stats['rate_saccade2']['mean'].flat,
                    'k.', label='saccade (left or right)', **raw_params)
-        pylab.ylabel('Event rates')
-        pylab.xlabel(FEATURE_TEXT)
+        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
         #pylab.legend()
         
     r.last().add_to(f_stimulus)
@@ -254,9 +267,8 @@ assuming that there is a left-right symmetry. """, **phi_colors)
        
     with r.plot('behavior_rates_both_intervals', **figparams) as pylab:
         plot_rate_bars(pylab, phi, stats['rate_saccade2'], 'k', **int_params)
-        pylab.ylabel('Event rates')
-        pylab.xlabel(FEATURE_TEXT)
-
+        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
+        
     r.last().add_to(f_stimulus, caption="""
 Same thing, but plotting 95% confidence intervals.
 
@@ -264,8 +276,7 @@ Note that it would be desirable to have x-axis error bars, but
 the analysis gets a bit complicated...
 """)
     
-    scale_rate = 6
-    
+
     # plot error bars slightlty dealigned
     phir = phi + 0.005
 
@@ -278,25 +289,36 @@ relevant stimulus; note however that phi captures most of the dimensionality.
 We could analyze the samples near 0 to find what is the other most important
 feature.""", **figparams) as pylab:
         pylab.plot(phi.flat, stats['rate_saccade_left2']['mean'].flat,
-                   '%s.' % COL_LEFT, label='saccade left', **raw_params)
+                   '%s.' % PlotParams.COL_LEFT, label=PlotParams.LABEL_LEFT,
+                   **raw_params)
         pylab.plot(phi.flat, stats['rate_saccade_right2']['mean'].flat,
-                   '%s.' % COL_RIGHT, label='saccade right', **raw_params)
-        pylab.ylabel('Event rates')
-        pylab.xlabel(FEATURE_TEXT)
-        pylab.axis((-1, +1, 0, scale_rate))
-        #pylab.legend()
+                   '%s.' % PlotParams.COL_RIGHT, label=PlotParams.LABEL_RIGHT,
+                   **raw_params)
+        compact_labeling_rates(pylab, PlotParams.TEXT_OBSERVED_EVENT_RATES)
         
+
     r.last().add_to(f_stimulus)
     
          
+    def plot_rate_bars_x(pylab, left, right, ylabel):
+        plot_rate_bars(pylab, phi, left,
+                       PlotParams.COL_LEFT, label=PlotParams.LABEL_LEFT,
+                       **int_params)
+        plot_rate_bars(pylab, phir, right,
+                       PlotParams.COL_RIGHT, label=PlotParams.LABEL_RIGHT,
+                        **int_params)
+        compact_labeling_rates(pylab, ylabel)
+        pylab.legend()
+   
     with r.plot('behavior_rates_raw_intervals',
                 caption="""
                     Same thing, but plotting 95% confidence intervals.
                     This shows that the outliers are just noisy samples.
                 """, **figparams) as pylab:
-        plot_rate_bars(pylab, phi, stats['rate_saccade_left2'], COL_LEFT, **int_params)
-        plot_rate_bars(pylab, phir, stats['rate_saccade_right2'], COL_RIGHT, **int_params)
-        pylab.ylabel('Event rates')
+        plot_rate_bars_x(pylab,
+                         stats['rate_saccade_left2'],
+                         stats['rate_saccade_right2'],
+                         PlotParams.TEXT_OBSERVED_EVENT_RATES)
 
     r.last().add_to(f_stimulus)
      
@@ -305,23 +327,20 @@ feature.""", **figparams) as pylab:
                   period.
                 """, **figparams) as pylab: 
         pylab.plot(phi.flat, stats['rate_saccade_L_est']['mean'].flat,
-                   '%s.' % COL_LEFT, label='saccade left', **raw_params)
+                   '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
         pylab.plot(phi.flat, stats['rate_saccade_R_est']['mean'].flat,
-                   '%s.' % COL_RIGHT, label='saccade right', **raw_params)
-        pylab.ylabel('Event rates')
-        pylab.xlabel('Normalized reduced stimulus') 
-        pylab.axis((-1, +1, 0, scale_rate))
-    
+                   '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
+        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
+            
     r.last().add_to(f_stimulus)
      
     with r.plot('behavior_rates_est_intervals',
                 caption="Same thing, but plotting 95% confidence intervals.",
                 **figparams) as pylab:
-        plot_rate_bars(pylab, phi, stats['rate_saccade_L_est'], COL_LEFT, **int_params)
-        plot_rate_bars(pylab, phir, stats['rate_saccade_R_est'], COL_RIGHT, **int_params)
-        pylab.ylabel('Event rates')
-        pylab.xlabel(FEATURE_TEXT)  
-        pylab.axis((-1, +1, 0, scale_rate))
+        plot_rate_bars_x(pylab,
+                 stats['rate_saccade_L_est'],
+                 stats['rate_saccade_R_est'],
+                 PlotParams.TEXT_EVENT_GEN_RATES) 
         
     r.last().add_to(f_stimulus)
     
@@ -331,33 +350,32 @@ feature.""", **figparams) as pylab:
                   (given that we are saccading, are we going left or right?).
                 """, **figparams) as pylab:  
         pylab.plot(phi.flat, stats['prob_left2']['mean'].flat,
-                   '%s.' % COL_LEFT, label='saccade left', **raw_params)
+                   '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
         pylab.plot(phi.flat, stats['prob_right2']['mean'].flat,
-                   '%s.' % COL_RIGHT, label='saccade right', **raw_params)
+                   '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
 
         pylab.ylabel('Relative probability')
-        pylab.xlabel(FEATURE_TEXT)
+        compact_feature_xlabel(pylab)
         pylab.axis((-1, +1, 0, 1))
-        #pylab.legend()
         
-    r.last().add_to(f_stimulus,)
+    r.last().add_to(f_stimulus)
      
     with r.plot('behavior_prob_raw_intervals', caption="""
                 Same thing, but plotting 95% confidence intervals. 
                 """, **figparams) as pylab:
-        plot_rate_bars(pylab, phi, stats['prob_left2'], COL_LEFT, **int_params)
-        plot_rate_bars(pylab, phi, stats['prob_right2'], COL_RIGHT, **int_params)
-        pylab.ylabel('Relative probability')
-        pylab.xlabel('Normalized reduced stimulus') 
+        plot_rate_bars(pylab, phi, stats['prob_left2'], PlotParams.COL_LEFT, **int_params)
+        plot_rate_bars(pylab, phi, stats['prob_right2'], PlotParams.COL_RIGHT, **int_params)
+        pylab.ylabel('Relative probability') 
         pylab.axis((-1, +1, 0, 1))
+        compact_feature_xlabel(pylab)
     r.last().add_to(f_stimulus)
     
     with r.plot('model_manifold', caption="""Model manifold""", **figparams) as pylab:
         fL = stats['rate_saccade_L_est']['mean']
         fR = stats['rate_saccade_R_est']['mean']
         pylab.plot(fL, fR, 'k.', **raw_params)
-        pylab.ylabel('f_L')
-        pylab.xlabel('f_R') 
+        pylab.ylabel('$f_L$')
+        pylab.xlabel('$f_R$') 
         #pylab.axis((-1, +1, 0, 1))
     r.last().add_to(f_stimulus)
     
@@ -368,10 +386,10 @@ feature.""", **figparams) as pylab:
     phi_small = np.abs(phi) <= phi_threshold
     phi_large = np.abs(phi) >= phi_threshold
     plot_arena(f_misc, f_misc, 'phi_small', da2xy(phi_small),
-               scale_params={}, use_posneg=True,
+               scale_params={}, colors='posneg',
                caption=""" |z| <= %g """ % phi_threshold)
     plot_arena(f_misc, f_misc, 'phi_large', da2xy(phi_large),
-               scale_params={}, use_posneg=True,
+               scale_params={}, colors='posneg',
                caption=""" |z| >= %g """ % phi_threshold)
    
 #    rate_threshold = 1.5
@@ -383,47 +401,66 @@ feature.""", **figparams) as pylab:
     
     plot_arena(f_misc, f_misc, 'phi_small_rate_L', da2xy(feature_small_rate_L),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="""Left rate (|z| <= %g) """ % phi_threshold)
     plot_arena(f_misc, f_misc, 'phi_small_rate_R', da2xy(feature_small_rate_R),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="""Right rate (|z| <= %g) """ % phi_threshold)
     plot_arena(f_misc, f_misc, 'phi_large_rate_L', da2xy(feature_large_rate_L),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_LEFT_RGB),
+                                 max_color=PlotParams.COL_LEFT_RGB),
                caption="""Left rate (|z| >= %g) """ % phi_threshold)
     plot_arena(f_misc, f_misc, 'phi_large_rate_R', da2xy(feature_large_rate_R),
                scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=COL_RIGHT_RGB),
+                                 max_color=PlotParams.COL_RIGHT_RGB),
                caption="""Right rate (|z| >= %g) """ % phi_threshold)
        
     with r.plot('behavior_rates_est_intervals_small_stimulus',
                 caption="Event rates for small stimulus.",
                 **figparams) as pylab: 
         pylab.plot(phi.flat, feature_small_rate_L.flat,
-                   '%s.' % COL_LEFT, label='saccade left', **raw_params)
+                   '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
         pylab.plot(phi.flat, feature_small_rate_R.flat,
-                   '%s.' % COL_RIGHT, label='saccade right', **raw_params)
-      
-        pylab.ylabel('Event rates')
-        pylab.xlabel(FEATURE_TEXT) 
-        pylab.axis((-1, +1, 0, scale_rate))
+                   '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
+        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
         
     r.last().add_to(f_misc)
        
     with r.plot('stimulus_uncertainty',
                 caption="Errors on the estimate of z.",
                 **figparams) as pylab:
-        plot_rate_bars(pylab, feature['mean'], feature, COL_BOTH, **int_params) 
-        pylab.ylabel('Uncertainty on feature determination')
-        pylab.xlabel(FEATURE_TEXT)  
+        plot_rate_bars(pylab, feature['mean'], feature,
+                       PlotParams.COL_BOTH, **int_params) 
+        pylab.ylabel('Uncertainty of feature estimate')
+        compact_feature_xlabel(pylab)
         pylab.axis((-1, +1, -1, +1))
         
     r.last().add_to(f_stimulus)
     
     
     return r
+
+def compact_labeling_rates(pylab, ylabel):
+    pylab.ylabel(ylabel)
+    
+    xt = [0, 1, 2, 3, 4, 5, 6]
+    xtt = ["0", "1.0", "2.0", "3.0", "4.0", "5.0", "6.0"]
+    pylab.yticks(xt, xtt) 
+    pylab.gca().yaxis.set_ticks_position('right')
+    pylab.gca().yaxis.set_label_coords(0, 0.5)
+    
+    pylab.axis((-1, +1, 0, PlotParams.max_rate))
+    compact_feature_xlabel(pylab)
+    
+def compact_feature_xlabel(pylab):
+    pylab.xlabel(PlotParams.FEATURE_TEXT) 
+    xt = [-1, -0.5, 0, 0.5, +1]
+    xtt = ["-1", "", "", "", "+1"]
+    pylab.xticks(xt, xtt) 
+    pylab.gca().xaxis.set_label_coords(0.5, -0.02)
+    
+        
 
 def plot_rate_bars(pylab, phi, st, color, elinewidth=1, **kwargs):
     phi = np.array(phi.flat)

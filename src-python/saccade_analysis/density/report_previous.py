@@ -114,21 +114,21 @@ def report_stats(confid, stats, saccades_stats):
     skim = 1
     plot_image(r, f3, 'sac_norm',
                cells, sac_norm,
-               use_posneg=True,
+               colors='posneg',
                scale_params=dict(skim=skim),
                caption='Saccade rate over baseline')
     
     #max_value = max(sac_left_norm.max(), sac_right_norm.max())
     plot_image(r, f3, 'sac_left_norm',
                cells, sac_left_norm,
-                use_posneg=True,
+               colors='posneg',
                scale_params=dict(max_value=max_rate - baseline),
                caption='Left saccade rate over baseline')
     
     
     plot_image(r, f3, 'sac_right_norm',
                cells, sac_right_norm,
-               use_posneg=True,
+               colors='posneg',
                scale_params=dict(max_value=max_rate - baseline),
                caption='Right saccade rate over baseline')
     r.text('comment', 'The last three figures display in red '

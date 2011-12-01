@@ -2,6 +2,8 @@ from . import (Report, np, plot_image, plot_arena, XYCells, nonlinearfit,
     scale_score)
 from reprep import MIME_RST
 from reprep.plot_utils import y_axis_balanced, x_axis_set
+from saccade_analysis.density.plot_utils import plot_kernel, \
+    plot_feature_comparison
  
 __all__ = ['report_intuitive']
 
@@ -62,50 +64,31 @@ def report_intuitive(confid, stats):
            'expressed as linear combinations of perceived optic flow '
            'times a given kernel. ', MIME_RST)
 
-    Z = stats['feature']['mean']
-    Z_order = scale_score(Z) 
+    Z = stats['feature']['mean'] 
 
     for model in models:
         name = model['name']
         feature = model['feature']
         kernel = model['kernel']
         desc = model['desc']
-
-        feature_order = scale_score(feature)
-        
+ 
         s = r.node(name)
         f = s.figure('Figure0', cols=3)
         
-        with f.plot('kernel', caption='kernel: %s' % desc) as pylab:
-            theta = np.rad2deg(directions)
-            pylab.plot(theta, kernel)
-            y_axis_balanced(pylab, 0.2)
-            x_axis_set(pylab, -180, +180)
-            pylab.xlabel('directions')
+        plot_kernel(s, f, 'kernel', directions, kernel,
+                    caption='kernel: %s' % desc)
             
-        with s.plot('Z_Z2', caption='Feature vs predicted feature') as pylab:
-            pylab.plot(feature, Z, '.')
-            pylab.xlabel('feature')
-            pylab.ylabel('predicted feature')
-        s.last().add_to(f)
-        
-        
-        with s.plot('Z_Z2_order',
-            caption="order(feature) vs order(predicted feat.)") as pylab:
-            pylab.plot(Z_order, feature_order, '.')
-            pylab.xlabel('Z')
-            pylab.ylabel('Z2')
-        s.last().add_to(f)            
-        
-        plot_image(s, f, 'feature1', cells, feature, use_posneg=True,
+        plot_feature_comparison(s, f, Z, feature)
+
+        plot_image(s, f, 'feature1', cells, feature, colors='posneg',
                    caption='Feature in axis angle/distance plane')
 
-        plot_arena(s, f, 'feature2', da2xy(feature), use_posneg=True,
+        plot_arena(s, f, 'feature2', da2xy(feature), colors='posneg',
                    caption='Feature in reduced coordinates') 
 
         feature2 = nonlinearfit(feature, Z)
     
-        plot_arena(s, f, 'feature2nonlinear', da2xy(feature2), use_posneg=True,
+        plot_arena(s, f, 'feature2nonlinear', da2xy(feature2), colors='posneg',
                    caption='Feature in reduced coordinates (nonlinear fit)') 
     
     return r

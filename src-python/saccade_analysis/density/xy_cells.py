@@ -1,9 +1,11 @@
-from . import np
+from . import np, contract
 from ..tammero.tammero_analysis import compute_axis_angle
 import itertools
+from numpy.testing.utils import assert_allclose
 
 class XYCells(object):
     
+    @contract(radius='>0', ncells='int,>0', assumed_theta='number')
     def __init__(self, radius, ncells, da_cells, assumed_theta=np.pi / 2):
         ''' For computing the axis angle, we assume that the 
             fly is always pointing in a direction. Default is "up".
@@ -32,6 +34,10 @@ class XYCells(object):
             axis_angle = compute_axis_angle(self.x[k], self.y[k],
                                                     theta=assumed_theta)
             self.axis_angle_deg[k] = np.degrees(axis_angle)
+
+        assert_allclose(interpolate(-radius, +radius, 0, shape[0]),
+                        - interpolate(-radius, +radius, shape[0] - 1, shape[0]))
+
             
             
         self.create_xy_to_cells(da_cells)

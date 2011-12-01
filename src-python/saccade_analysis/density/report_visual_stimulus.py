@@ -1,10 +1,11 @@
 from . import XYCells, plot_image, plot_arena, scale_score, np, Report
+from saccade_analysis.density.plot_utils import plot_kernel, \
+    plot_feature_comparison
 
 
 
 
 def report_visual_stimulus(confid, stats): 
-
     r = Report('%s_stimulus_fit' % confid)
     f = r.figure(cols=3)
     cells = stats['cells']
@@ -20,7 +21,6 @@ def report_visual_stimulus(confid, stats):
     da2xy = lambda F:  xy_cells.from_da_field(F.astype('float')) 
 
 
-    
     num_photo = directions.size
     num_cells = visual_stimulus.size
     Y = np.zeros((num_cells, num_photo))
@@ -32,7 +32,7 @@ def report_visual_stimulus(confid, stats):
         i += 1
 
 
-    reduce_factor = 8
+    reduce_factor = 4
     directions = directions[::reduce_factor]
     Y = Y[:, ::reduce_factor]
     num_photo = Y.shape[1]
@@ -42,35 +42,23 @@ def report_visual_stimulus(confid, stats):
     print('Detected rank: %s' % rank)
     
     def plot_stats(name, A, desc):
-        print(A.shape)
         print('plot_stats(%s)' % name)
         # normalize A such that the norm is 1
         A = A / np.linalg.norm(A)
         
         s = r.node(name)
-        
-        with s.plot('kernel') as pylab:
-            plot_field_of_view(pylab, directions, A, marker='x-')
-            pylab.plot([-180, 180], [0, 0], 'k-')
-            pylab.axis((-180, 180, -1, 1))
-        s.last().add_to(f, desc)
+        fi = s.figure(caption=desc, cols=3)
+
+        plot_kernel(s, fi, 'kernel', directions, A, caption=None)
         
         Zpred = np.dot(Y, A) 
-        with s.plot('Z_Z2', caption='Feature vs predicted feature') as pylab:
-            pylab.plot(Z, Zpred, '.')
-            pylab.xlabel('feature')
-            pylab.ylabel('predicted feature')
-        s.last().add_to(f)
-            
-        Z_order = scale_score(Z) 
-        Zpred_order = scale_score(Zpred)
-        with s.plot('Z_Z2_order',
-            caption="order(feature) vs order(predicted feat.)") as pylab:
-            pylab.plot(Z_order, Zpred_order, '.')
-            pylab.xlabel('Z')
-            pylab.ylabel('Z2')
-        s.last().add_to(f)
+        Zpred = Zpred / np.abs(Zpred).max()
         
+        plot_feature_comparison(s, fi, Z, Zpred)
+
+        
+
+
         Zpred_field = cells.zeros()
         for c in cells.iterate():
             optic_flow = visual_stimulus[c.k]['optic_flow']
@@ -78,13 +66,16 @@ def report_visual_stimulus(confid, stats):
         
         Zpred_field2 = nonlinearfit(Zpred_field, Z)
 
-        plot_image(s, f, 'feature1', cells, Zpred_field, use_posneg=True,
+        plot_image(s, fi, 'feature1', cells, Zpred_field,
+               colors='posneg',
                    caption='Feature in axis angle/distance plane')
 
-        plot_arena(s, f, 'feature2', da2xy(Zpred_field), use_posneg=True,
+        plot_arena(s, fi, 'feature2', da2xy(Zpred_field),
+               colors='posneg',
                    caption='Feature in reduced coordinates') 
 
-        plot_arena(s, f, 'feature3', da2xy(Zpred_field2), use_posneg=True,
+        plot_arena(s, fi, 'feature3', da2xy(Zpred_field2),
+               colors='posneg',
                    caption='Feature in reduced coordinates (normalized)') 
         
         

@@ -36,15 +36,14 @@ def compute_histogram(rows, cells, vel_threshold=0.05):
   
     samples2interval = lambda N: N / 60.0
     print('Trajectory statistics')
-    print('* number of rows: %5d  length: %5s seconds.' %
+    print('* number of rows: %5d  length: %5s seconds.' % 
             (len(rows), samples2interval(len(rows))))
-    print('* selected  rows: %5d  length: %5s seconds.' %
+    print('* selected  rows: %5d  length: %5s seconds.' % 
             (fast.sum(), samples2interval(fast.sum())))
 
     print('* mean x: %10f' % np.mean(rows['x']))
     print('* mean y: %10f' % np.mean(rows['y']))
 
-    print rows.dtype
 
     for c in cells.iterate():
         incell = c.inside(axis_angle=axis_angle,

@@ -1,31 +1,22 @@
 from . import (DACells, logger, compute_histogram, compute_histogram_saccades,
     compute_joint_statistics, report_models_choice, report_stats,
-    report_visual_stimulus, compute_visual_stimulus, report_intuitive)
+    report_visual_stimulus, compute_visual_stimulus, report_intuitive,
+    ParamsEstimation, report_saccades, PlotParams, report_traj)
 from ..tammero.tammero_analysis import (add_position_information,
     add_position_information_to_rows) # XXX: remove
 from ..utils import (LenientOptionParser, check_no_spurious, check_mandatory,
     wrap_script_entry_point)
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
-from geometric_saccade_detector import check_saccade_is_well_formed # TODO: remove
+from geometric_saccade_detector import (
+    check_saccade_is_well_formed) # TODO: remove
 from reprep import MIME_PDF, RepRepDefaults
 import compmake
 import os
 import warnings
   
+  
 description = """  """
-
-
-# Constant arena center and position
-#arena_center = [0.075, 0.46] # Obtaining by computing average of rows
-# arena_center = [0.114,  0.46] # Obtained by computing average of saccades position
-# arena_center = [0.09, 0.5] # obtained by guessing
-
-# arena_center = [0.2,  0.46] # random value
-
-arena_center = [0.15, 0.48] # Obtained from calibration
-arena_radius = 1.0 
-
 
 def report_main(args):
 #    np.seterr(all='raise')
@@ -63,12 +54,7 @@ def report_main(args):
         logger.info('Using PDF for plots.')
         RepRepDefaults.default_image_format = MIME_PDF
                 
-    from matplotlib import rc
-    rc('font', **{'family':'serif',
-                  'serif':['Times', 'Times New Roman', 'Palatino'],
-                   'size': 8.0})
-        #rc('text', usetex=True)
-    
+    PlotParams.init_matplotlib()
     
     confid = '%s-%s-%s-D%d-A%d' % (options.group,
                                    options.version_rows,
@@ -80,18 +66,18 @@ def report_main(args):
     use_filesystem(compmake_dir)
     logger.info('Storing computation in %r.' % compmake_dir)
       
-    bin_enlarge_dist = 0.05
-    bin_enlarge_angle = 10
-    min_distance = 0.15
-    arena_radius = 1
+    
+    
+    arena_radius = ParamsEstimation.arena_radius
+    warnings.warn('Using hardcoded arena radius %s.' % arena_radius)
     
     cells = DACells(
                 ncells_distance=options.ncells_distance,
                 ncells_axis_angle=options.ncells_axis_angle,
                 arena_radius=arena_radius,
-                min_distance=min_distance,
-                bin_enlarge_angle=bin_enlarge_angle,
-                bin_enlarge_dist=bin_enlarge_dist)
+                min_distance=ParamsEstimation.min_distance,
+                bin_enlarge_angle=ParamsEstimation.bin_enlarge_angle,
+                bin_enlarge_dist=ParamsEstimation.bin_enlarge_dist)
     
     stats = comp(get_group_density_stats,
                  options.db, options.group, options.version_rows,
@@ -128,10 +114,16 @@ def report_main(args):
     comp(write_report, report_i, html, rd,
          job_id='report_intuitive-write')
     
-    comp(write_report, comp(report_saccades, confid, saccades, 
-        job_id='report_saccades'), 
-          html=os.path.join(options.outdir, "%s_saccades.html" % confid), 
+    comp(write_report, comp(report_saccades, confid, saccades,
+        job_id='report_saccades'),
+          html=os.path.join(options.outdir, "%s_saccades.html" % confid),
           rd=rd, job_id='report_saccades-write')
+
+    comp(write_report, comp(report_traj, confid,
+                            options.db, options.group, options.version_rows,
+                            job_id='report_traj'),
+          html=os.path.join(options.outdir, "%s_traj.html" % confid),
+          rd=rd, job_id='report_traj-write')
 
     if options.compmake_command is not None:
         compmake.batch_command(options.compmake_command)
@@ -149,28 +141,44 @@ if __name__ == '__main__':
     
 def write_report(report, html, rd):
     print('Writing to %r.' % html)
+    
+    # add_extensive_version_info(report) # TODO
     report.to_html(html, resources_dir=rd)
 
-def get_group_density_stats(flydra_db_directory, db_group, version, cells): 
+def get_group_density_stats(flydra_db_directory, db_group, version, cells):
+    center = ParamsEstimation.arena_center
+    radius = ParamsEstimation.arena_radius 
+    warnings.warn('Using hardcoded arena size and position (%s, %s)' 
+                    % (center, radius))
     with safe_flydra_db_open(flydra_db_directory) as db:
         rows = db.get_table_for_group(db_group, table='rows', version=version)
         print('Read %d rows' % len(rows))
     
         print('Computing extra information')
-        warnings.warn('Using hardcoded arena size and position (%s, %s)' 
-                        %(arena_center, arena_radius))
 
-        rowsp = add_position_information_to_rows(rows, 
-            arena_radius=arena_radius, 
-            arena_center=arena_center)
+        rowsp = add_position_information_to_rows(rows,
+                                                 arena_radius=radius,
+                                                 arena_center=center)
         
         print('Computing histogram')
         stats = compute_histogram(rowsp, cells)
         return stats
 
 def get_saccades_for_group(flydra_db_directory, db_group, version):
-    
+    center = ParamsEstimation.arena_center
+    radius = ParamsEstimation.arena_radius 
+    warnings.warn('Using hardcoded arena size and position (%s, %s)' 
+                  % (center, radius))
+        
+        
     with safe_flydra_db_open(flydra_db_directory) as db:
+#        if True:
+#            samples = db.list_samples_for_group(db_group)
+#            for sample in samples:
+##                for k in db.list_attr(sample):
+##                    print(sample, k, db.get_attr(sample, k))
+#                print(sample, 'arena', db.get_attr(sample, 'arena'))
+
         print('Getting all saccades from group %r.' % db_group)
         saccades = db.get_table_for_group(group=db_group,
                                           table='saccades',
@@ -182,40 +190,11 @@ def get_saccades_for_group(flydra_db_directory, db_group, version):
         for s in saccades:
             check_saccade_is_well_formed(s)
         
-        warnings.warn('Using hardcoded arena size and position (%s, %s)' 
-                      %(arena_center, arena_radius))
         print('Adding position information')
         saccades = add_position_information(saccades,
-          arena_radius=arena_radius, 
-            arena_center=arena_center)  
+                                            arena_radius=radius,
+                                            arena_center=center)  
         
         return saccades
 
-from reprep import Report, MIME_PDF
-import numpy as np
-def report_saccades(confid, saccades):
-    r = Report('%s_saccades' % confid)
-
-    print saccades['position'].shape
-    x = saccades['position'][:,0]
-    y = saccades['position'][:,1]
-
-    with r.plot('histogram', mime=MIME_PDF, figsize=(10,10)) as pylab:
-        pylab.plot(x,y,'.',markersize=0.8)
-        plot_arena(pylab, center=arena_center, radius=1)
-        pylab.plot(arena_center[0],arena_center[1],'r+',markersize=2)
-        pylab.axis('equal')
-        pylab.title('Center: %s' % str(arena_center) )
-    return r
-
-
-def plot_arena(pylab, center, radius):
-    for r in np.linspace(0,radius,10):
-      plot_circle(pylab, center, r, 'b-')      
-    plot_circle(pylab, center, radius, 'k-')      
-
-def plot_circle(pylab, center, radius, *args, **kwargs):
-    theta = np.linspace(0, 2 * np.pi, 200)
-    pylab.plot(radius*np.cos(theta)+center[0], 
-               radius*np.sin(theta)+center[1], *args, **kwargs)
 

@@ -347,7 +347,7 @@ def add_position_information_to_rows(rows, arena_center, arena_radius):
         ('distance_from_wall', 'float64'),
         ('distance_from_center', 'float64'),
         ('axis_angle', 'float64'),
-        ('approach_angle', 'float64'), # degrees 
+        ('approach_angle', 'float64'), # degrees
     ]
 
     info = np.zeros(dtype=info_dtype, shape=(len(rows),))
