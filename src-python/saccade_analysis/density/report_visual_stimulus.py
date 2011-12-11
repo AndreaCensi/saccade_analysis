@@ -54,9 +54,7 @@ def report_visual_stimulus(confid, stats):
         Zpred = np.dot(Y, A) 
         Zpred = Zpred / np.abs(Zpred).max()
         
-        plot_feature_comparison(s, fi, Z, Zpred)
-
-        
+        plot_feature_comparison(s, fi, Z, Zpred) 
 
 
         Zpred_field = cells.zeros()
@@ -95,7 +93,7 @@ def report_visual_stimulus(confid, stats):
                    'Derivative norm reg., alpha=%g' % alpha)
     
     C = deriv2_matrix(num_photo)
-    for alpha in [0.01, 0.1, 10, 1000, 10000, 100000, 1000000]:
+    for alpha in [0.01, 0.1, 10, 1000, 10000, 100000]: #, 1000000]:
         Q = np.dot(Y.T, Y) + alpha * np.dot(C.T, C)
         A_reg = np.linalg.solve(Q, np.dot(Y.T, Z))    
         plot_stats('regc-%g' % alpha, A_reg,

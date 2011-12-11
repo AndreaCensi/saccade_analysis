@@ -1,9 +1,6 @@
 from . import (Report, np, plot_image, plot_arena, XYCells, nonlinearfit,
-    scale_score)
+    plot_kernel, plot_feature_comparison)
 from reprep import MIME_RST
-from reprep.plot_utils import y_axis_balanced, x_axis_set
-from saccade_analysis.density.plot_utils import plot_kernel, \
-    plot_feature_comparison
  
 __all__ = ['report_intuitive']
 

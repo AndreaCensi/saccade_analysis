@@ -1,6 +1,6 @@
 from . import (PlotParams, XYCells, plot_arena, plot_image, scale_score_norm, np,
-    Report)
-from saccade_analysis.density.params_estimation import ParamsEstimation
+    Report, ParamsEstimation)
+from reprep.plot_utils.spines import set_spines_look_A
 
 
 def report_models_choice(confid, stats):
@@ -113,7 +113,7 @@ def report_models_choice(confid, stats):
                **total_format) 
 
     f_rates = r.figure('Event_rates', cols=3)
-    f_arena = r.figure('Arena view', cols=3)
+    f_arena = r.figure('Arena_view', cols=3)
     
 #    max_rate = np.nanmax([np.nanmax(stats['rate_saccade_left2']['mean']),
 #                          np.nanmax(stats['rate_saccade_right2']['mean']),
@@ -257,17 +257,17 @@ assuming that there is a left-right symmetry. """, **phi_colors)
     with r.plot('behavior_rates_both_raw',
                 caption="""Saccade rate as a function of normalized stimulus.""",
                 **figparams) as pylab:
+        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
         pylab.plot(phi.flat, stats['rate_saccade2']['mean'].flat,
                    'k.', label='saccade (left or right)', **raw_params)
-        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
         #pylab.legend()
         
     r.last().add_to(f_stimulus)
     
        
     with r.plot('behavior_rates_both_intervals', **figparams) as pylab:
-        plot_rate_bars(pylab, phi, stats['rate_saccade2'], 'k', **int_params)
         compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
+        plot_rate_bars(pylab, phi, stats['rate_saccade2'], 'k', **int_params)
         
     r.last().add_to(f_stimulus, caption="""
 Same thing, but plotting 95% confidence intervals.
@@ -349,118 +349,119 @@ feature.""", **figparams) as pylab:
                   Direction choice probabilities 
                   (given that we are saccading, are we going left or right?).
                 """, **figparams) as pylab:  
+        compact_feature_xlabel(pylab)
+        pylab.axis((-1, +1, 0, 1))
         pylab.plot(phi.flat, stats['prob_left2']['mean'].flat,
                    '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
         pylab.plot(phi.flat, stats['prob_right2']['mean'].flat,
                    '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
 
         pylab.ylabel('Relative probability')
-        compact_feature_xlabel(pylab)
-        pylab.axis((-1, +1, 0, 1))
         
     r.last().add_to(f_stimulus)
      
     with r.plot('behavior_prob_raw_intervals', caption="""
                 Same thing, but plotting 95% confidence intervals. 
                 """, **figparams) as pylab:
+        pylab.axis((-1, +1, 0, 1))
+        compact_feature_xlabel(pylab)
         plot_rate_bars(pylab, phi, stats['prob_left2'], PlotParams.COL_LEFT, **int_params)
         plot_rate_bars(pylab, phi, stats['prob_right2'], PlotParams.COL_RIGHT, **int_params)
         pylab.ylabel('Relative probability') 
-        pylab.axis((-1, +1, 0, 1))
-        compact_feature_xlabel(pylab)
-    r.last().add_to(f_stimulus)
-    
-    with r.plot('model_manifold', caption="""Model manifold""", **figparams) as pylab:
-        fL = stats['rate_saccade_L_est']['mean']
-        fR = stats['rate_saccade_R_est']['mean']
-        pylab.plot(fL, fR, 'k.', **raw_params)
-        pylab.ylabel('$f_L$')
-        pylab.xlabel('$f_R$') 
-        #pylab.axis((-1, +1, 0, 1))
     r.last().add_to(f_stimulus)
     
     
-    f_misc = r.figure('misc', cols=3)
+    if False:
+        with r.plot('model_manifold', caption="""Model manifold""", **figparams) as pylab:
+            fL = stats['rate_saccade_L_est']['mean']
+            fR = stats['rate_saccade_R_est']['mean']
+            pylab.plot(fL, fR, 'k.', **raw_params)
+            pylab.ylabel('$f_L$')
+            pylab.xlabel('$f_R$') 
+            #pylab.axis((-1, +1, 0, 1))
+        r.last().add_to(f_stimulus)
     
-    phi_threshold = 0.5
-    phi_small = np.abs(phi) <= phi_threshold
-    phi_large = np.abs(phi) >= phi_threshold
-    plot_arena(f_misc, f_misc, 'phi_small', da2xy(phi_small),
-               scale_params={}, colors='posneg',
-               caption=""" |z| <= %g """ % phi_threshold)
-    plot_arena(f_misc, f_misc, 'phi_large', da2xy(phi_large),
-               scale_params={}, colors='posneg',
-               caption=""" |z| >= %g """ % phi_threshold)
-   
-#    rate_threshold = 1.5
-   
-    feature_small_rate_L = stats['rate_saccade_L_est']['mean'] * phi_small
-    feature_small_rate_R = stats['rate_saccade_R_est']['mean'] * phi_small
-    feature_large_rate_L = stats['rate_saccade_L_est']['mean'] * phi_large
-    feature_large_rate_R = stats['rate_saccade_R_est']['mean'] * phi_large
-    
-    plot_arena(f_misc, f_misc, 'phi_small_rate_L', da2xy(feature_small_rate_L),
-               scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=PlotParams.COL_LEFT_RGB),
-               caption="""Left rate (|z| <= %g) """ % phi_threshold)
-    plot_arena(f_misc, f_misc, 'phi_small_rate_R', da2xy(feature_small_rate_R),
-               scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=PlotParams.COL_RIGHT_RGB),
-               caption="""Right rate (|z| <= %g) """ % phi_threshold)
-    plot_arena(f_misc, f_misc, 'phi_large_rate_L', da2xy(feature_large_rate_L),
-               scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=PlotParams.COL_LEFT_RGB),
-               caption="""Left rate (|z| >= %g) """ % phi_threshold)
-    plot_arena(f_misc, f_misc, 'phi_large_rate_R', da2xy(feature_large_rate_R),
-               scale_params=dict(max_value=max_rate, min_value=0,
-                                 max_color=PlotParams.COL_RIGHT_RGB),
-               caption="""Right rate (|z| >= %g) """ % phi_threshold)
-       
-    with r.plot('behavior_rates_est_intervals_small_stimulus',
-                caption="Event rates for small stimulus.",
-                **figparams) as pylab: 
-        pylab.plot(phi.flat, feature_small_rate_L.flat,
-                   '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
-        pylab.plot(phi.flat, feature_small_rate_R.flat,
-                   '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
-        compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
         
-    r.last().add_to(f_misc)
-       
-    with r.plot('stimulus_uncertainty',
-                caption="Errors on the estimate of z.",
-                **figparams) as pylab:
-        plot_rate_bars(pylab, feature['mean'], feature,
-                       PlotParams.COL_BOTH, **int_params) 
-        pylab.ylabel('Uncertainty of feature estimate')
-        compact_feature_xlabel(pylab)
-        pylab.axis((-1, +1, -1, +1))
+        f_misc = r.figure('misc', cols=3)
         
-    r.last().add_to(f_stimulus)
-    
-    
+        phi_threshold = 0.5
+        phi_small = np.abs(phi) <= phi_threshold
+        phi_large = np.abs(phi) >= phi_threshold
+        plot_arena(f_misc, f_misc, 'phi_small', da2xy(phi_small),
+                   scale_params={}, colors='posneg',
+                   caption=""" |z| <= %g """ % phi_threshold)
+        plot_arena(f_misc, f_misc, 'phi_large', da2xy(phi_large),
+                   scale_params={}, colors='posneg',
+                   caption=""" |z| >= %g """ % phi_threshold)
+       
+    #    rate_threshold = 1.5
+       
+        feature_small_rate_L = stats['rate_saccade_L_est']['mean'] * phi_small
+        feature_small_rate_R = stats['rate_saccade_R_est']['mean'] * phi_small
+        feature_large_rate_L = stats['rate_saccade_L_est']['mean'] * phi_large
+        feature_large_rate_R = stats['rate_saccade_R_est']['mean'] * phi_large
+        
+        plot_arena(f_misc, f_misc, 'phi_small_rate_L', da2xy(feature_small_rate_L),
+                   scale_params=dict(max_value=max_rate, min_value=0,
+                                     max_color=PlotParams.COL_LEFT_RGB),
+                   caption="""Left rate (|z| <= %g) """ % phi_threshold)
+        plot_arena(f_misc, f_misc, 'phi_small_rate_R', da2xy(feature_small_rate_R),
+                   scale_params=dict(max_value=max_rate, min_value=0,
+                                     max_color=PlotParams.COL_RIGHT_RGB),
+                   caption="""Right rate (|z| <= %g) """ % phi_threshold)
+        plot_arena(f_misc, f_misc, 'phi_large_rate_L', da2xy(feature_large_rate_L),
+                   scale_params=dict(max_value=max_rate, min_value=0,
+                                     max_color=PlotParams.COL_LEFT_RGB),
+                   caption="""Left rate (|z| >= %g) """ % phi_threshold)
+        plot_arena(f_misc, f_misc, 'phi_large_rate_R', da2xy(feature_large_rate_R),
+                   scale_params=dict(max_value=max_rate, min_value=0,
+                                     max_color=PlotParams.COL_RIGHT_RGB),
+                   caption="""Right rate (|z| >= %g) """ % phi_threshold)
+           
+        with r.plot('behavior_rates_est_intervals_small_stimulus',
+                    caption="Event rates for small stimulus.",
+                    **figparams) as pylab: 
+            pylab.plot(phi.flat, feature_small_rate_L.flat,
+                       '%s.' % PlotParams.COL_LEFT, label='saccade left', **raw_params)
+            pylab.plot(phi.flat, feature_small_rate_R.flat,
+                       '%s.' % PlotParams.COL_RIGHT, label='saccade right', **raw_params)
+            compact_labeling_rates(pylab, PlotParams.TEXT_EVENT_GEN_RATES)
+            
+        r.last().add_to(f_misc)
+           
+        with r.plot('stimulus_uncertainty',
+                    caption="Errors on the estimate of z.",
+                    **figparams) as pylab:
+            plot_rate_bars(pylab, feature['mean'], feature,
+                           PlotParams.COL_BOTH, **int_params) 
+            pylab.ylabel('Uncertainty of feature estimate')
+            compact_feature_xlabel(pylab)
+            pylab.axis((-1, +1, -1, +1))
+            
+        r.last().add_to(f_stimulus)
+        
+        
     return r
 
 def compact_labeling_rates(pylab, ylabel):
+    compact_feature_xlabel(pylab)
     pylab.ylabel(ylabel)
-    
+        
     xt = [0, 1, 2, 3, 4, 5, 6]
     xtt = ["0", "1.0", "2.0", "3.0", "4.0", "5.0", "6.0"]
     pylab.yticks(xt, xtt) 
-    pylab.gca().yaxis.set_ticks_position('right')
-    pylab.gca().yaxis.set_label_coords(0, 0.5)
-    
     pylab.axis((-1, +1, 0, PlotParams.max_rate))
-    compact_feature_xlabel(pylab)
+    #pylab.gca().yaxis.set_ticks_position('right')
+    #pylab.gca().yaxis.set_label_coords(0, 0.5)
     
 def compact_feature_xlabel(pylab):
+    #pylab.gca().xaxis.set_label_coords(0.5, -0.02)    
+    set_spines_look_A(pylab, PlotParams.spines_outward)
     pylab.xlabel(PlotParams.FEATURE_TEXT) 
-    xt = [-1, -0.5, 0, 0.5, +1]
-    xtt = ["-1", "", "", "", "+1"]
-    pylab.xticks(xt, xtt) 
-    pylab.gca().xaxis.set_label_coords(0.5, -0.02)
     
-        
+    xt = [-1, -0.5, 0, 0.5, +1]
+    xtt = ["-1", "-0.5", "0", "+0.5", "+1"]
+    pylab.xticks(xt, xtt) 
 
 def plot_rate_bars(pylab, phi, st, color, elinewidth=1, **kwargs):
     phi = np.array(phi.flat)

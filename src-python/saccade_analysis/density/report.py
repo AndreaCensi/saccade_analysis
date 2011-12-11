@@ -172,12 +172,6 @@ def get_saccades_for_group(flydra_db_directory, db_group, version):
         
         
     with safe_flydra_db_open(flydra_db_directory) as db:
-#        if True:
-#            samples = db.list_samples_for_group(db_group)
-#            for sample in samples:
-##                for k in db.list_attr(sample):
-##                    print(sample, k, db.get_attr(sample, k))
-#                print(sample, 'arena', db.get_attr(sample, 'arena'))
 
         print('Getting all saccades from group %r.' % db_group)
         saccades = db.get_table_for_group(group=db_group,

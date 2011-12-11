@@ -2,6 +2,7 @@
 
 class PlotParams:
     
+    
     max_rate = 6.0
 
     COL_LEFT = 'r'
@@ -27,6 +28,9 @@ class PlotParams:
     #figsize = (2.5, 1.7)
     figsize = (2.2, 1.7)
     
+    figsize_kernel = (1.3, 1)
+    figsize_order = (1, 1)
+    
     
     speed_bounds = dict(min_value=0.2, max_value=0.33)
     cmap_speed = 'jet'
@@ -42,4 +46,6 @@ class PlotParams:
                       'sans-serif':['Arial'],
                        'size': 8.0})
         #rc('text', usetex=True)    
+        
+    spines_outward = 10
     

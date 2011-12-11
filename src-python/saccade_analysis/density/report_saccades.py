@@ -36,5 +36,5 @@ def report_saccades(confid, saccades):
 
 def plot_arena_with_circles(pylab, center, radius, col='b-'):
     for r in np.linspace(0.1, radius, 10):
-        plot_circle(pylab, center, r, 'g-', linewidth=0.7)      
+        plot_circle(pylab, center, r, col, linewidth=0.7)      
     plot_circle(pylab, center, radius, 'k-')      
