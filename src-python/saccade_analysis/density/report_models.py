@@ -10,15 +10,16 @@ def report_models_choice(confid, stats):
 
     cells = stats['cells']
     
-    rate_saccade_left_order = scale_score_norm(stats['rate_saccade_left2']['mean'])
-    rate_saccade_right_order = scale_score_norm(stats['rate_saccade_right2']['mean'])
+    rate_saccade_left_order = scale_score_norm(
+                                    stats['rate_saccade_left2']['mean'])
+    rate_saccade_right_order = scale_score_norm(
+                                    stats['rate_saccade_right2']['mean'])
 
     feature = stats['feature']
     phi = feature['mean']
     phi_var = feature['upper'] - feature['lower']
     
-    ncells = 200 # XXX: repeated
-#    ncells = 50 # XXX: repeated
+    ncells = 200  # XXX: repeated
     xy_cells = XYCells(radius=ParamsEstimation.arena_radius,
                        ncells=ncells, da_cells=cells)
 
@@ -39,14 +40,15 @@ def report_models_choice(confid, stats):
     
     
     num_left_saccades_format = dict(colors='scale',
-                                    scale_params=dict(min_value=0,
-                                                       min_color=[1, 1, 1],
-                                                      max_color=PlotParams.COL_LEFT_RGB),
+                                    scale_params=dict(
+                                            min_value=0,
+                                            min_color=[1, 1, 1],
+                                            max_color=PlotParams.COL_LEFT_RGB),
                                     scale_format='%d')
     num_right_saccades_format = dict(colors='scale',
                                      scale_params=dict(min_value=0,
                                                        min_color=[1, 1, 1],
-                                                       max_color=PlotParams.COL_RIGHT_RGB),
+                                        max_color=PlotParams.COL_RIGHT_RGB),
                                     scale_format='%d')
                                
                                

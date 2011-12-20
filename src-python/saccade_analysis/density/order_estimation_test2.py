@@ -22,6 +22,7 @@ def estimate_bounds_by_simulations(simulate, N):
     '''
     return compute_statistics(compute_samples(simulate, N))
 
+
 @contract(samples='array[KxN]', returns='array[K]')
 def compute_statistics(samples):
     statistics = np.ndarray(samples.shape[0], fit_dtype) 
@@ -32,6 +33,7 @@ def compute_statistics(samples):
         statistics[i]['lower'] = l
     return statistics 
 
+
 @contract(statistics='array[K]', N='N,int,>0', returns='array[K]')
 def estimate_order_by_resimulating(statistics, N):
     ''' 
@@ -41,6 +43,7 @@ def estimate_order_by_resimulating(statistics, N):
     samples = compute_samples(lambda: simulate_distribution(statistics), N) 
     order = compute_order(samples)
     return compute_statistics(order) 
+ 
  
 @contract(samples='array[KxN]', returns='array[KxN]')
 def compute_order(samples):

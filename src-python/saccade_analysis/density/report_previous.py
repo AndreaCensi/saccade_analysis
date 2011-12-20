@@ -1,15 +1,13 @@
 from . import plot_image, Report, np
 from ..markov import binomial_stats
 
+
 def report_stats(confid, stats, saccades_stats):
     r = Report(confid)
     
     cells = stats['cells']
     
     count = stats['count']
-    #mean_speed = stats['mean_speed']
-    #time_spent = stats['time_spent']
-    #probability = stats['probability']
     
     f = r.figure('flight')
     
@@ -18,11 +16,7 @@ def report_stats(confid, stats, saccades_stats):
                caption="Transit probability")
     plot_image(r, f, 'mean_speed', cells, stats['mean_speed'],
                caption="Mean speed (m/s)")
-    
-    #plot_image(r, f, 'mean_speed', distance_edges, axis_angle_edges, mean_speed)
-    #plot_image(r, f, 'time_spent', distance_edges, axis_angle_edges, time_spent)
-    #plot_image(r, f, 'probability', distance_edges, axis_angle_edges, probability)
-    
+        
     f2 = r.figure('saccades', cols=2) 
   
     total = saccades_stats['total']
@@ -32,7 +26,7 @@ def report_stats(confid, stats, saccades_stats):
     prob_right = np.zeros(cells.shape)
     skewed = np.zeros(cells.shape)
     for c in cells.iterate():
-        pl, pr, ml, mr = (#@UnusedVariable
+        pl, pr, ml, _ = (
             binomial_stats(total[c.k], num_left[c.k], num_right[c.k])
             )
         prob_left[c.k] = pl
@@ -71,7 +65,6 @@ def report_stats(confid, stats, saccades_stats):
     prob_sac_left = num_left * 1.0 / T
     prob_sac_right = num_right * 1.0 / T
     
-
     limits = np.percentile(np.array(prob_sac_left.flat), [1, 99])
     min_rate = limits[0]
     max_rate = limits[1]
@@ -91,17 +84,16 @@ def report_stats(confid, stats, saccades_stats):
                scale_params=scale_params,
                caption="Right saccading rate (saccades/s)")
     
-    
     baseline_rate = np.percentile(np.array(prob_sac[-4:, :].flat), 65)
     prob_sac2 = np.array(prob_sac)
-    prob_sac2 [prob_sac < baseline_rate] = np.NaN
+    prob_sac2[prob_sac < baseline_rate] = np.NaN
     
     #print('baseline_rate is %g' % baseline_rate)
 #    plot_image(r, f3, 'prob_sac2',
 #               distance_edges, axis_angle_edges, prob_sac2,
 #               caption="Used to compute baseline saccade rate")
     
-    baseline = np.mean([ np.mean(prob_sac_left[-4:, :]),
+    baseline = np.mean([np.mean(prob_sac_left[-4:, :]),
                         np.mean(prob_sac_right[-4:, :])])
     print('baseline is %g' % baseline)
     
@@ -125,7 +117,6 @@ def report_stats(confid, stats, saccades_stats):
                scale_params=dict(max_value=max_rate - baseline),
                caption='Left saccade rate over baseline')
     
-    
     plot_image(r, f3, 'sac_right_norm',
                cells, sac_right_norm,
                colors='posneg',
@@ -134,7 +125,5 @@ def report_stats(confid, stats, saccades_stats):
     r.text('comment', 'The last three figures display in red '
            'the areas where the fly saccades more than the baseline.')
     
-
-
     return r
    

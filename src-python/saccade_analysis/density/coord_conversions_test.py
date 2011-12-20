@@ -1,9 +1,9 @@
-from . import x_y_from_axisangle_distance, axisangle_distance_from_x_y_theta
+from . import x_y_from_axisangle_distance, axisangle_distance_from_x_y_theta, np
 from numpy.testing.utils import assert_allclose
 import itertools
-import numpy as np
 
 radius = 1.0
+
 
 def xytheta_coords():
     yield 0., 0., 0.
@@ -43,7 +43,8 @@ def test_conversions_2():
             x, y = x_y_from_axisangle_distance(a, d, theta, radius)
             a2, d2 = axisangle_distance_from_x_y_theta(x, y, theta, radius)
             
-            msg = 'a:%g d:%g x:%g y:%g th:%g a2:%g d2:%g' % (a, d, x, y, theta, a2, d2)
+            msg = 'a:%g d:%g x:%g y:%g th:%g a2:%g d2:%g' % (a, d, x,
+                                                             y, theta, a2, d2)
             assert_allclose(d2, d, atol=1e-8, err_msg=msg)
             if d < radius:
                 # singularity

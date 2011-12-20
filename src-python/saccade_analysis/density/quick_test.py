@@ -1,7 +1,9 @@
 from . import np, Report
 
+
 def noise(sigma):
     return np.random.randn() * sigma
+
 
 def threshold(s, T):
     if s >= T:
@@ -10,6 +12,7 @@ def threshold(s, T):
         return -1
     else:
         return 0
+
     
 def model(z, sigma1, T1, sigma2, T2):
     ''' Returns -1,0,1 '''
@@ -20,7 +23,6 @@ def model(z, sigma1, T1, sigma2, T2):
     return int(np.sign(gen))
     
     
-
 def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
     zs = np.linspace(-zmax, +zmax, 100)
     fL = np.zeros(zs.shape)
@@ -37,7 +39,6 @@ def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
 
 
 #    M = np.max((np.max(fL), np.max(fR), np.max(no)))
-    
     with f.plot(name) as pylab:
         pylab.plot(zs, (fR + fL) / K, 'k--')            
         pylab.plot(zs, fL / K, 'r')
@@ -51,6 +52,7 @@ def plot_stats(f, name, sigma1, T1, sigma2, T2, zmax=2, K=200):
         pylab.axis((-0.1, 1.1, -0.1, 1.1))
     
     f.last().add_to(f)
+    
     
 def main():
     r = Report()

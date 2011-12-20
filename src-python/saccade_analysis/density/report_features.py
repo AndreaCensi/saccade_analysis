@@ -4,6 +4,7 @@ from reprep import MIME_RST
  
 __all__ = ['report_intuitive']
 
+
 def report_intuitive(confid, stats):
     cells = stats['cells']  
     visual_stimulus = stats['visual_stimulus']
@@ -17,7 +18,7 @@ def report_intuitive(confid, stats):
     
     models.append({
         'name': 'forward',
-        'kernel':forward,
+        'kernel': forward,
         'desc': 'cos(theta) > 0'
     })
 
@@ -26,7 +27,6 @@ def report_intuitive(confid, stats):
         'kernel': np.cos(directions),
         'desc': 'cos(theta)'
     })
-    
 
     models.append({
         'name': 'cos_forward',
@@ -39,7 +39,6 @@ def report_intuitive(confid, stats):
         'kernel': np.cos(directions) + 0.2,
         'desc': 'cos(theta) + 0.2'
     })
-
     
     for model in models:
         kernel = model['kernel']

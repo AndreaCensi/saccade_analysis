@@ -43,7 +43,6 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
         
         set_spines_look_A(pl, PlotParams.spines_outward)
 
-
         for a, d in itertools.product(range(len(a_edges) - 1),
                                       range(len(d_edges) - 1)):
             a_min = a_edges[a]
@@ -67,7 +66,6 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
         bar_x = 180 + 3 * bar_w
         pl.axis((-180, bar_x + bar_w * 4, 0, nd))
 
-
         def putcolorbar():   
             if colorbar is not None:
                 f = 3
@@ -78,7 +76,6 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
                                        min_value=properties['min_value'],
                                        max_value=properties['max_value'],
                                        scale_format=scale_format)
-    
         
         if True:
             putcolorbar()
@@ -86,7 +83,8 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
            
 #            ex = [180, bar_x + bar_w * 4, 0.4, 0.5]
 #            pl.fill([ex[0], ex[0], ex[1], ex[1]],
-#                        [ex[2], ex[3], ex[3], ex[2]], facecolor='w', edgecolor='none')
+#                        [ex[2], ex[3], ex[3], ex[2]], facecolor='w', 
+#                        edgecolor='none')
         else:
             pl.axis((-180, 180, 0, nd))
             putcolorbar()
@@ -112,28 +110,29 @@ def plot_image(r, fig, nid, cells, field, caption=None, scale_params={},
 #            
 #            pl.sca(ax)
         
-        
         pl.xticks([-180, -135, -90, -45, 0, 45, +90, 135, 180],
-                    add_deg(["-180", "", "-90", "", "0", "", "+90", "", "180"])) 
-        
-        
+                  add_deg(["-180", "", "-90", "", "0",
+                           "", "+90", "", "180"])) 
+                
         # pl.xlabel('axis angle \\ $\\varphi$ (deg)')
         pl.xlabel('axis angle $\\varphi$')
         pl.ylabel('distance from wall $d$ (m)')
         #pl.gca().xaxis.set_label_coords(0.38, -0.02)
         #pl.gca().yaxis.set_label_coords(-0.17, 0.5)
-
         
     if r != fig:
         r.last().add_to(fig)
 
+
 def add_deg(labels):
     m = []
     for a in labels:
-        if len(a) > 1: # "0" -> "0"
+        if len(a) > 1: 
+            # "0" -> "0"
             a = '%s$^\\circ$' % a        
         m.append(a)
     return m
+
 
 def plot_arena(r, fig, nid, xy_field, caption=None, scale_params={},
                colors='scale', scale_format=None):
@@ -171,9 +170,7 @@ def plot_arena(r, fig, nid, xy_field, caption=None, scale_params={},
             pl.box('off')
             pl.xticks([], [])
             pl.yticks([], [])
-    
-            
-      
+                  
         # Plot arena profile
         plot_circle(pl, [0, 0], arena_radius, 'k-')
 
@@ -184,7 +181,7 @@ def plot_arena(r, fig, nid, xy_field, caption=None, scale_params={},
         if colorbar is not None:
             plot_vertical_colorbar(pl, colorbar,
                                    bar_x=1.2, bar_w=0.05,
-                                   bar_y_min= -0.5, bar_y_max=0.5,
+                                   bar_y_min=(-0.5), bar_y_max=0.5,
                                    vdist=0.06,
                                    min_value=properties['min_value'],
                                    max_value=properties['max_value'],
@@ -230,7 +227,6 @@ def plot_vertical_colorbar(pl, colorbar, bar_x, bar_w, bar_y_min, bar_y_max,
 #    pl.fill([ex[0], ex[0], ex[1], ex[1]],
 #            [ex[2], ex[3], ex[3], ex[2]], facecolor='none', edgecolor='k')
 
-
     pl.annotate(label_min, (bar_x, bar_y_min - vdist),
                 horizontalalignment='center', verticalalignment='top')
     pl.annotate(label_max, (bar_x, bar_y_max + vdist),
@@ -259,7 +255,6 @@ def plot_kernel(r, f, name, directions, kernel, caption=None):
         
         pylab.axis([-180, 180, -1, +1])
 
-
         #pylab.xlabel('directions')
         
         #pylab.ylabel('kernel')
@@ -268,7 +263,6 @@ def plot_kernel(r, f, name, directions, kernel, caption=None):
                      add_deg(['-180', '', '0', '', '+180']))
 #                             add_deg(['-180', '-90', '0', '+90', '+180']))
                      
-
         xt = [-1, -0.5, 0, 0.5, +1]
         xtt = ['-1.0', "-0.5", "0", "0.5", '+1.0']
         pylab.yticks(xt, xtt)
@@ -277,6 +271,7 @@ def plot_kernel(r, f, name, directions, kernel, caption=None):
         #pylab.gca().xaxis.set_label_coords(0.5, -0.05)
         
     r.last().add_to(f)
+    
     
 def plot_feature_comparison(r, f, Z, Zpred):
     def normalize(x):
@@ -287,7 +282,6 @@ def plot_feature_comparison(r, f, Z, Zpred):
     Z_order = scale_score_norm(Z) 
     Zpred_order = scale_score_norm(Zpred)
 
-    
     #print Zpred_order[Z_order == 0]
     if Zpred_order[Z_order == 0] > 0.5:
         Zpred = -Zpred  
@@ -307,7 +301,6 @@ def plot_feature_comparison(r, f, Z, Zpred):
         pylab.xticks(cord, l)
         pylab.yticks(cord, l)
 
-
     with r.plot('Z_Z2', figsize=PlotParams.figsize_order,
                 caption='Feature vs predicted feature') as pylab:
         set_spines_look_A(pylab, PlotParams.spines_outward)
@@ -316,11 +309,9 @@ def plot_feature_comparison(r, f, Z, Zpred):
         ticks([-1, -0.5, 0, 0.5, 1])
         
         lab(pylab)
-
         
     r.last().add_to(f)
          
-
     with r.plot('Z_Z2_order', figsize=PlotParams.figsize_order,
         caption="order(feature) vs order(predicted feat.)") as pylab:
         pylab.plot(Z_order, Zpred_order, 'ks', markersize=0.6)

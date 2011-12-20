@@ -3,13 +3,13 @@ from . import (DACells, logger, compute_histogram, compute_histogram_saccades,
     report_visual_stimulus, compute_visual_stimulus, report_intuitive,
     ParamsEstimation, report_saccades, PlotParams, report_traj)
 from ..tammero.tammero_analysis import (add_position_information,
-    add_position_information_to_rows) # XXX: remove
+    add_position_information_to_rows)  # XXX: remove
 from ..utils import (LenientOptionParser, check_no_spurious, check_mandatory,
     wrap_script_entry_point)
 from compmake import use_filesystem, comp, compmake_console
 from flydra_db import safe_flydra_db_open
 from geometric_saccade_detector import (
-    check_saccade_is_well_formed) # TODO: remove
+    check_saccade_is_well_formed)  # TODO: remove
 from reprep import MIME_PDF, RepRepDefaults
 import compmake
 import os
@@ -17,6 +17,7 @@ import warnings
   
   
 description = """  """
+
 
 def report_main(args):
 #    np.seterr(all='raise')
@@ -41,15 +42,13 @@ def report_main(args):
     parser.add_option("--pdf", default=False, action='store_true',
                       help="Uses PDF for the reports (slower).")
     
-    (options, args) = parser.parse_args(args) #@UnusedVariable
+    (options, args) = parser.parse_args(args)  # @UnusedVariable
     
     check_no_spurious(args)
     check_mandatory(options,
                     ['db', 'outdir', 'datadir',
                      'version_rows', 'version_saccades'])
 
-
-    
     if options.pdf:
         logger.info('Using PDF for plots.')
         RepRepDefaults.default_image_format = MIME_PDF
@@ -66,8 +65,6 @@ def report_main(args):
     use_filesystem(compmake_dir)
     logger.info('Storing computation in %r.' % compmake_dir)
       
-    
-    
     arena_radius = ParamsEstimation.arena_radius
     warnings.warn('Using hardcoded arena radius %s.' % arena_radius)
     
@@ -86,7 +83,6 @@ def report_main(args):
     saccades = comp(get_saccades_for_group,
                     options.db, options.group, options.version_saccades)
     saccades_stats = comp(compute_histogram_saccades, saccades, cells)
-    
     
     joint_stats = comp(compute_joint_statistics, stats, saccades_stats)
     joint_stats = comp(compute_visual_stimulus, joint_stats)
@@ -131,7 +127,6 @@ def report_main(args):
         compmake_console()
 
 
-
 def main():
     wrap_script_entry_point(report_main, logger)
     
@@ -144,6 +139,7 @@ def write_report(report, html, rd):
     
     # add_extensive_version_info(report) # TODO
     report.to_html(html, resources_dir=rd)
+
 
 def get_group_density_stats(flydra_db_directory, db_group, version, cells):
     center = ParamsEstimation.arena_center
@@ -164,12 +160,12 @@ def get_group_density_stats(flydra_db_directory, db_group, version, cells):
         stats = compute_histogram(rowsp, cells)
         return stats
 
+
 def get_saccades_for_group(flydra_db_directory, db_group, version):
     center = ParamsEstimation.arena_center
     radius = ParamsEstimation.arena_radius 
     warnings.warn('Using hardcoded arena size and position (%s, %s)' 
                   % (center, radius))
-        
         
     with safe_flydra_db_open(flydra_db_directory) as db:
 

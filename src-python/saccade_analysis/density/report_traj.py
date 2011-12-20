@@ -4,6 +4,7 @@ from . import np
 
 from saccade_analysis.density.report_saccades import plot_arena_with_circles
 
+
 def report_traj_sample(rid, rows):
     r = Report(rid)
 
@@ -17,7 +18,6 @@ def report_traj_sample(rid, rows):
         
         center = [0.18, 0.45]
         plot_arena_with_circles(pl, center, radius=1, col='g-')
-        
         
         pl.axis('equal')
         
@@ -33,7 +33,8 @@ def report_traj(confid, flydra_db_directory, db_group, version):
         
         for i, sample in enumerate(samples):
             print(i, sample)
-            with db.safe_get_table(sample, table='rows', version=version) as rows:
+            with db.safe_get_table(sample, table='rows',
+                                   version=version) as rows:
                 ri = report_traj_sample(sample, np.array(rows[:]))
                 r.add_child(ri) 
              

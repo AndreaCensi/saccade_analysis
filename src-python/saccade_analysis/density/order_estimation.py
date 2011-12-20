@@ -4,8 +4,9 @@ from collections import namedtuple
 from . import np, contract
  
 estimate_stimulus_return = namedtuple('estimate_stimulus_return',
-                                      'L_order R_order order z'
-                                      )
+                                      'L_order R_order order z')
+
+
 @contract(y_L='shape(x)', y_R='shape(x)', returns=estimate_stimulus_return)
 def estimate_stimulus(y_L, y_R):
     ''' 
@@ -36,7 +37,8 @@ def estimate_stimulus(y_L, y_R):
     R_inf = 1.0 / R_var
     
     # Weighted mean 
-    order_mean = (L_inf * L_order['mean'] + R_inf * R_order['mean']) / (L_inf + R_inf)
+    order_mean = ((L_inf * L_order['mean'] + R_inf * R_order['mean']) 
+                  / (L_inf + R_inf))
     
     if False:
         threshold = 0.5

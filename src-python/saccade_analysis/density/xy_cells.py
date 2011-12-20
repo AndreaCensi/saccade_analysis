@@ -1,7 +1,8 @@
 from . import np, contract
 from ..tammero.tammero_analysis import compute_axis_angle
-import itertools
 from numpy.testing.utils import assert_allclose
+import itertools
+
 
 class XYCells(object):
     
@@ -36,10 +37,9 @@ class XYCells(object):
             self.axis_angle_deg[k] = np.degrees(axis_angle)
 
         assert_allclose(interpolate(-radius, +radius, 0, shape[0]),
-                        - interpolate(-radius, +radius, shape[0] - 1, shape[0]))
+                        - interpolate(-radius, +radius,
+                                      shape[0] - 1, shape[0]))
 
-            
-            
         self.create_xy_to_cells(da_cells)
         
     def zeros(self, dtype='float'):

@@ -1,7 +1,7 @@
-from . import ParamsEstimation, np, Report
+from . import ParamsEstimation, np, Report, plot_circle
 from reprep import MIME_PDF
 import warnings
-from . import plot_circle
+
 
 def report_saccades(confid, saccades):
     center = ParamsEstimation.arena_center
@@ -31,7 +31,6 @@ def report_saccades(confid, saccades):
         pylab.ylabel('d')
         
     return r
-
 
 
 def plot_arena_with_circles(pylab, center, radius, col='b-'):

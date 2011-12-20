@@ -33,8 +33,8 @@ def compute_visual_stimulus(stats, num_photoreceptors=180):
                                       theta=pose['theta'], radius=1,
                                       directions=directions)
         
-        v0 = 1 # m/s
-        #v = v0 * np.array([np.cos(theta), np.sin(theta)])
+        # m/s
+        v0 = 1 
         v = v0 * np.array([1, 0])
         normal0 = +np.sin(directions)
         normal1 = -np.cos(directions)
@@ -47,19 +47,20 @@ def compute_visual_stimulus(stats, num_photoreceptors=180):
     stats['visual_stimulus'] = stimulus
     return stats
 
-    
 
 def raytracing(x, y, theta, radius, directions):
     n = directions.size
     readings = np.zeros(n)
     for i in range(n):
         direction = theta + directions[i]
-        rho, coord = intersect_ray_and_circle([0, 0], radius, #@UnusedVariable
-                                              eye=[x, y], eye_orientation=direction)
+        rho, _ = intersect_ray_and_circle([0, 0], radius,
+                                              eye=[x, y],
+                                              eye_orientation=direction)
         readings[i] = rho
     return readings
 
 new_contract('point2', 'seq[2](number)')
+
 
 @contract(center='point2', radius='>0', eye='point2', eye_orientation='float',
           returns='tuple(>0,float)')
@@ -73,16 +74,16 @@ def intersect_ray_and_circle(center, radius, eye, eye_orientation):
     # next follows the algorithm from 
     # http: // mathworld.wolfram.com / Circle - LineIntersection.html    
     
-    x_1 = eye[0];
-    y_1 = eye[1];
-    x_2 = eye[0] + np.cos(eye_orientation);
-    y_2 = eye[1] + np.sin(eye_orientation);
-    D = x_1 * y_2 - x_2 * y_1;
-    d_x = x_2 - x_1;
-    d_y = y_2 - y_1;
-    d_r = np.sqrt(d_x * d_x + d_y * d_y);
+    x_1 = eye[0]
+    y_1 = eye[1]
+    x_2 = eye[0] + np.cos(eye_orientation)
+    y_2 = eye[1] + np.sin(eye_orientation)
+    D = x_1 * y_2 - x_2 * y_1
+    d_x = x_2 - x_1
+    d_y = y_2 - y_1
+    d_r = np.sqrt(d_x * d_x + d_y * d_y)
     
-    delta = radius * radius * d_r * d_r - D * D;
+    delta = radius * radius * d_r * d_r - D * D
     if delta < 0:
         return None
     

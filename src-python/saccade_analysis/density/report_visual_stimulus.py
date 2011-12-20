@@ -1,8 +1,5 @@
-from . import XYCells, plot_image, plot_arena, scale_score, np, Report
-from saccade_analysis.density.plot_utils import plot_kernel, \
-    plot_feature_comparison
-
-
+from . import (plot_kernel, plot_feature_comparison, XYCells, plot_image,
+    plot_arena, scale_score, np, Report)
 
 
 def report_visual_stimulus(confid, stats): 
@@ -194,7 +191,7 @@ def deriv2_matrix(n):
     for i in range(n):
         X[i, (i + 1) % n] = -1
         X[i, (i - 1) % n] = -1
-        
+    
     return X
 
 def plot_field_of_view(pylab, directions, values, bounds=None, marker='-'):

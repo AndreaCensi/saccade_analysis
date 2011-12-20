@@ -5,6 +5,7 @@ from contracts import new_contract
 
 new_contract('angle_pi', 'float,>=-pi,<=pi')
 
+
 @contract(x='float', y='float', theta='angle_pi', radius='>0,x',
           returns='tuple(angle_pi,(>=0,<=x))')
 def axisangle_distance_from_x_y_theta(x, y, theta, radius):

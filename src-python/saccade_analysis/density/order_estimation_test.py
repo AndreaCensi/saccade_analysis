@@ -9,22 +9,29 @@ from saccade_analysis.markov import fit_dtype
 import itertools
 import numpy as np
 
+
 @contract(y_L='array[N]', y_R='array[N]')
 def estimate_stimulus_naive(y_L, y_R):
     L_order = scale_score_norm(y_L)
     R_order = scale_score_norm(y_R)
                
     M = 0.5 * (L_order + 1 - R_order)
-    c = 0.5 # TODO
+    # TODO
+    c = 0.5 
     phi = 2 * (M - c)
     return phi
 
 
 Comp = namedtuple('Comparison', 'gt eq lt desc')
+
+
 def opposite(c1):
     return Comp(c1.lt, c1.eq, c1.gt, '%s (opposite)' % c1.desc)
+
+
 def same(c1, c2):
     return np.allclose(c1[:3], c2[:3])
+
 
 @new_contract
 def valid_comp(c):
@@ -32,6 +39,7 @@ def valid_comp(c):
     assert 0 <= c.eq <= 1
     assert 0 <= c.gt <= 1
     assert_allclose(c.gt + c.eq + c.lt, 1)
+        
         
 @contract(b1='x', u1='>=x', b2='y', u2='>=y', returns='valid_comp')
 def probability_larger(b1, u1, b2, u2):
@@ -46,6 +54,7 @@ def probability_larger(b1, u1, b2, u2):
 #    if b1 == u1: return 1.0 if b2 <= b1 <= u2 else 0.0
 #    if b2 == u2: return 0.0 if b1 <= b2 <= u1 else 1.0
 #    
+
     def res(p1, peq, p2, case):
         assert 0 <= p1 <= 1, p1
         assert 0 <= peq <= 1, peq
@@ -83,7 +92,7 @@ def probability_larger(b1, u1, b2, u2):
         m2 = 0.5 * (b2 + u2) 
         assert L1 > 0
         p = (u1 - m2) / L1
-        return res(p , 0.0, 1 - p, 'y2 in y1')
+        return res(p, 0.0, 1 - p, 'y2 in y1')
     
     # Mixed
     A = L1 * L2
@@ -97,8 +106,8 @@ def probability_larger(b1, u1, b2, u2):
         p = 0.5 * ((u2 - b1) ** 2) / A
         return res(p, 0, 1 - p, " b2 <= b1 <= u2 <= u1")
     
-    
     assert False
+
 
 def probability_larger_test():
     cases = [
@@ -127,7 +136,6 @@ def probability_larger_test():
         desc2 = '%s (*5)' % desc
         cases2.append((p2, res, desc2))
     
-    
     for p, res, desc in cases:
         res2 = opposite(res)
         desc2 = '%s (opposite)' % desc
@@ -140,7 +148,7 @@ def probability_larger_test():
         b1, u1, b2, u2 = p
         if not same(res, expected):
             err_msg = ('y1: [%g,%g] y2: [%g,%g] %s ' % 
-                        (b1, u1, b2, u2 , desc))
+                        (b1, u1, b2, u2, desc))
             err_msg += '\nExpected: %s' % str(expected)
             err_msg += '\nobtained: %s' % str(res)
             raise Exception(err_msg)
@@ -163,8 +171,9 @@ def estimate_order(y):
         b2 = y[j]['lower']
         u2 = y[j]['upper']
         res = probability_larger(b1, u1, b2, u2)
-        P[i, j] = res.gt #+ res.eq 
+        P[i, j] = res.gt 
         assert 0 <= P[i, j] <= 1, res
+        
     # Variance of such binomial probabilities
     Var = P * (1 - P)
     
@@ -182,6 +191,7 @@ def estimate_order(y):
         
         M[i, :] = 0
         M[i, 0] = 1
+        
         def shift(x):
             n = x.size
             assert x[-1] == 0, 'P=%s' % P.tolist()
